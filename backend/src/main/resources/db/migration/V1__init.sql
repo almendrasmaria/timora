@@ -1,0 +1,2 @@
+-- Timora initial schema placeholder.
+-- Domain tables (business, users, appointments, etc.) will be added in subsequent migrations.

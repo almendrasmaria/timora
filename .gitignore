@@ -1,0 +1,38 @@
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Node / Angular
+frontend/node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.sass-cache/
+npm-debug.log*
+yarn-error.log*
+
+# Java / Spring Boot
+backend/target/
+*.class
+*.jar
+*.war
+*.log
+hs_err_pid*
+
+# Docker
+docker-data/

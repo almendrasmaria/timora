@@ -1,0 +1,29 @@
+spring:
+  application:
+    name: timora-api
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5433/timora}
+    username: ${SPRING_DATASOURCE_USERNAME:timora}
+    password: ${SPRING_DATASOURCE_PASSWORD:timora_dev}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: 8080
+
+timora:
+  jwt:
+    secret: ${JWT_SECRET:change-me-in-development}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}

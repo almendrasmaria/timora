@@ -16,7 +16,7 @@ export const routes: Routes = [
       import('./features/dashboard/dashboard.routes').then((m) => m.DASHBOARD_ROUTES),
   },
   {
-    path: 'b/:slug',
+    path: ':slug',
     loadChildren: () =>
       import('./features/public-booking/public-booking.routes').then((m) => m.PUBLIC_BOOKING_ROUTES),
   },

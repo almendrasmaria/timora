@@ -14,7 +14,7 @@ Centraliza la agenda, ofrece una página pública de reservas personalizada y re
 - [ ] Autenticación JWT (registro / login)
 - [ ] CRUD de servicios, profesionales y clientes
 - [ ] Agenda y turnos
-- [ ] Página pública de reservas (`/b/{slug}`)
+- [ ] Página pública de reservas (`/{slug}`)
 - [ ] Recordatorios por email
 
 ## Stack
@@ -92,7 +92,7 @@ npm start
 | `/dashboard` | Panel del negocio |
 | `/auth/login` | Inicio de sesión |
 | `/auth/register` | Registro |
-| `/b/{slug}` | Página pública de reservas |
+| `/{slug}` | Página pública de reservas (ej. `/peluqueria-maria`) |
 
 ## Variables de entorno
 
@@ -124,4 +124,7 @@ cd frontend && npm run build
 
 ## Licencia
 
-Por definir.
+Copyright © 2026 María Almendras. Todos los derechos reservados.
+
+Este proyecto es privado. No está permitido copiar, modificar ni distribuir
+este código sin autorización expresa del autor.

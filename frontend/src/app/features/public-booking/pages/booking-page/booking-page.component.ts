@@ -1,12 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { LogoComponent } from '../../../../shared/ui/logo/logo.component';
 
 @Component({
   selector: 'app-booking-page',
   standalone: true,
+  imports: [LogoComponent],
   template: `
     <div class="booking-page">
       <div class="booking-card">
+        <app-logo size="md" />
         <h1>Reservar turno</h1>
         <p class="subtitle">{{ slug }}</p>
         <p class="placeholder">Página pública de reservas — próximamente</p>
@@ -20,30 +23,38 @@ import { ActivatedRoute } from '@angular/router';
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 1.5rem;
+        padding: var(--space-6);
+        background: var(--color-background);
       }
       .booking-card {
         width: 100%;
-        max-width: 480px;
-        padding: 2rem;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        background: var(--surface);
+        max-width: 28rem;
+        padding: var(--space-10);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+        background: var(--color-surface);
+        box-shadow: var(--shadow-md);
         text-align: center;
       }
+      app-logo {
+        display: inline-flex;
+        margin-bottom: var(--space-6);
+      }
       h1 {
-        margin: 0 0 0.25rem;
-        font-size: 1.5rem;
+        margin: 0 0 var(--space-2);
+        font-size: var(--text-xl);
         font-weight: 600;
+        letter-spacing: -0.02em;
       }
       .subtitle {
-        margin: 0 0 1.5rem;
-        color: var(--text-muted);
-        font-size: 0.875rem;
+        margin: 0 0 var(--space-6);
+        color: var(--color-text-muted);
+        font-size: var(--text-sm);
       }
       .placeholder {
-        color: var(--text-muted);
-        font-size: 0.875rem;
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-size: var(--text-sm);
       }
     `,
   ],

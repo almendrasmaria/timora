@@ -1,0 +1,30 @@
+.logo {
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-family);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  user-select: none;
+
+  &__text {
+    color: var(--color-primary);
+    text-transform: lowercase;
+  }
+
+  &__dot {
+    color: var(--color-primary-light);
+  }
+
+  &--sm {
+    font-size: var(--text-2xl);
+  }
+
+  &--md {
+    font-size: var(--text-3xl);
+  }
+
+  &--lg {
+    font-size: 2.25rem;
+  }
+}

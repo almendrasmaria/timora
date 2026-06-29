@@ -1,0 +1,20 @@
+<div class="field" [class.field--error]="!!error">
+  @if (label) {
+    <label class="field__label">{{ label }}</label>
+  }
+
+  <input
+    class="field__input"
+    [type]="type"
+    [value]="value"
+    [placeholder]="placeholder"
+    [autocomplete]="autocomplete"
+    [disabled]="disabled"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+  />
+
+  @if (error) {
+    <span class="field__error">{{ error }}</span>
+  }
+</div>

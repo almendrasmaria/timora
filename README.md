@@ -2,7 +2,7 @@
 
 Plataforma SaaS de gestión de turnos para negocios que trabajan con reservas: estéticas, médicos, peluquerías, veterinarias, abogados, gimnasios y más.
 
-Centraliza la agenda, ofrece una página pública de reservas personalizada y recordatorios automáticos. Cada negocio cuenta con un dashboard para administrar clientes, servicios, profesionales y horarios.
+Centraliza la agenda, ofrece una página pública de reservas personalizada y recordatorios automáticos por WhatsApp. Cada negocio cuenta con un dashboard para administrar clientes, servicios, profesionales y horarios.
 
 > Proyecto en desarrollo activo. La estructura base está lista; las funcionalidades de negocio se implementan progresivamente.
 
@@ -15,7 +15,7 @@ Centraliza la agenda, ofrece una página pública de reservas personalizada y re
 - [ ] CRUD de servicios, profesionales y clientes
 - [ ] Agenda y turnos
 - [ ] Página pública de reservas (`/{slug}`)
-- [ ] Recordatorios por email
+- [ ] Recordatorios por WhatsApp
 
 ## Stack
 

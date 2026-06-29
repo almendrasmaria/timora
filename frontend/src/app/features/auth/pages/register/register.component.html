@@ -1,0 +1,51 @@
+<app-auth-layout
+  eyebrow="Gratis para empezar"
+  headline="Registrate y empezá a gestionar turnos online"
+  [features]="features"
+  headerActionLabel="Iniciar sesión"
+  headerActionLink="/auth/login"
+>
+  <div class="auth-form-card">
+    <form class="auth-form-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <app-text-field
+        label="Email"
+        type="email"
+        placeholder="tu@email.com"
+        autocomplete="email"
+        formControlName="email"
+        [error]="emailError"
+      />
+
+      <app-text-field
+        label="Contraseña"
+        type="password"
+        placeholder="Mínimo 8 caracteres"
+        autocomplete="new-password"
+        formControlName="password"
+        [error]="passwordError"
+      />
+
+      <app-text-field
+        label="Confirmar contraseña"
+        type="password"
+        placeholder="Repetí tu contraseña"
+        autocomplete="new-password"
+        formControlName="confirmPassword"
+        [error]="confirmPasswordError"
+      />
+
+      <app-button type="submit" variant="primary" [fullWidth]="true">
+        Continuar
+      </app-button>
+    </form>
+
+    <p class="auth-form-card__legal">
+      Al crear una cuenta, aceptás los términos y condiciones y la política de privacidad.
+    </p>
+
+    <div class="auth-form-card__footer">
+      <p>¿Ya tenés una cuenta?</p>
+      <a routerLink="/auth/login" class="auth-form-card__footer-link">Iniciar sesión</a>
+    </div>
+  </div>
+</app-auth-layout>

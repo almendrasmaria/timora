@@ -1,0 +1,39 @@
+<app-auth-layout
+  headline="Bienvenido de nuevo"
+  [features]="features"
+  headerActionLabel="Crear cuenta"
+  headerActionLink="/auth/register"
+>
+  <div class="auth-form-card">
+    <h2 class="auth-form-card__title">Ingresá a tu cuenta</h2>
+
+    <form class="auth-form-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      <app-text-field
+        label="Email"
+        type="email"
+        placeholder="tu@email.com"
+        autocomplete="email"
+        formControlName="email"
+        [error]="emailError"
+      />
+
+      <app-text-field
+        label="Contraseña"
+        type="password"
+        placeholder="Tu contraseña"
+        autocomplete="current-password"
+        formControlName="password"
+        [error]="passwordError"
+      />
+
+      <app-button type="submit" variant="primary" [fullWidth]="true">
+        Iniciar sesión
+      </app-button>
+    </form>
+
+    <div class="auth-form-card__footer">
+      <p>¿No tenés cuenta?</p>
+      <a routerLink="/auth/register" class="auth-form-card__footer-link">Crear cuenta gratis</a>
+    </div>
+  </div>
+</app-auth-layout>

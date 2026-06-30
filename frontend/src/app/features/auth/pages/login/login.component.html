@@ -8,6 +8,10 @@
     <h2 class="auth-form-card__title">Ingresá a tu cuenta</h2>
 
     <form class="auth-form-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (apiError) {
+        <p class="auth-form-card__api-error" role="alert">{{ apiError }}</p>
+      }
+
       <app-text-field
         label="Email"
         type="email"
@@ -26,8 +30,8 @@
         [error]="passwordError"
       />
 
-      <app-button type="submit" variant="primary" [fullWidth]="true">
-        Iniciar sesión
+      <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+        {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}
       </app-button>
     </form>
 

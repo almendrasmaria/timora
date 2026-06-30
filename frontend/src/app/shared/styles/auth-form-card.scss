@@ -21,6 +21,16 @@
     gap: var(--space-5);
   }
 
+  &__api-error {
+    margin: 0;
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: rgba(225, 29, 72, 0.08);
+    color: var(--color-error);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
   &__legal {
     margin: var(--space-5) 0 0;
     font-size: var(--text-xs);

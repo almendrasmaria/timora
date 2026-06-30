@@ -1,6 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { finalize } from 'rxjs';
+import { parseApiError } from '../../../../core/auth/api-error';
+import { AuthService } from '../../../../core/auth/auth.service';
 import { AuthLayoutComponent } from '../../../../shared/layout/auth-layout/auth-layout.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
@@ -20,6 +23,8 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
 })
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
+  private readonly auth = inject(AuthService);
+  private readonly router = inject(Router);
 
   readonly features = [
     'Agenda centralizada para tu negocio',
@@ -43,6 +48,8 @@ export class RegisterComponent {
   );
 
   submitted = false;
+  loading = false;
+  apiError = '';
 
   get emailError(): string {
     const control = this.form.controls.email;
@@ -70,8 +77,26 @@ export class RegisterComponent {
 
   onSubmit(): void {
     this.submitted = true;
+    this.apiError = '';
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
     }
+
+    const { email, password } = this.form.getRawValue();
+    this.loading = true;
+
+    this.auth
+      .register({ email, password })
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: () => {
+          void this.router.navigate(['/dashboard']);
+        },
+        error: (error) => {
+          this.apiError = parseApiError(error);
+        },
+      });
   }
 }

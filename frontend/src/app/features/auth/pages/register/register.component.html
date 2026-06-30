@@ -7,6 +7,10 @@
 >
   <div class="auth-form-card">
     <form class="auth-form-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (apiError) {
+        <p class="auth-form-card__api-error" role="alert">{{ apiError }}</p>
+      }
+
       <app-text-field
         label="Email"
         type="email"
@@ -34,8 +38,8 @@
         [error]="confirmPasswordError"
       />
 
-      <app-button type="submit" variant="primary" [fullWidth]="true">
-        Continuar
+      <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+        {{ loading ? 'Creando cuenta...' : 'Continuar' }}
       </app-button>
     </form>
 

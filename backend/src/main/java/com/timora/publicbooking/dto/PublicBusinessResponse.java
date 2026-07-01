@@ -9,6 +9,7 @@ public record PublicBusinessResponse(
         String slug,
         String brandColor,
         List<PublicServiceResponse> services,
+        List<PublicProfessionalResponse> professionals,
         List<PaymentMethodType> paymentMethods
 ) {
 }

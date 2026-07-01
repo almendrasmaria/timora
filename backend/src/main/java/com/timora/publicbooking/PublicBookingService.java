@@ -3,8 +3,10 @@ package com.timora.publicbooking;
 import com.timora.business.Business;
 import com.timora.business.BusinessRepository;
 import com.timora.business.PaymentMethodRepository;
+import com.timora.business.ProfessionalRepository;
 import com.timora.business.ServiceOfferingRepository;
 import com.timora.publicbooking.dto.PublicBusinessResponse;
+import com.timora.publicbooking.dto.PublicProfessionalResponse;
 import com.timora.publicbooking.dto.PublicServiceResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -16,15 +18,18 @@ public class PublicBookingService {
 
     private final BusinessRepository businessRepository;
     private final ServiceOfferingRepository serviceOfferingRepository;
+    private final ProfessionalRepository professionalRepository;
     private final PaymentMethodRepository paymentMethodRepository;
 
     public PublicBookingService(
             BusinessRepository businessRepository,
             ServiceOfferingRepository serviceOfferingRepository,
+            ProfessionalRepository professionalRepository,
             PaymentMethodRepository paymentMethodRepository
     ) {
         this.businessRepository = businessRepository;
         this.serviceOfferingRepository = serviceOfferingRepository;
+        this.professionalRepository = professionalRepository;
         this.paymentMethodRepository = paymentMethodRepository;
     }
 
@@ -48,6 +53,13 @@ public class PublicBookingService {
                         service.getDepositAmount()))
                 .toList();
 
+        var professionals = professionalRepository.findByBusinessIdOrderByIdAsc(businessId).stream()
+                .map(professional -> new PublicProfessionalResponse(
+                        professional.getId(),
+                        formatProfessionalName(professional.getFirstName(), professional.getLastName()),
+                        professional.getAvailabilityJson()))
+                .toList();
+
         var paymentMethods = paymentMethodRepository.findByBusinessIdOrderByIdAsc(businessId).stream()
                 .map(method -> method.getType())
                 .toList();
@@ -57,7 +69,23 @@ public class PublicBookingService {
                 business.getSlug(),
                 business.getBrandColor(),
                 services,
+                professionals,
                 paymentMethods
         );
+    }
+
+    private String formatProfessionalName(String firstName, String lastName) {
+        String first = firstName == null ? "" : firstName.trim();
+        String last = lastName == null ? "" : lastName.trim();
+
+        if (first.isEmpty()) {
+            return last;
+        }
+
+        if (last.isEmpty() || first.equalsIgnoreCase(last)) {
+            return first;
+        }
+
+        return first + " " + last;
     }
 }

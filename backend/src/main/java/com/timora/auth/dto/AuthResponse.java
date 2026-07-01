@@ -5,9 +5,26 @@ public record AuthResponse(
         String tokenType,
         String email,
         Long businessId,
-        String businessSlug
+        String businessSlug,
+        boolean onboardingCompleted,
+        int onboardingStep
 ) {
-    public static AuthResponse of(String accessToken, String email, Long businessId, String businessSlug) {
-        return new AuthResponse(accessToken, "Bearer", email, businessId, businessSlug);
+    public static AuthResponse of(
+            String accessToken,
+            String email,
+            Long businessId,
+            String businessSlug,
+            boolean onboardingCompleted,
+            int onboardingStep
+    ) {
+        return new AuthResponse(
+                accessToken,
+                "Bearer",
+                email,
+                businessId,
+                businessSlug,
+                onboardingCompleted,
+                onboardingStep
+        );
     }
 }

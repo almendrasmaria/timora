@@ -5,7 +5,7 @@ import com.timora.auth.dto.LoginRequest;
 import com.timora.auth.dto.RegisterRequest;
 import com.timora.business.Business;
 import com.timora.business.BusinessRepository;
-import com.timora.common.SlugUtils;
+import java.util.UUID;
 import com.timora.user.AppUser;
 import com.timora.user.AppUserRepository;
 import com.timora.user.UserRole;
@@ -44,8 +44,8 @@ public class AuthService {
         }
 
         Business business = new Business();
-        business.setName(defaultBusinessName(email));
-        business.setSlug(generateUniqueSlug(email));
+        business.setName("Mi negocio");
+        business.setSlug("tmp-" + UUID.randomUUID().toString().substring(0, 8));
         businessRepository.save(business);
 
         AppUser user = new AppUser();
@@ -75,17 +75,13 @@ public class AuthService {
     private AuthResponse buildAuthResponse(AppUser user) {
         String token = jwtService.generateToken(user);
         Business business = user.getBusiness();
-        return AuthResponse.of(token, user.getEmail(), business.getId(), business.getSlug());
-    }
-
-    private String defaultBusinessName(String email) {
-        String localPart = email.substring(0, email.indexOf('@'));
-        return localPart.isBlank() ? "Mi negocio" : localPart;
-    }
-
-    private String generateUniqueSlug(String email) {
-        String localPart = email.substring(0, email.indexOf('@'));
-        String base = SlugUtils.slugify(localPart);
-        return SlugUtils.uniqueSlug(base, businessRepository::existsBySlug);
+        return AuthResponse.of(
+                token,
+                user.getEmail(),
+                business.getId(),
+                business.getSlug(),
+                business.isOnboardingCompleted(),
+                business.getOnboardingStep()
+        );
     }
 }

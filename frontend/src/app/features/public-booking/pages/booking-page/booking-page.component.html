@@ -1,0 +1,187 @@
+<div class="booking" [style.--booking-accent]="accentColor">
+  @if (loading) {
+    <div class="booking__state">
+      <p class="booking__state-text">Cargando...</p>
+    </div>
+  } @else if (notFound || !business) {
+    <div class="booking__state">
+      <h1 class="booking__state-title">Página no encontrada</h1>
+      <p class="booking__state-text">Este link de reservas no existe o todavía no está publicado.</p>
+      <a routerLink="/auth/login" class="booking__state-link">Ir a Timora</a>
+    </div>
+  } @else {
+    <div class="booking__layout">
+      <header class="booking__hero">
+        <div class="booking__hero-glow" aria-hidden="true"></div>
+        <div class="booking__hero-inner">
+          <span class="booking__avatar booking__avatar--hero" aria-hidden="true">{{ businessInitial }}</span>
+          <h1 class="booking__business-name booking__business-name--hero">{{ business.name }}</h1>
+          <p class="booking__tagline booking__tagline--hero">Reservá tu turno online</p>
+
+          <div class="booking__progress" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" aria-valuemax="3">
+            <div class="booking__progress-track">
+              <div class="booking__progress-fill" [style.width.%]="progressPercent"></div>
+            </div>
+            <p class="booking__progress-label">
+              Paso {{ currentStep() }} de 3 · <strong>{{ currentStepLabel }}</strong>
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <aside class="booking__aside">
+        <div class="booking__aside-glow" aria-hidden="true"></div>
+        <div class="booking__aside-inner">
+          <div class="booking__brand booking__brand--aside">
+            <span class="booking__avatar booking__avatar--aside" aria-hidden="true">{{ businessInitial }}</span>
+            <h1 class="booking__business-name booking__business-name--aside">{{ business.name }}</h1>
+            <p class="booking__tagline booking__tagline--aside">Reservá tu turno online</p>
+          </div>
+
+          <div
+            class="booking__progress booking__progress--aside"
+            role="progressbar"
+            [attr.aria-valuenow]="currentStep()"
+            aria-valuemin="1"
+            aria-valuemax="3"
+          >
+            <div class="booking__progress-track">
+              <div class="booking__progress-fill" [style.width.%]="progressPercent"></div>
+            </div>
+            <p class="booking__progress-label">
+              Paso {{ currentStep() }} de 3 · <strong>{{ currentStepLabel }}</strong>
+            </p>
+          </div>
+
+          <ol class="booking__steps">
+            @for (item of steps; track item.step) {
+              <li
+                class="booking__step"
+                [class.is-active]="stepState(item.step) === 'active'"
+                [class.is-done]="stepState(item.step) === 'done'"
+              >
+                <span class="booking__step-index">{{ item.step }}</span>
+                <span class="booking__step-label">{{ item.label }}</span>
+              </li>
+            }
+          </ol>
+
+          <p class="booking__powered">
+            Reservas con
+            <a routerLink="/auth/login" class="booking__powered-link">timora.</a>
+          </p>
+        </div>
+      </aside>
+
+      <main class="booking__main">
+        <div class="booking__sheet">
+          @switch (currentStep()) {
+            @case (1) {
+              <header class="booking__panel-head">
+                <h2 class="booking__panel-title">Elegí un servicio</h2>
+                <p class="booking__panel-subtitle">
+                  Seleccioná el tratamiento o servicio que querés reservar.
+                </p>
+              </header>
+
+              @if (business.services.length === 0) {
+                <div class="booking__empty">
+                  <p class="booking__empty-title">Todavía no hay servicios publicados</p>
+                  <p class="booking__empty-text">Volvé a intentar más tarde.</p>
+                </div>
+              } @else {
+                <div class="booking__service-list">
+                  @for (service of business.services; track service.id) {
+                    <button
+                      type="button"
+                      class="booking__service-card"
+                      [class.is-selected]="isSelected(service.id)"
+                      (click)="selectService(service.id)"
+                    >
+                      <div class="booking__service-copy">
+                        <span class="booking__service-name">{{ service.name }}</span>
+                        <span class="booking__service-meta">{{ serviceMeta(service) }}</span>
+                        <span class="booking__service-payment">{{ servicePaymentLabel(service) }}</span>
+                      </div>
+                      <span class="booking__service-check" aria-hidden="true">
+                        @if (isSelected(service.id)) {
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                            <path d="m5 12.5 4 4 9.5-9.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                          </svg>
+                        }
+                      </span>
+                    </button>
+                  }
+                </div>
+              }
+            }
+
+            @case (2) {
+              <header class="booking__panel-head">
+                <h2 class="booking__panel-title">Elegí fecha y horario</h2>
+                @if (selectedService) {
+                  <p class="booking__panel-subtitle booking__panel-subtitle--chip">
+                    {{ selectedService.name }} · {{ serviceMeta(selectedService) }}
+                  </p>
+                }
+              </header>
+
+              <div class="booking__coming-soon">
+                <span class="booking__coming-soon-icon" aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                    <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
+                    <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                  </svg>
+                </span>
+                <p class="booking__coming-soon-title">Agenda disponible pronto</p>
+                <p class="booking__coming-soon-text">
+                  Estamos terminando la reserva online con fecha y hora. Por ahora podés elegir el servicio.
+                </p>
+              </div>
+            }
+
+            @case (3) {
+              <header class="booking__panel-head">
+                <h2 class="booking__panel-title">Confirmá tu reserva</h2>
+                <p class="booking__panel-subtitle">Último paso antes de agendar.</p>
+              </header>
+
+              <div class="booking__coming-soon">
+                <p class="booking__coming-soon-title">Confirmación en camino</p>
+                <p class="booking__coming-soon-text">Pronto vas a poder completar tu reserva desde acá.</p>
+              </div>
+            }
+          }
+        </div>
+
+        @if (showActions) {
+          <footer class="booking__actions" [class.booking__actions--split]="currentStep() > 1">
+            @if (currentStep() > 1) {
+              <button type="button" class="booking__back" (click)="goToStep(backStep)">Volver</button>
+            }
+
+            @if (currentStep() === 1 && business.services.length > 0) {
+              <button
+                type="button"
+                class="booking__continue"
+                [disabled]="!selectedServiceId()"
+                (click)="continueFromServices()"
+              >
+                Continuar
+              </button>
+            }
+
+            @if (currentStep() === 2) {
+              <button type="button" class="booking__continue" disabled>Continuar</button>
+            }
+          </footer>
+        }
+
+        <p class="booking__powered booking__powered--mobile">
+          Reservas con
+          <a routerLink="/auth/login" class="booking__powered-link">timora.</a>
+        </p>
+      </main>
+    </div>
+  }
+</div>

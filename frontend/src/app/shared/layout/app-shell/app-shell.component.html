@@ -1,16 +1,86 @@
-<div class="shell">
-  <aside class="sidebar">
-    <a routerLink="/dashboard" class="sidebar__logo">
-      <app-logo size="md" />
-    </a>
-    <nav>
-      <a class="nav-item active">Dashboard</a>
-      <a class="nav-item">Turnos</a>
-      <a class="nav-item">Clientes</a>
-      <a class="nav-item">Servicios</a>
-    </nav>
-  </aside>
-  <main class="main">
-    <ng-content />
+<div class="shell" [class.shell--menu-open]="mobileMenuOpen()">
+  <header class="shell__header">
+    <div class="shell__container">
+      <div class="shell__bar">
+      <a routerLink="/dashboard/inicio" class="shell__logo" (click)="closeMobileMenu()">
+        <app-logo size="md" />
+      </a>
+
+      <nav class="shell__nav" aria-label="Navegación principal">
+        @for (item of nav; track item.path) {
+          <a
+            class="shell__nav-link"
+            [routerLink]="['/dashboard', item.path]"
+            routerLinkActive="is-active"
+            [routerLinkActiveOptions]="{ exact: item.path === 'inicio' }"
+          >
+            {{ item.label }}
+          </a>
+        }
+      </nav>
+
+      <div class="shell__actions">
+        <div class="shell__user" title="{{ businessName }}">
+          <span class="shell__avatar" aria-hidden="true">{{ businessInitial }}</span>
+          <span class="shell__user-name">{{ businessName || 'Mi negocio' }}</span>
+        </div>
+
+        <button type="button" class="shell__logout" (click)="logout()">Salir</button>
+
+        <button
+          type="button"
+          class="shell__menu-toggle"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="dashboard-mobile-menu"
+          [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menú' : 'Abrir menú'"
+        >
+          <span class="shell__menu-toggle-bar"></span>
+          <span class="shell__menu-toggle-bar"></span>
+          <span class="shell__menu-toggle-bar"></span>
+        </button>
+      </div>
+      </div>
+
+    @if (mobileMenuOpen()) {
+      <div id="dashboard-mobile-menu" class="shell__mobile-menu">
+        <nav class="shell__mobile-nav" aria-label="Menú móvil">
+          @for (item of nav; track item.path) {
+            <a
+              class="shell__mobile-nav-link"
+              [routerLink]="['/dashboard', item.path]"
+              routerLinkActive="is-active"
+              [routerLinkActiveOptions]="{ exact: item.path === 'inicio' }"
+              (click)="closeMobileMenu()"
+            >
+              {{ item.label }}
+            </a>
+          }
+        </nav>
+
+        <div class="shell__mobile-footer">
+          @if (bookingSlug) {
+            <p class="shell__mobile-slug">{{ bookingSlug }}</p>
+          }
+          <button type="button" class="shell__mobile-logout" (click)="logout()">Cerrar sesión</button>
+        </div>
+      </div>
+    }
+    </div>
+  </header>
+
+  @if (mobileMenuOpen()) {
+    <button
+      type="button"
+      class="shell__backdrop"
+      (click)="closeMobileMenu()"
+      aria-label="Cerrar menú"
+    ></button>
+  }
+
+  <main class="shell__main">
+    <div class="shell__container">
+      <router-outlet />
+    </div>
   </main>
 </div>

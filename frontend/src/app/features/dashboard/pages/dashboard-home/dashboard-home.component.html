@@ -23,45 +23,41 @@
 
   <div class="home__stats">
     <article class="home__stat-card">
-      <div class="home__stat-content">
-        <div class="home__stat-head">
-          <span class="home__stat-name">Turnos</span>
-          <div class="home__period-wrap">
-            <select
-              class="home__period-select"
-              [value]="statsPeriod()"
-              (change)="onPeriodChange($event)"
-              aria-label="Período de turnos"
-            >
-              @for (option of periodOptions; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
-          </div>
+      <div class="home__stat-head">
+        <span class="home__stat-name">Turnos</span>
+        <div class="home__period-wrap">
+          <select
+            class="home__period-select"
+            [value]="statsPeriod()"
+            (change)="onPeriodChange($event)"
+            aria-label="Período de turnos"
+          >
+            @for (option of periodOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
         </div>
-        <p class="home__stat-value">{{ appointmentsCount() }}</p>
       </div>
+      <p class="home__stat-value">{{ appointmentsCount() }}</p>
     </article>
 
     <article class="home__stat-card">
-      <div class="home__stat-content">
-        <div class="home__stat-head">
-          <span class="home__stat-name">Ingresos</span>
-          <div class="home__period-wrap">
-            <select
-              class="home__period-select"
-              [value]="statsPeriod()"
-              (change)="onPeriodChange($event)"
-              aria-label="Período de ingresos"
-            >
-              @for (option of periodOptions; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
-          </div>
+      <div class="home__stat-head">
+        <span class="home__stat-name">Ingresos</span>
+        <div class="home__period-wrap">
+          <select
+            class="home__period-select"
+            [value]="statsPeriod()"
+            (change)="onPeriodChange($event)"
+            aria-label="Período de ingresos"
+          >
+            @for (option of periodOptions; track option.value) {
+              <option [value]="option.value">{{ option.label }}</option>
+            }
+          </select>
         </div>
-        <p class="home__stat-value">${{ incomeCount() }}</p>
       </div>
+      <p class="home__stat-value">${{ incomeCount() }}</p>
     </article>
   </div>
 
@@ -101,7 +97,7 @@
     @if (agendaView() === 'list') {
       <div class="home__agenda-empty">
         <span class="home__agenda-empty-icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
             <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
             <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
           </svg>

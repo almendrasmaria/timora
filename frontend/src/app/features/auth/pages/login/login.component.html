@@ -8,6 +8,10 @@
     <h2 class="auth-form-card__title">Ingresá a tu cuenta</h2>
 
     <form class="auth-form-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+      @if (sessionExpiredMessage) {
+        <p class="auth-form-card__api-error" role="alert">{{ sessionExpiredMessage }}</p>
+      }
+
       @if (apiError) {
         <p class="auth-form-card__api-error" role="alert">{{ apiError }}</p>
       }

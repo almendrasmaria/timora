@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { parseApiError } from '../../../../core/auth/api-error';
 import { AuthService } from '../../../../core/auth/auth.service';
@@ -21,10 +21,11 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
   templateUrl: './login.component.html',
   styleUrls: ['../../../../shared/styles/auth-form-card.scss'],
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly features = [
     'Gestioná turnos desde un solo lugar',
@@ -40,6 +41,13 @@ export class LoginComponent {
   submitted = false;
   loading = false;
   apiError = '';
+  sessionExpiredMessage = '';
+
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('sessionExpired') === '1') {
+      this.sessionExpiredMessage = 'Tu sesión expiró. Volvé a iniciar sesión.';
+    }
+  }
 
   get emailError(): string {
     const control = this.form.controls.email;

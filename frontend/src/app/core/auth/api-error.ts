@@ -9,6 +9,10 @@ export function parseApiError(error: unknown): string {
     return 'No pudimos conectar con el servidor';
   }
 
+  if (error.status === 401 || error.status === 403) {
+    return 'Tu sesión expiró. Volvé a iniciar sesión.';
+  }
+
   const detail = error.error?.detail;
   if (typeof detail === 'string' && detail.length > 0) {
     return detail;

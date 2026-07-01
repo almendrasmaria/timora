@@ -1,0 +1,24 @@
+<div class="field" [class.field--error]="!!error">
+  @if (label) {
+    <label class="field__label">{{ label }}</label>
+  }
+
+  <div class="field__select-wrap">
+    <select
+      class="field__select"
+      [value]="value"
+      [disabled]="disabled"
+      (change)="onSelect($event)"
+      (blur)="onBlur()"
+    >
+      <option value="" disabled>{{ placeholder }}</option>
+      @for (option of options; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
+  @if (error) {
+    <span class="field__error">{{ error }}</span>
+  }
+</div>

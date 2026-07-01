@@ -1,0 +1,64 @@
+<div class="onboarding-card">
+  <div class="onboarding-card__progress">
+    <div class="onboarding-card__progress-bar">
+      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+        <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
+      }
+    </div>
+    <div class="onboarding-card__progress-meta">
+      <span>Tu negocio</span>
+      <span>Paso {{ currentStep }} de 7</span>
+    </div>
+  </div>
+
+  <h1 class="onboarding-card__title">Tu negocio</h1>
+  <p class="onboarding-card__subtitle">Nombre y rubro de tu negocio. Te llevará sólo 2 minutos!</p>
+
+  <form class="onboarding-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+    @if (apiError) {
+      <p class="onboarding-card__api-error" role="alert">{{ apiError }}</p>
+    }
+
+    <app-text-field
+      label="Nombre del negocio"
+      placeholder="Ej. Estética Luna"
+      formControlName="name"
+      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Ingresá el nombre de tu negocio' : ''"
+    />
+
+    <div class="onboarding-card__field">
+      <p class="onboarding-card__field-label">Rubro del negocio</p>
+      <div class="onboarding-card__segmented">
+        @for (category of categories; track category.value) {
+          <button
+            type="button"
+            class="onboarding-card__segment"
+            [class.is-selected]="form.controls.category.value === category.value"
+            (click)="selectCategory(category.value)"
+          >
+            {{ category.label }}
+          </button>
+        }
+      </div>
+      @if (form.controls.category.touched && form.controls.category.invalid) {
+        <span class="onboarding-card__field-error">Elegí un rubro</span>
+      }
+    </div>
+
+    @if (showSpecialty) {
+      <app-select-field
+        label="Especialidad"
+        formControlName="specialty"
+        [options]="specialtyOptions"
+        [error]="form.controls.specialty.touched && form.controls.specialty.invalid ? 'Elegí una especialidad' : ''"
+      />
+    }
+
+    <div class="onboarding-card__footer">
+      <span></span>
+      <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+        {{ loading ? 'Guardando...' : 'Continuar' }}
+      </app-button>
+    </div>
+  </form>
+</div>

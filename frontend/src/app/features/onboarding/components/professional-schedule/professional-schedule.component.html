@@ -1,0 +1,46 @@
+<section class="schedule">
+  <div class="schedule__head">
+    <div class="schedule__head-copy">
+      <h3 class="schedule__title">Días y horarios</h3>
+      <p class="schedule__subtitle">Definí el horario de cada día.</p>
+    </div>
+    <button type="button" class="schedule__apply-all" (click)="applyFromFirstOpenDay()">
+      Aplicar a todos
+    </button>
+  </div>
+
+  <ul class="schedule__list">
+    @for (day of days; track day.key) {
+      <li class="schedule__row" [class.is-open]="availability[day.key].enabled">
+        <label class="schedule__toggle">
+          <input
+            type="checkbox"
+            [checked]="availability[day.key].enabled"
+            (change)="toggleDay(day.key, $any($event.target).checked)"
+          />
+          <span class="schedule__day-name">{{ day.label }}</span>
+        </label>
+
+        @if (availability[day.key].enabled) {
+          <div class="schedule__times">
+            <input
+              type="time"
+              class="schedule__time"
+              [value]="availability[day.key].blocks[0].start"
+              (change)="updateTime(day.key, 'start', $any($event.target).value)"
+            />
+            <span class="schedule__time-sep" aria-hidden="true">—</span>
+            <input
+              type="time"
+              class="schedule__time"
+              [value]="availability[day.key].blocks[0].end"
+              (change)="updateTime(day.key, 'end', $any($event.target).value)"
+            />
+          </div>
+        } @else {
+          <span class="schedule__closed">Cerrado</span>
+        }
+      </li>
+    }
+  </ul>
+</section>

@@ -1,0 +1,60 @@
+<div class="onboarding-card">
+  <div class="onboarding-card__progress">
+    <div class="onboarding-card__progress-bar">
+      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+        <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
+      }
+    </div>
+    <div class="onboarding-card__progress-meta">
+      <span>Sucursales</span>
+      <span>Paso {{ currentStep }} de 7</span>
+    </div>
+  </div>
+
+  <h1 class="onboarding-card__title">Sucursales</h1>
+  <p class="onboarding-card__subtitle">Dónde te van a visitar tus clientes.</p>
+
+  @if (branches.length) {
+    <div class="onboarding-card__list">
+      @for (branch of branches; track branch.id) {
+        <div class="onboarding-card__list-item">
+          <div class="onboarding-card__list-copy">
+            <span class="onboarding-card__list-title">{{ branch.address }}</span>
+          </div>
+          <button type="button" class="onboarding-card__remove" (click)="removeBranch(branch.id)">
+            Quitar
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <form class="onboarding-card__form onboarding-card__add-form" [formGroup]="form" (ngSubmit)="addBranch()">
+    <p class="onboarding-card__section-title">Nueva sucursal</p>
+    <app-text-field
+      label="Dirección"
+      placeholder="Buscá calle, número, ciudad..."
+      hint="Empezá a escribir y elegí una sugerencia de la lista."
+      formControlName="address"
+      [error]="form.controls.address.touched && form.controls.address.invalid ? 'Ingresá una dirección' : ''"
+    />
+    <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+      + Agregar sucursal
+    </app-button>
+  </form>
+
+  @if (validationError) {
+    <p class="onboarding-card__validation-alert" role="alert">{{ validationError }}</p>
+  }
+
+  @if (apiError) {
+    <p class="onboarding-card__validation-alert" role="alert">{{ apiError }}</p>
+  }
+
+  <div class="onboarding-card__footer">
+    <a class="onboarding-card__back" [routerLink]="['/onboarding', 'marca']">Atrás</a>
+    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="continue()">
+      Continuar
+    </app-button>
+  </div>
+</div>

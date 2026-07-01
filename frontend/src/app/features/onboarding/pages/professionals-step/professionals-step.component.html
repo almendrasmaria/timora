@@ -1,0 +1,82 @@
+<div class="onboarding-card">
+  <div class="onboarding-card__progress">
+    <div class="onboarding-card__progress-bar">
+      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+        <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
+      }
+    </div>
+    <div class="onboarding-card__progress-meta">
+      <span>Profesionales</span>
+      <span>Paso {{ currentStep }} de 7</span>
+    </div>
+  </div>
+
+  <h1 class="onboarding-card__title">Profesionales</h1>
+  <p class="onboarding-card__subtitle onboarding-card__subtitle--highlight">
+    Agregá a tu <strong>equipo</strong> y definí sus horarios
+  </p>
+
+  @if (professionals.length) {
+    <div class="onboarding-card__list">
+      @for (professional of professionals; track professional.id) {
+        <div class="onboarding-card__list-item onboarding-card__list-item--person">
+          <span class="onboarding-card__avatar" aria-hidden="true">{{ initials(professional) }}</span>
+          <div class="onboarding-card__list-copy">
+            <span class="onboarding-card__list-title">{{ displayName(professional) }}</span>
+            <span class="onboarding-card__list-meta">{{ scheduleMeta(professional) }}</span>
+          </div>
+          <button type="button" class="onboarding-card__remove" (click)="removeProfessional(professional.id)">
+            Quitar
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <form
+    class="onboarding-card__form onboarding-card__add-form"
+    [formGroup]="form"
+    (ngSubmit)="addProfessional()"
+  >
+    <p class="onboarding-card__section-title">Nuevo profesional</p>
+
+    @if (apiError) {
+      <p class="onboarding-card__validation-alert" role="alert">{{ apiError }}</p>
+    }
+
+    <app-text-field
+      label="Nombre"
+      placeholder="Ej: María González"
+      hint="El nombre que verán tus clientes al reservar."
+      formControlName="displayName"
+      [error]="form.controls.displayName.touched && form.controls.displayName.invalid ? 'Ingresá un nombre' : ''"
+    />
+
+    <hr class="onboarding-card__form-divider" />
+
+    <app-professional-schedule
+      [availability]="draftAvailability"
+      (availabilityChange)="draftAvailability = $event"
+    />
+
+    <div class="onboarding-card__inline-actions">
+      <button type="submit" class="onboarding-card__add-trigger" [disabled]="loading">
+        {{ loading ? 'Guardando...' : '+ Agregar profesional' }}
+      </button>
+      <button type="button" class="onboarding-card__inline-cancel" [disabled]="loading" (click)="resetForm()">
+        Cancelar
+      </button>
+    </div>
+  </form>
+
+  @if (validationError) {
+    <p class="onboarding-card__validation-alert" role="alert">{{ validationError }}</p>
+  }
+
+  <div class="onboarding-card__footer">
+    <a class="onboarding-card__back" [routerLink]="['/onboarding', 'sucursales']">Atrás</a>
+    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="continue()">
+      Continuar
+    </app-button>
+  </div>
+</div>

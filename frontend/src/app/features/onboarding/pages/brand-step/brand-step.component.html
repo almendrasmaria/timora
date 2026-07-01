@@ -1,0 +1,165 @@
+<div class="onboarding-card">
+
+  <div class="onboarding-card__progress">
+
+    <div class="onboarding-card__progress-bar">
+
+      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+
+        <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
+
+      }
+
+    </div>
+
+    <div class="onboarding-card__progress-meta">
+
+      <span>Marca y link</span>
+
+      <span>Paso {{ currentStep }} de 7</span>
+
+    </div>
+
+  </div>
+
+
+
+
+  <h1 class="onboarding-card__title">Marca y link</h1>
+
+  <p class="onboarding-card__subtitle">Logo, color, link público y tu página de reservas.</p>
+
+
+
+  <form class="onboarding-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    @if (apiError) {
+
+      <p class="onboarding-card__api-error" role="alert">{{ apiError }}</p>
+
+    }
+
+
+
+    <div class="onboarding-card__field">
+
+      <p class="onboarding-card__field-label">Logo del negocio (opcional)</p>
+
+      <p class="onboarding-card__field-hint">Se muestra en tu web de reservas. JPG, PNG, WebP o GIF. Máximo 5 MB.</p>
+
+      <div class="onboarding-card__logo-upload">
+
+        <div class="onboarding-card__logo-preview">
+
+          @if (logoPreview) {
+
+            <img [src]="logoPreview" alt="Vista previa del logo" />
+
+          } @else {
+
+            <span aria-hidden="true">+</span>
+
+          }
+
+        </div>
+
+        <label class="onboarding-card__logo-button">
+
+          Subir logo
+
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onLogoSelected($event)" />
+
+        </label>
+
+      </div>
+
+    </div>
+
+
+
+    <div class="onboarding-card__field">
+
+      <p class="onboarding-card__field-label">Color de marca</p>
+
+      <div class="onboarding-card__colors">
+
+        @for (color of brandColors; track color.value) {
+
+          <button
+
+            type="button"
+
+            class="onboarding-card__color"
+
+            [class.is-selected]="form.controls.brandColor.value === color.value"
+
+            (click)="selectColor(color.value)"
+
+          >
+
+            <span class="onboarding-card__color-swatch" [style.background]="color.value"></span>
+
+            {{ color.label }}
+
+          </button>
+
+        }
+
+      </div>
+
+    </div>
+
+
+
+    <app-text-field
+
+      label="Link público"
+
+      placeholder="tu-negocio"
+
+      formControlName="slug"
+
+      [error]="form.controls.slug.touched && form.controls.slug.invalid ? 'Usá solo letras minúsculas, números y guiones' : ''"
+
+    />
+
+
+
+    <div
+
+      class="onboarding-card__preview"
+
+      [style.--preview-color]="selectedColor"
+
+      [style.--preview-tint]="previewTint"
+
+    >
+
+      <span class="onboarding-card__preview-label">Tu link de reservas</span>
+
+      <span class="onboarding-card__preview-url">
+
+        timora.app/<strong>{{ previewSlug }}</strong>
+
+      </span>
+
+    </div>
+
+
+
+    <div class="onboarding-card__footer">
+
+      <a class="onboarding-card__back" [routerLink]="['/onboarding', 'contacto']">Atrás</a>
+
+      <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+
+        {{ loading ? 'Guardando...' : 'Continuar' }}
+
+      </app-button>
+
+    </div>
+
+  </form>
+
+</div>
+

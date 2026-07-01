@@ -1,0 +1,58 @@
+<div class="onboarding-card">
+  <div class="onboarding-card__progress">
+    <div class="onboarding-card__progress-bar">
+      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+        <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
+      }
+    </div>
+    <div class="onboarding-card__progress-meta">
+      <span>Formas de cobro</span>
+      <span>Paso {{ currentStep }} de 7</span>
+    </div>
+  </div>
+
+  <h1 class="onboarding-card__title">Formas de cobro</h1>
+  <p class="onboarding-card__subtitle">Elegí cómo pueden pagar tus clientes al reservar.</p>
+
+  @if (apiError) {
+    <p class="onboarding-card__api-error" role="alert">{{ apiError }}</p>
+  }
+
+  <div class="onboarding-card__payment-options" role="group" aria-label="Formas de cobro">
+    @for (option of options; track option.value) {
+      <button
+        type="button"
+        class="onboarding-card__payment-option"
+        [class.is-selected]="isSelected(option)"
+        [disabled]="loading"
+        [attr.aria-pressed]="isSelected(option)"
+        (click)="togglePaymentMethod(option)"
+      >
+        <span class="onboarding-card__payment-check" aria-hidden="true">
+          @if (isSelected(option)) {
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path
+                d="M2.5 6.2 4.8 8.5 9.5 3.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          }
+        </span>
+        <span class="onboarding-card__payment-copy">
+          <span class="onboarding-card__payment-title">{{ option.label }}</span>
+          <span class="onboarding-card__payment-desc">{{ option.description }}</span>
+        </span>
+      </button>
+    }
+  </div>
+
+  <div class="onboarding-card__footer">
+    <a class="onboarding-card__back" [routerLink]="['/onboarding', 'servicios']">Atrás</a>
+    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="finish()">
+      {{ loading ? 'Finalizando...' : 'Finalizar' }}
+    </app-button>
+  </div>
+</div>

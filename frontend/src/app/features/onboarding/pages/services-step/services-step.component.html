@@ -1,0 +1,102 @@
+<div class="onboarding-card">
+  <div class="onboarding-card__progress">
+    <div class="onboarding-card__progress-bar">
+      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+        <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
+      }
+    </div>
+    <div class="onboarding-card__progress-meta">
+      <span>Servicios</span>
+      <span>Paso {{ currentStep }} de 7</span>
+    </div>
+  </div>
+
+  <h1 class="onboarding-card__title">Servicios</h1>
+  <p class="onboarding-card__subtitle onboarding-card__subtitle--highlight">
+    Agregá tus <strong>servicios</strong>
+  </p>
+
+  @if (services.length) {
+    <div class="onboarding-card__list">
+      @for (service of services; track service.id) {
+        <div class="onboarding-card__list-item">
+          <div class="onboarding-card__list-copy">
+            <span class="onboarding-card__list-title">{{ service.name }}</span>
+            <span class="onboarding-card__list-meta">{{ serviceMeta(service) }}</span>
+          </div>
+          <button type="button" class="onboarding-card__remove" (click)="removeService(service.id)">
+            Quitar
+          </button>
+        </div>
+      }
+    </div>
+  }
+
+  <form class="onboarding-card__form onboarding-card__add-form" [formGroup]="form" (ngSubmit)="addService()">
+    <p class="onboarding-card__section-title">Nuevo servicio</p>
+
+    @if (apiError) {
+      <p class="onboarding-card__validation-alert" role="alert">{{ apiError }}</p>
+    }
+
+    <app-text-field
+      label="Nombre del servicio"
+      formControlName="name"
+      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Ingresá el nombre del servicio' : ''"
+    />
+
+    <app-text-field
+      label="Duración (minutos)"
+      type="number"
+      formControlName="durationMinutes"
+      [error]="
+        form.controls.durationMinutes.touched && form.controls.durationMinutes.invalid
+          ? 'La duración mínima es 5 minutos'
+          : ''
+      "
+    />
+
+    <div class="onboarding-card__form-grid">
+      <app-text-field
+        label="Precio total"
+        type="number"
+        placeholder="0"
+        formControlName="price"
+        [error]="priceError()"
+      />
+      <app-text-field
+        label="Seña"
+        type="number"
+        placeholder="0"
+        formControlName="depositAmount"
+        [error]="depositError()"
+      />
+    </div>
+
+    <app-select-field
+      label="¿Requieres pago de seña o total?"
+      formControlName="paymentRequirement"
+      [options]="paymentOptions"
+    />
+
+    <div class="onboarding-card__inline-actions">
+      <button type="submit" class="onboarding-card__add-trigger" [disabled]="loading">
+        {{ loading ? 'Guardando...' : '+ Agregar servicio' }}
+      </button>
+      <button type="button" class="onboarding-card__inline-cancel" [disabled]="loading" (click)="resetForm()">
+        Cancelar
+      </button>
+    </div>
+  </form>
+
+  @if (validationError) {
+    <p class="onboarding-card__validation-alert" role="alert">{{ validationError }}</p>
+  }
+
+  <div class="onboarding-card__footer">
+    <a class="onboarding-card__back" [routerLink]="['/onboarding', 'profesionales']">Atrás</a>
+    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="continue()">
+      Continuar
+    </app-button>
+  </div>
+</div>

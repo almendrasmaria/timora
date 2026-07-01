@@ -13,11 +13,18 @@ export interface PublicService {
   depositAmount: number | null;
 }
 
+export interface PublicProfessional {
+  id: number;
+  name: string;
+  availabilityJson: string | null;
+}
+
 export interface PublicBusiness {
   name: string;
   slug: string;
   brandColor: string | null;
   services: PublicService[];
+  professionals: PublicProfessional[];
   paymentMethods: PaymentMethodType[];
 }
 

@@ -2,11 +2,22 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
+  BookableDate,
+  formatSelectedDate,
+  getBookableDates,
+  getTimeSlots,
+} from '../../../../core/public-booking/booking-availability';
+import {
   BOOKING_STEPS,
   serviceMeta,
   servicePaymentLabel,
 } from '../../../../core/public-booking/public-booking.config';
-import { BookingStep, PublicBusiness, PublicService } from '../../../../core/public-booking/public-booking.models';
+import {
+  BookingStep,
+  PublicBusiness,
+  PublicProfessional,
+  PublicService,
+} from '../../../../core/public-booking/public-booking.models';
 import { PublicBookingService } from '../../../../core/public-booking/public-booking.service';
 
 @Component({
@@ -29,6 +40,9 @@ export class BookingPageComponent implements OnInit {
 
   readonly currentStep = signal<BookingStep>(1);
   readonly selectedServiceId = signal<number | null>(null);
+  readonly selectedProfessionalId = signal<number | null>(null);
+  readonly selectedDateKey = signal<string | null>(null);
+  readonly selectedTimeSlot = signal<string | null>(null);
 
   ngOnInit(): void {
     if (!this.slug) {
@@ -39,7 +53,10 @@ export class BookingPageComponent implements OnInit {
 
     this.publicBooking.getBusiness(this.slug).subscribe({
       next: (business) => {
-        this.business = business;
+        this.business = {
+          ...business,
+          professionals: business.professionals ?? [],
+        };
         this.loading = false;
       },
       error: (error: HttpErrorResponse) => {
@@ -79,12 +96,55 @@ export class BookingPageComponent implements OnInit {
       return this.business.services.length > 0;
     }
 
-    return this.currentStep() === 2;
+    if (this.currentStep() === 2) {
+      return this.business.professionals.length > 0;
+    }
+
+    return this.currentStep() === 3;
   }
 
   get selectedService(): PublicService | null {
     const id = this.selectedServiceId();
     return this.business?.services.find((service) => service.id === id) ?? null;
+  }
+
+  get selectedProfessional(): PublicProfessional | null {
+    const id = this.selectedProfessionalId();
+    return this.business?.professionals.find((professional) => professional.id === id) ?? null;
+  }
+
+  get hasMultipleProfessionals(): boolean {
+    return (this.business?.professionals.length ?? 0) > 1;
+  }
+
+  get bookableDates(): BookableDate[] {
+    const professional = this.selectedProfessional;
+    if (!professional) {
+      return [];
+    }
+
+    return getBookableDates(professional.availabilityJson);
+  }
+
+  get timeSlots(): string[] {
+    const professional = this.selectedProfessional;
+    const service = this.selectedService;
+    const dateKey = this.selectedDateKey();
+
+    if (!professional || !service || !dateKey) {
+      return [];
+    }
+
+    return getTimeSlots(professional.availabilityJson, dateKey, service.durationMinutes);
+  }
+
+  get canContinueFromSchedule(): boolean {
+    return Boolean(this.selectedDateKey() && this.selectedTimeSlot());
+  }
+
+  get selectedDateLabel(): string {
+    const dateKey = this.selectedDateKey();
+    return dateKey ? formatSelectedDate(dateKey) : '';
   }
 
   serviceMeta(service: PublicService): string {
@@ -103,12 +163,26 @@ export class BookingPageComponent implements OnInit {
     return this.selectedServiceId() === serviceId;
   }
 
+  selectProfessional(professionalId: number): void {
+    this.selectedProfessionalId.set(professionalId);
+    this.resetScheduleSelection();
+  }
+
+  selectDate(dateKey: string): void {
+    this.selectedDateKey.set(dateKey);
+    this.selectedTimeSlot.set(null);
+  }
+
+  selectTimeSlot(slot: string): void {
+    this.selectedTimeSlot.set(slot);
+  }
+
   goToStep(step: BookingStep): void {
     if (step === 2 && !this.selectedServiceId()) {
       return;
     }
 
-    if (step === 3 && this.currentStep() < 2) {
+    if (step === 3 && !this.canContinueFromSchedule) {
       return;
     }
 
@@ -120,7 +194,16 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
+    this.initializeScheduleStep();
     this.currentStep.set(2);
+  }
+
+  continueFromSchedule(): void {
+    if (!this.canContinueFromSchedule) {
+      return;
+    }
+
+    this.currentStep.set(3);
   }
 
   stepState(step: BookingStep): 'done' | 'active' | 'upcoming' {
@@ -135,5 +218,23 @@ export class BookingPageComponent implements OnInit {
     }
 
     return 'upcoming';
+  }
+
+  private initializeScheduleStep(): void {
+    const professionals = this.business?.professionals ?? [];
+    const currentProfessionalId = this.selectedProfessionalId();
+    const hasCurrent = professionals.some((professional) => professional.id === currentProfessionalId);
+
+    if (!hasCurrent && professionals.length > 0) {
+      this.selectedProfessionalId.set(professionals[0].id);
+    }
+
+    this.resetScheduleSelection();
+  }
+
+  private resetScheduleSelection(): void {
+    const dates = this.bookableDates;
+    this.selectedDateKey.set(dates[0]?.key ?? null);
+    this.selectedTimeSlot.set(null);
   }
 }

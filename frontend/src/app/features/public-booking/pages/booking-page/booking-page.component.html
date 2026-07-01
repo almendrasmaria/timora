@@ -118,37 +118,118 @@
 
             @case (2) {
               <header class="booking__panel-head">
-                <h2 class="booking__panel-title">Elegí fecha y horario</h2>
+                <h2 class="booking__panel-title">Elegí día y horario</h2>
                 @if (selectedService) {
                   <p class="booking__panel-subtitle booking__panel-subtitle--chip">
-                    {{ selectedService.name }} · {{ serviceMeta(selectedService) }}
+                    {{ selectedService.name }}
                   </p>
                 }
               </header>
 
-              <div class="booking__coming-soon">
-                <span class="booking__coming-soon-icon" aria-hidden="true">
-                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                    <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
-                    <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-                  </svg>
-                </span>
-                <p class="booking__coming-soon-title">Agenda disponible pronto</p>
-                <p class="booking__coming-soon-text">
-                  Estamos terminando la reserva online con fecha y hora. Por ahora podés elegir el servicio.
-                </p>
-              </div>
+              @if (business.professionals.length === 0) {
+                <div class="booking__empty">
+                  <p class="booking__empty-title">Sin profesionales disponibles</p>
+                  <p class="booking__empty-text">El negocio todavía no publicó su equipo para reservas online.</p>
+                </div>
+              } @else if (bookableDates.length === 0) {
+                <div class="booking__empty">
+                  <p class="booking__empty-title">Sin días disponibles</p>
+                  <p class="booking__empty-text">No hay horarios abiertos en las próximas semanas.</p>
+                </div>
+              } @else {
+                @if (hasMultipleProfessionals) {
+                  <section class="booking__schedule-section">
+                    <h3 class="booking__schedule-label">Profesional</h3>
+                    <div class="booking__chip-row">
+                      @for (professional of business.professionals; track professional.id) {
+                        <button
+                          type="button"
+                          class="booking__pro-chip"
+                          [class.is-selected]="selectedProfessionalId() === professional.id"
+                          (click)="selectProfessional(professional.id)"
+                        >
+                          {{ professional.name }}
+                        </button>
+                      }
+                    </div>
+                  </section>
+                }
+
+                <section class="booking__schedule-section">
+                  <h3 class="booking__schedule-label">Día</h3>
+                  <div class="booking__date-row">
+                    @for (day of bookableDates; track day.key) {
+                      <button
+                        type="button"
+                        class="booking__date-chip"
+                        [class.is-selected]="selectedDateKey() === day.key"
+                        (click)="selectDate(day.key)"
+                      >
+                        <span class="booking__date-chip-label">{{ day.label }}</span>
+                        <span class="booking__date-chip-sub">{{ day.sublabel }}</span>
+                      </button>
+                    }
+                  </div>
+                </section>
+
+                @if (timeSlots.length > 0) {
+                  <section class="booking__schedule-section">
+                    <h3 class="booking__schedule-label">Horario</h3>
+                    <div class="booking__time-grid">
+                      @for (slot of timeSlots; track slot) {
+                        <button
+                          type="button"
+                          class="booking__time-chip"
+                          [class.is-selected]="selectedTimeSlot() === slot"
+                          (click)="selectTimeSlot(slot)"
+                        >
+                          {{ slot }}
+                        </button>
+                      }
+                    </div>
+                  </section>
+                } @else {
+                  <p class="booking__schedule-empty">No hay horarios disponibles para este día.</p>
+                }
+              }
             }
 
             @case (3) {
               <header class="booking__panel-head">
                 <h2 class="booking__panel-title">Confirmá tu reserva</h2>
-                <p class="booking__panel-subtitle">Último paso antes de agendar.</p>
+                <p class="booking__panel-subtitle">Revisá los datos antes de confirmar.</p>
               </header>
 
-              <div class="booking__coming-soon">
+              <div class="booking__summary">
+                @if (selectedService) {
+                  <div class="booking__summary-row">
+                    <span class="booking__summary-label">Servicio</span>
+                    <span class="booking__summary-value">{{ selectedService.name }}</span>
+                  </div>
+                }
+                @if (selectedProfessional) {
+                  <div class="booking__summary-row">
+                    <span class="booking__summary-label">Profesional</span>
+                    <span class="booking__summary-value">{{ selectedProfessional.name }}</span>
+                  </div>
+                }
+                @if (selectedDateKey()) {
+                  <div class="booking__summary-row">
+                    <span class="booking__summary-label">Fecha</span>
+                    <span class="booking__summary-value">{{ selectedDateLabel }}</span>
+                  </div>
+                }
+                @if (selectedTimeSlot()) {
+                  <div class="booking__summary-row">
+                    <span class="booking__summary-label">Horario</span>
+                    <span class="booking__summary-value">{{ selectedTimeSlot() }}</span>
+                  </div>
+                }
+              </div>
+
+              <div class="booking__coming-soon booking__coming-soon--compact">
                 <p class="booking__coming-soon-title">Confirmación en camino</p>
-                <p class="booking__coming-soon-text">Pronto vas a poder completar tu reserva desde acá.</p>
+                <p class="booking__coming-soon-text">Pronto vas a poder completar y pagar tu reserva desde acá.</p>
               </div>
             }
           }
@@ -172,7 +253,18 @@
             }
 
             @if (currentStep() === 2) {
-              <button type="button" class="booking__continue" disabled>Continuar</button>
+              <button
+                type="button"
+                class="booking__continue"
+                [disabled]="!canContinueFromSchedule"
+                (click)="continueFromSchedule()"
+              >
+                Continuar
+              </button>
+            }
+
+            @if (currentStep() === 3) {
+              <button type="button" class="booking__continue" disabled>Confirmar reserva</button>
             }
           </footer>
         }

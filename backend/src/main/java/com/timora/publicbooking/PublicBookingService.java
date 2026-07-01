@@ -1,10 +1,12 @@
 package com.timora.publicbooking;
 
+import com.timora.business.BranchRepository;
 import com.timora.business.Business;
 import com.timora.business.BusinessRepository;
 import com.timora.business.PaymentMethodRepository;
 import com.timora.business.ProfessionalRepository;
 import com.timora.business.ServiceOfferingRepository;
+import com.timora.publicbooking.dto.PublicBranchResponse;
 import com.timora.publicbooking.dto.PublicBusinessResponse;
 import com.timora.publicbooking.dto.PublicProfessionalResponse;
 import com.timora.publicbooking.dto.PublicServiceResponse;
@@ -19,17 +21,20 @@ public class PublicBookingService {
     private final BusinessRepository businessRepository;
     private final ServiceOfferingRepository serviceOfferingRepository;
     private final ProfessionalRepository professionalRepository;
+    private final BranchRepository branchRepository;
     private final PaymentMethodRepository paymentMethodRepository;
 
     public PublicBookingService(
             BusinessRepository businessRepository,
             ServiceOfferingRepository serviceOfferingRepository,
             ProfessionalRepository professionalRepository,
+            BranchRepository branchRepository,
             PaymentMethodRepository paymentMethodRepository
     ) {
         this.businessRepository = businessRepository;
         this.serviceOfferingRepository = serviceOfferingRepository;
         this.professionalRepository = professionalRepository;
+        this.branchRepository = branchRepository;
         this.paymentMethodRepository = paymentMethodRepository;
     }
 
@@ -60,6 +65,13 @@ public class PublicBookingService {
                         professional.getAvailabilityJson()))
                 .toList();
 
+        var branches = branchRepository.findByBusinessIdOrderByIdAsc(businessId).stream()
+                .map(branch -> new PublicBranchResponse(
+                        branch.getId(),
+                        branch.getName(),
+                        branch.getAddress()))
+                .toList();
+
         var paymentMethods = paymentMethodRepository.findByBusinessIdOrderByIdAsc(businessId).stream()
                 .map(method -> method.getType())
                 .toList();
@@ -68,8 +80,10 @@ public class PublicBookingService {
                 business.getName(),
                 business.getSlug(),
                 business.getBrandColor(),
+                business.getWhatsapp(),
                 services,
                 professionals,
+                branches,
                 paymentMethods
         );
     }

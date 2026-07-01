@@ -8,8 +8,10 @@ public record PublicBusinessResponse(
         String name,
         String slug,
         String brandColor,
+        String whatsapp,
         List<PublicServiceResponse> services,
         List<PublicProfessionalResponse> professionals,
+        List<PublicBranchResponse> branches,
         List<PaymentMethodType> paymentMethods
 ) {
 }

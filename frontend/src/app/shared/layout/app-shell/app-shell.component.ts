@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, inject, signal, viewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
 import { DASHBOARD_NAV } from '../../../core/dashboard/dashboard.config';
@@ -20,6 +20,8 @@ export class AppShellComponent implements OnInit {
 
   readonly nav = DASHBOARD_NAV;
   readonly mobileMenuOpen = signal(false);
+  readonly userMenuOpen = signal(false);
+  private readonly userMenuRef = viewChild<ElementRef<HTMLElement>>('userMenu');
 
   businessName = '';
   bookingUrl = '';
@@ -36,7 +38,10 @@ export class AppShellComponent implements OnInit {
   ngOnInit(): void {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => this.closeMobileMenu());
+      .subscribe(() => {
+        this.closeMobileMenu();
+        this.closeUserMenu();
+      });
 
     this.onboarding.getState().subscribe({
       next: (state) => {
@@ -47,6 +52,7 @@ export class AppShellComponent implements OnInit {
   }
 
   toggleMobileMenu(): void {
+    this.closeUserMenu();
     this.mobileMenuOpen.update((open) => !open);
   }
 
@@ -54,7 +60,36 @@ export class AppShellComponent implements OnInit {
     this.mobileMenuOpen.set(false);
   }
 
+  toggleUserMenu(event: Event): void {
+    event.stopPropagation();
+    this.userMenuOpen.update((open) => !open);
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen.set(false);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.userMenuOpen()) {
+      return;
+    }
+
+    const menu = this.userMenuRef()?.nativeElement;
+    if (menu?.contains(event.target as Node)) {
+      return;
+    }
+
+    this.closeUserMenu();
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.closeUserMenu();
+  }
+
   logout(): void {
+    this.closeUserMenu();
     this.closeMobileMenu();
     this.auth.logout();
     void this.router.navigate(['/auth/login']);

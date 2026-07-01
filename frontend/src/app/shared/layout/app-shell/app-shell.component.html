@@ -20,12 +20,33 @@
       </nav>
 
       <div class="shell__actions">
-        <div class="shell__user" title="{{ businessName }}">
-          <span class="shell__avatar" aria-hidden="true">{{ businessInitial }}</span>
-          <span class="shell__user-name">{{ businessName || 'Mi negocio' }}</span>
-        </div>
+        <div #userMenu class="shell__user-menu">
+          <button
+            type="button"
+            class="shell__user-trigger"
+            (click)="toggleUserMenu($event)"
+            [attr.aria-expanded]="userMenuOpen()"
+            aria-haspopup="menu"
+            aria-controls="shell-user-dropdown"
+          >
+            <span class="shell__avatar" aria-hidden="true">{{ businessInitial }}</span>
+            <span class="shell__user-name">{{ businessName || 'Mi negocio' }}</span>
+            <svg class="shell__user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
 
-        <button type="button" class="shell__logout" (click)="logout()">Salir</button>
+          @if (userMenuOpen()) {
+            <div id="shell-user-dropdown" class="shell__user-dropdown" role="menu" (click)="$event.stopPropagation()">
+              @if (bookingSlug) {
+                <p class="shell__user-dropdown-slug">{{ bookingSlug }}</p>
+              }
+              <button type="button" class="shell__user-dropdown-item" role="menuitem" (click)="logout()">
+                Cerrar sesión
+              </button>
+            </div>
+          }
+        </div>
 
         <button
           type="button"

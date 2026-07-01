@@ -30,13 +30,13 @@
   }
 
   &--primary {
-    background: var(--color-primary);
+    background: var(--gradient-accent);
     color: var(--color-text-inverse);
     box-shadow: var(--shadow-primary);
 
     &:hover:not(:disabled) {
-      background: var(--color-primary-hover);
-      box-shadow: 0 6px 20px rgba(91, 91, 214, 0.35);
+      filter: brightness(1.03);
+      box-shadow: 0 6px 20px rgba(91, 91, 214, 0.38);
       transform: translateY(-1px);
     }
 

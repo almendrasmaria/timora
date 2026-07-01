@@ -16,9 +16,10 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 })
 export class TextFieldComponent implements ControlValueAccessor {
   @Input() label = '';
-  @Input() type: 'text' | 'email' | 'password' = 'text';
+  @Input() type: 'text' | 'email' | 'password' | 'number' | 'tel' = 'text';
   @Input() placeholder = '';
   @Input() autocomplete = '';
+  @Input() hint = '';
   @Input() error = '';
 
   value = '';

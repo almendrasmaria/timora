@@ -20,9 +20,12 @@
   --color-focus-ring: rgba(91, 91, 214, 0.2);
 
   --color-success: #16a34a;
+  --color-success-subtle: #ecfdf3;
   --color-error: #e11d48;
+  --color-error-subtle: #fff1f2;
 
-  --font-family: 'Poppins', system-ui, sans-serif;
+  --font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-logo: 'Poppins', system-ui, sans-serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -55,6 +58,17 @@
   --shadow-md: 0 8px 24px rgba(17, 17, 24, 0.07);
   --shadow-lg: 0 16px 48px rgba(17, 17, 24, 0.08);
   --shadow-primary: 0 4px 14px rgba(91, 91, 214, 0.28);
+  --shadow-card:
+    0 0 0 1px rgba(17, 17, 24, 0.03),
+    0 2px 4px rgba(17, 17, 24, 0.02),
+    0 12px 32px rgba(17, 17, 24, 0.06);
+  --shadow-panel:
+    0 0 0 1px rgba(17, 17, 24, 0.04),
+    0 8px 24px rgba(17, 17, 24, 0.05);
+
+  --gradient-page: linear-gradient(165deg, #fafafc 0%, #f4f4f8 42%, #eceef5 100%);
+  --gradient-accent: linear-gradient(135deg, #5b5bd6 0%, #7c7ce0 50%, #9494e8 100%);
+  --gradient-card-top: linear-gradient(90deg, #5b5bd6, #9494e8, #5b5bd6);
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast: 150ms;

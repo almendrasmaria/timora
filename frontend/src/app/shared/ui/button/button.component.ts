@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'ghost';
+export type ButtonShape = 'default' | 'pill';
 
 @Component({
   selector: 'app-button',
@@ -10,6 +11,7 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 })
 export class ButtonComponent {
   @Input() variant: ButtonVariant = 'primary';
+  @Input() shape: ButtonShape = 'default';
   @Input() type: 'button' | 'submit' = 'button';
   @Input() disabled = false;
   @Input() fullWidth = false;

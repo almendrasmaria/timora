@@ -51,7 +51,7 @@
 
   <div class="onboarding-card__footer">
     <a class="onboarding-card__back" [routerLink]="['/onboarding', 'servicios']">Atrás</a>
-    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="finish()">
+    <app-button type="button" variant="primary" shape="pill" [fullWidth]="true" [disabled]="loading" (click)="finish()">
       {{ loading ? 'Finalizando...' : 'Finalizar' }}
     </app-button>
   </div>

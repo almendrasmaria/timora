@@ -35,7 +35,7 @@
 
     <div class="onboarding-card__footer">
       <a class="onboarding-card__back" [routerLink]="['/onboarding', 'negocio']">Atrás</a>
-      <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+      <app-button type="submit" variant="primary" shape="pill" [fullWidth]="true" [disabled]="loading">
         {{ loading ? 'Guardando...' : 'Continuar' }}
       </app-button>
     </div>

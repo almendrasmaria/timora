@@ -38,7 +38,7 @@
       formControlName="address"
       [error]="form.controls.address.touched && form.controls.address.invalid ? 'Ingresá una dirección' : ''"
     />
-    <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
+    <app-button type="submit" variant="accent" shape="pill" [fullWidth]="true" [disabled]="loading">
       + Agregar sucursal
     </app-button>
   </form>
@@ -53,7 +53,7 @@
 
   <div class="onboarding-card__footer">
     <a class="onboarding-card__back" [routerLink]="['/onboarding', 'marca']">Atrás</a>
-    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="continue()">
+    <app-button type="button" variant="primary" shape="pill" [fullWidth]="true" [disabled]="loading" (click)="continue()">
       Continuar
     </app-button>
   </div>

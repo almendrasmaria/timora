@@ -60,12 +60,12 @@
     />
 
     <div class="onboarding-card__inline-actions">
-      <button type="submit" class="onboarding-card__add-trigger" [disabled]="loading">
+      <app-button type="submit" variant="accent" shape="pill" [fullWidth]="true" [disabled]="loading">
         {{ loading ? 'Guardando...' : '+ Agregar profesional' }}
-      </button>
-      <button type="button" class="onboarding-card__inline-cancel" [disabled]="loading" (click)="resetForm()">
+      </app-button>
+      <app-button type="button" variant="secondary" shape="pill" [disabled]="loading" (click)="resetForm()">
         Cancelar
-      </button>
+      </app-button>
     </div>
   </form>
 
@@ -75,7 +75,7 @@
 
   <div class="onboarding-card__footer">
     <a class="onboarding-card__back" [routerLink]="['/onboarding', 'sucursales']">Atrás</a>
-    <app-button type="button" variant="primary" [fullWidth]="true" [disabled]="loading" (click)="continue()">
+    <app-button type="button" variant="primary" shape="pill" [fullWidth]="true" [disabled]="loading" (click)="continue()">
       Continuar
     </app-button>
   </div>

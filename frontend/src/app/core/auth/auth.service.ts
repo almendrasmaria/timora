@@ -18,6 +18,32 @@ export class AuthService {
     return this.session()?.accessToken ?? null;
   }
 
+  onboardingCompleted(): boolean {
+    return this.session()?.onboardingCompleted ?? false;
+  }
+
+  onboardingStep(): number {
+    return this.session()?.onboardingStep ?? 1;
+  }
+
+  updateOnboarding(data: Partial<Pick<AuthSession, 'onboardingCompleted' | 'onboardingStep' | 'businessSlug'>>): void {
+    const current = this.session();
+    if (!current) {
+      return;
+    }
+
+    const next: AuthSession = {
+      ...current,
+      ...data,
+    };
+    this.session.set(next);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  }
+
+  postAuthRedirect(): string[] {
+    return this.onboardingCompleted() ? ['/dashboard'] : ['/onboarding', 'negocio'];
+  }
+
   login(credentials: AuthCredentials): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/login`, credentials)
@@ -41,6 +67,8 @@ export class AuthService {
       email: response.email,
       businessId: response.businessId,
       businessSlug: response.businessSlug,
+      onboardingCompleted: response.onboardingCompleted,
+      onboardingStep: response.onboardingStep,
     };
     this.session.set(session);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
@@ -53,11 +81,18 @@ export class AuthService {
     }
 
     try {
-      const parsed = JSON.parse(raw) as AuthSession;
+      const parsed = JSON.parse(raw) as Partial<AuthSession>;
       if (!parsed.accessToken || !parsed.email) {
         return null;
       }
-      return parsed;
+      return {
+        accessToken: parsed.accessToken,
+        email: parsed.email,
+        businessId: parsed.businessId ?? 0,
+        businessSlug: parsed.businessSlug ?? '',
+        onboardingCompleted: parsed.onboardingCompleted ?? false,
+        onboardingStep: parsed.onboardingStep ?? 1,
+      };
     } catch {
       return null;
     }

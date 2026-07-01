@@ -73,7 +73,7 @@ export class LoginComponent {
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          void this.router.navigate(['/dashboard']);
+          void this.router.navigate(this.auth.postAuthRedirect());
         },
         error: (error) => {
           this.apiError = parseApiError(error);

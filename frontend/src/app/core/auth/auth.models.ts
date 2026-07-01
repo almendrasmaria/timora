@@ -9,6 +9,8 @@ export interface AuthResponse {
   email: string;
   businessId: number;
   businessSlug: string;
+  onboardingCompleted: boolean;
+  onboardingStep: number;
 }
 
 export interface AuthSession {
@@ -16,4 +18,6 @@ export interface AuthSession {
   email: string;
   businessId: number;
   businessSlug: string;
+  onboardingCompleted: boolean;
+  onboardingStep: number;
 }

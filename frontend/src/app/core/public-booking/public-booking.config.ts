@@ -57,3 +57,87 @@ export function serviceMeta(service: {
 
   return price ? `${duration} · ${price}` : duration;
 }
+
+const PAYMENT_METHOD_LABELS: Record<string, string> = {
+  CASH: 'Pagar al momento del turno',
+  TRANSFER: 'Transferencia',
+  ONLINE_DEPOSIT: 'Seña online',
+  ONLINE_FULL: 'Pago total online',
+  FREE: 'Sin pago',
+};
+
+export function resolveBookingPayment(
+  paymentMethods: string[],
+  service: { price: number | null; depositAmount: number | null }
+): { methodLabel: string; amountLabel: string | null; note: string } {
+  if (service.depositAmount != null && service.depositAmount > 0) {
+    return {
+      methodLabel: 'Seña online',
+      amountLabel: formatPrice(service.depositAmount),
+      note: 'El cobro online estará disponible pronto. Por ahora tu reserva queda pendiente de confirmación.',
+    };
+  }
+
+  if (service.price != null && service.price > 0 && paymentMethods.includes('ONLINE_FULL')) {
+    return {
+      methodLabel: 'Pago total online',
+      amountLabel: formatPrice(service.price),
+      note: 'El cobro online estará disponible pronto. Por ahora tu reserva queda pendiente de confirmación.',
+    };
+  }
+
+  if (paymentMethods.includes('CASH')) {
+    return {
+      methodLabel: PAYMENT_METHOD_LABELS['CASH'],
+      amountLabel: formatPrice(service.price),
+      note: 'El pago se realiza al momento del turno.',
+    };
+  }
+
+  if (paymentMethods.includes('TRANSFER')) {
+    return {
+      methodLabel: PAYMENT_METHOD_LABELS['TRANSFER'],
+      amountLabel: formatPrice(service.price),
+      note: 'El negocio te indicará los datos para transferir.',
+    };
+  }
+
+  const primaryMethod = paymentMethods[0];
+  return {
+    methodLabel: primaryMethod ? (PAYMENT_METHOD_LABELS[primaryMethod] ?? 'A coordinar') : 'A coordinar',
+    amountLabel: formatPrice(service.price),
+    note: 'El negocio te contactará para confirmar el pago.',
+  };
+}
+
+export function confirmButtonLabel(
+  paymentMethods: string[],
+  service: { price: number | null; depositAmount: number | null }
+): string {
+  if (service.depositAmount != null && service.depositAmount > 0) {
+    return 'Reservar turno';
+  }
+
+  if (paymentMethods.includes('ONLINE_FULL') && service.price != null && service.price > 0) {
+    return 'Reservar turno';
+  }
+
+  return 'Reservar sin pagar ahora';
+}
+
+export function buildWhatsappLink(phone: string | null | undefined): string | null {
+  if (!phone?.trim()) {
+    return null;
+  }
+
+  let digits = phone.replace(/\D/g, '');
+  if (!digits) {
+    return null;
+  }
+
+  if (!digits.startsWith('54')) {
+    digits = `54${digits.replace(/^0+/, '')}`;
+  }
+
+  return `https://wa.me/${digits}`;
+}

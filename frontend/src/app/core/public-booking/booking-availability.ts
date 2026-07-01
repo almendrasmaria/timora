@@ -142,3 +142,17 @@ export function formatSelectedDate(dateKey: string): string {
   const weekday = new Intl.DateTimeFormat('es-AR', { weekday: 'long' }).format(date);
   return `${weekday} ${sublabel}`;
 }
+
+function addMinutesToTime(time: string, minutesToAdd: number): string {
+  const totalMinutes = parseTime(time) + minutesToAdd;
+  return formatTime(totalMinutes);
+}
+
+export function formatScheduleRange(
+  dateKey: string,
+  startTime: string,
+  durationMinutes: number
+): string {
+  const endTime = addMinutesToTime(startTime, durationMinutes);
+  return `${formatSelectedDate(dateKey)}, ${startTime} – ${endTime}`;
+}

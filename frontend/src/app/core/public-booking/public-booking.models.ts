@@ -19,12 +19,20 @@ export interface PublicProfessional {
   availabilityJson: string | null;
 }
 
+export interface PublicBranch {
+  id: number;
+  name: string;
+  address: string;
+}
+
 export interface PublicBusiness {
   name: string;
   slug: string;
   brandColor: string | null;
+  whatsapp: string | null;
   services: PublicService[];
   professionals: PublicProfessional[];
+  branches: PublicBranch[];
   paymentMethods: PaymentMethodType[];
 }
 

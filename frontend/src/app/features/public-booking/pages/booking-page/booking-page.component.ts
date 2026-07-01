@@ -1,35 +1,51 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import {
   BookableDate,
+  formatScheduleRange,
   formatSelectedDate,
   getBookableDates,
   getTimeSlots,
 } from '../../../../core/public-booking/booking-availability';
 import {
   BOOKING_STEPS,
+  buildWhatsappLink,
+  confirmButtonLabel,
+  resolveBookingPayment,
   serviceMeta,
   servicePaymentLabel,
 } from '../../../../core/public-booking/public-booking.config';
 import {
   BookingStep,
+  PublicBranch,
   PublicBusiness,
   PublicProfessional,
   PublicService,
 } from '../../../../core/public-booking/public-booking.models';
 import { PublicBookingService } from '../../../../core/public-booking/public-booking.service';
+import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
 
 @Component({
   selector: 'app-booking-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ReactiveFormsModule, TextFieldComponent],
   templateUrl: './booking-page.component.html',
   styleUrl: './booking-page.component.scss',
 })
 export class BookingPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly publicBooking = inject(PublicBookingService);
+  private readonly formBuilder = inject(FormBuilder);
+
+  readonly confirmForm = this.formBuilder.nonNullable.group({
+    firstName: ['', Validators.required],
+    lastName: ['', Validators.required],
+    phone: ['', Validators.required],
+    email: [''],
+    notes: [''],
+  });
 
   readonly steps = BOOKING_STEPS;
   readonly slug = this.route.snapshot.paramMap.get('slug') ?? '';
@@ -43,6 +59,10 @@ export class BookingPageComponent implements OnInit {
   readonly selectedProfessionalId = signal<number | null>(null);
   readonly selectedDateKey = signal<string | null>(null);
   readonly selectedTimeSlot = signal<string | null>(null);
+  readonly bookingConfirmed = signal(false);
+  readonly confirmedClientName = signal('');
+
+  confirmSubmitAttempted = false;
 
   ngOnInit(): void {
     if (!this.slug) {
@@ -56,6 +76,7 @@ export class BookingPageComponent implements OnInit {
         this.business = {
           ...business,
           professionals: business.professionals ?? [],
+          branches: business.branches ?? [],
         };
         this.loading = false;
       },
@@ -76,10 +97,18 @@ export class BookingPageComponent implements OnInit {
   }
 
   get progressPercent(): number {
+    if (this.bookingConfirmed()) {
+      return 100;
+    }
+
     return (this.currentStep() / 3) * 100;
   }
 
   get currentStepLabel(): string {
+    if (this.bookingConfirmed()) {
+      return 'Confirmado';
+    }
+
     return this.steps.find((item) => item.step === this.currentStep())?.label ?? '';
   }
 
@@ -98,6 +127,10 @@ export class BookingPageComponent implements OnInit {
 
     if (this.currentStep() === 2) {
       return this.business.professionals.length > 0;
+    }
+
+    if (this.bookingConfirmed()) {
+      return false;
     }
 
     return this.currentStep() === 3;
@@ -145,6 +178,79 @@ export class BookingPageComponent implements OnInit {
   get selectedDateLabel(): string {
     const dateKey = this.selectedDateKey();
     return dateKey ? formatSelectedDate(dateKey) : '';
+  }
+
+  get selectedScheduleLabel(): string {
+    const service = this.selectedService;
+    const dateKey = this.selectedDateKey();
+    const startTime = this.selectedTimeSlot();
+
+    if (!service || !dateKey || !startTime) {
+      return '';
+    }
+
+    return formatScheduleRange(dateKey, startTime, service.durationMinutes);
+  }
+
+  get selectedBranch(): PublicBranch | null {
+    return this.business?.branches[0] ?? null;
+  }
+
+  get branchLabel(): string | null {
+    const branch = this.selectedBranch;
+    if (!branch) {
+      return null;
+    }
+
+    return `${branch.name} / ${branch.address}`;
+  }
+
+  get bookingPayment() {
+    const service = this.selectedService;
+    const paymentMethods = this.business?.paymentMethods ?? [];
+
+    if (!service) {
+      return null;
+    }
+
+    return resolveBookingPayment(paymentMethods, service);
+  }
+
+  get confirmLabel(): string {
+    const service = this.selectedService;
+    const paymentMethods = this.business?.paymentMethods ?? [];
+
+    if (!service) {
+      return 'Confirmar reserva';
+    }
+
+    return confirmButtonLabel(paymentMethods, service);
+  }
+
+  get whatsappLink(): string | null {
+    return buildWhatsappLink(this.business?.whatsapp);
+  }
+
+  get canConfirmBooking(): boolean {
+    return this.confirmForm.valid && this.canContinueFromSchedule;
+  }
+
+  fieldError(controlName: 'firstName' | 'lastName' | 'phone' | 'email'): string {
+    const control = this.confirmForm.controls[controlName];
+
+    if (!control.touched && !this.confirmSubmitAttempted) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return 'Completá este campo';
+    }
+
+    if (controlName === 'email' && control.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(control.value)) {
+      return 'Ingresá un email válido';
+    }
+
+    return '';
   }
 
   serviceMeta(service: PublicService): string {
@@ -203,10 +309,40 @@ export class BookingPageComponent implements OnInit {
       return;
     }
 
+    this.confirmSubmitAttempted = false;
     this.currentStep.set(3);
   }
 
+  submitBooking(): void {
+    this.confirmSubmitAttempted = true;
+    this.confirmForm.markAllAsTouched();
+
+    if (!this.canConfirmBooking) {
+      return;
+    }
+
+    const { firstName, lastName } = this.confirmForm.getRawValue();
+    this.confirmedClientName.set(`${firstName} ${lastName}`.trim());
+    this.bookingConfirmed.set(true);
+  }
+
+  startNewBooking(): void {
+    this.bookingConfirmed.set(false);
+    this.confirmedClientName.set('');
+    this.confirmSubmitAttempted = false;
+    this.confirmForm.reset();
+    this.selectedServiceId.set(null);
+    this.selectedProfessionalId.set(null);
+    this.selectedDateKey.set(null);
+    this.selectedTimeSlot.set(null);
+    this.currentStep.set(1);
+  }
+
   stepState(step: BookingStep): 'done' | 'active' | 'upcoming' {
+    if (this.bookingConfirmed()) {
+      return 'done';
+    }
+
     const current = this.currentStep();
 
     if (step < current) {

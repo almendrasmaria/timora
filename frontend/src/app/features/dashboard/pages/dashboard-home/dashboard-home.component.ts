@@ -5,6 +5,15 @@ import {
   StatsPeriod,
   publicBookingUrl,
 } from '../../../../core/dashboard/dashboard.config';
+import {
+  appointmentClientName,
+  appointmentStatusLabel,
+  formatAppointmentRange,
+  formatAppointmentTime,
+  formatIncome,
+} from '../../../../core/appointments/appointments.format';
+import { Appointment } from '../../../../core/appointments/appointments.models';
+import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 
@@ -17,6 +26,7 @@ import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 })
 export class DashboardHomeComponent implements OnInit {
   private readonly onboarding = inject(OnboardingService);
+  private readonly appointmentsService = inject(AppointmentsService);
 
   readonly periodOptions = STATS_PERIOD_OPTIONS;
 
@@ -31,6 +41,9 @@ export class DashboardHomeComponent implements OnInit {
   readonly agendaView = signal<AgendaView>('list');
   readonly appointmentsCount = signal(0);
   readonly incomeCount = signal(0);
+  readonly noShowCount = signal(0);
+  readonly todayAppointments = signal<Appointment[]>([]);
+  readonly recentAppointments = signal<Appointment[]>([]);
 
   ngOnInit(): void {
     const now = new Date();
@@ -62,11 +75,42 @@ export class DashboardHomeComponent implements OnInit {
         this.bookingUrl = publicBookingUrl(state.business.slug);
       },
     });
+
+    this.loadDashboard();
+  }
+
+  get hasTodayAppointments(): boolean {
+    return this.todayAppointments().length > 0;
+  }
+
+  get showRecentFallback(): boolean {
+    return !this.hasTodayAppointments && this.recentAppointments().length > 0;
+  }
+
+  clientName(appointment: Appointment): string {
+    return appointmentClientName(appointment);
+  }
+
+  statusLabel(appointment: Appointment): string {
+    return appointmentStatusLabel(appointment.status);
+  }
+
+  timeRange(appointment: Appointment): string {
+    return formatAppointmentRange(appointment.startsAt, appointment.endsAt);
+  }
+
+  timeLabel(appointment: Appointment): string {
+    return formatAppointmentTime(appointment.startsAt);
+  }
+
+  incomeLabel(): string {
+    return formatIncome(this.incomeCount());
   }
 
   onPeriodChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value as StatsPeriod;
     this.statsPeriod.set(value);
+    this.loadSummary();
   }
 
   setAgendaView(view: AgendaView): void {
@@ -81,5 +125,33 @@ export class DashboardHomeComponent implements OnInit {
     await navigator.clipboard.writeText(this.bookingUrl);
     this.copyLabel = 'Link copiado';
     window.setTimeout(() => (this.copyLabel = 'Copiar link'), 2000);
+  }
+
+  private loadDashboard(): void {
+    this.loadSummary();
+    this.loadToday();
+    this.loadRecent();
+  }
+
+  private loadSummary(): void {
+    this.appointmentsService.getSummary(this.statsPeriod()).subscribe({
+      next: (summary) => {
+        this.appointmentsCount.set(summary.appointmentsCount);
+        this.incomeCount.set(Number(summary.incomeTotal ?? 0));
+        this.noShowCount.set(summary.noShowCount);
+      },
+    });
+  }
+
+  private loadToday(): void {
+    this.appointmentsService.listToday().subscribe({
+      next: (appointments) => this.todayAppointments.set(appointments),
+    });
+  }
+
+  private loadRecent(): void {
+    this.appointmentsService.listRecent().subscribe({
+      next: (appointments) => this.recentAppointments.set(appointments),
+    });
   }
 }

@@ -25,6 +25,7 @@ import {
   PublicService,
 } from '../../../../core/public-booking/public-booking.models';
 import { PublicBookingService } from '../../../../core/public-booking/public-booking.service';
+import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
 
 @Component({
@@ -37,6 +38,7 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
 export class BookingPageComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly publicBooking = inject(PublicBookingService);
+  private readonly appointmentsService = inject(AppointmentsService);
   private readonly formBuilder = inject(FormBuilder);
 
   readonly confirmForm = this.formBuilder.nonNullable.group({
@@ -61,8 +63,10 @@ export class BookingPageComponent implements OnInit {
   readonly selectedTimeSlot = signal<string | null>(null);
   readonly bookingConfirmed = signal(false);
   readonly confirmedClientName = signal('');
+  readonly submitting = signal(false);
 
   confirmSubmitAttempted = false;
+  submitError = '';
 
   ngOnInit(): void {
     if (!this.slug) {
@@ -315,15 +319,50 @@ export class BookingPageComponent implements OnInit {
 
   submitBooking(): void {
     this.confirmSubmitAttempted = true;
+    this.submitError = '';
     this.confirmForm.markAllAsTouched();
 
-    if (!this.canConfirmBooking) {
+    if (!this.canConfirmBooking || this.submitting()) {
       return;
     }
 
-    const { firstName, lastName } = this.confirmForm.getRawValue();
-    this.confirmedClientName.set(`${firstName} ${lastName}`.trim());
-    this.bookingConfirmed.set(true);
+    const service = this.selectedService;
+    const professional = this.selectedProfessional;
+    const dateKey = this.selectedDateKey();
+    const time = this.selectedTimeSlot();
+
+    if (!service || !professional || !dateKey || !time) {
+      return;
+    }
+
+    const form = this.confirmForm.getRawValue();
+    this.submitting.set(true);
+
+    this.appointmentsService
+      .createPublic(this.slug, {
+        serviceId: service.id,
+        professionalId: professional.id,
+        branchId: this.selectedBranch?.id ?? null,
+        date: dateKey,
+        time,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        phone: form.phone,
+        email: form.email || undefined,
+        notes: form.notes || undefined,
+      })
+      .subscribe({
+        next: () => {
+          this.confirmedClientName.set(`${form.firstName} ${form.lastName}`.trim());
+          this.bookingConfirmed.set(true);
+          this.submitting.set(false);
+        },
+        error: (error) => {
+          this.submitting.set(false);
+          this.submitError =
+            error.error?.message ?? 'No pudimos confirmar tu reserva. Probá de nuevo.';
+        },
+      });
   }
 
   startNewBooking(): void {

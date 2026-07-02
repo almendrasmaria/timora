@@ -22,7 +22,7 @@
   </header>
 
   <div class="home__stats">
-    <article class="home__stat-card">
+    <article class="home__stat-card home__stat-card--primary">
       <div class="home__stat-head">
         <span class="home__stat-name">Turnos</span>
         <div class="home__period-wrap">
@@ -41,23 +41,18 @@
       <p class="home__stat-value">{{ appointmentsCount() }}</p>
     </article>
 
-    <article class="home__stat-card">
+    <article class="home__stat-card home__stat-card--income">
       <div class="home__stat-head">
         <span class="home__stat-name">Ingresos</span>
-        <div class="home__period-wrap">
-          <select
-            class="home__period-select"
-            [value]="statsPeriod()"
-            (change)="onPeriodChange($event)"
-            aria-label="Período de ingresos"
-          >
-            @for (option of periodOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
-        </div>
       </div>
-      <p class="home__stat-value">${{ incomeCount() }}</p>
+      <p class="home__stat-value">{{ incomeLabel() }}</p>
+    </article>
+
+    <article class="home__stat-card home__stat-card--noshow">
+      <div class="home__stat-head">
+        <span class="home__stat-name">No-shows</span>
+      </div>
+      <p class="home__stat-value">{{ noShowCount() }}</p>
     </article>
   </div>
 
@@ -95,32 +90,76 @@
     </div>
 
     @if (agendaView() === 'list') {
-      <div class="home__agenda-empty">
-        <span class="home__agenda-empty-icon" aria-hidden="true">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-            <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
-            <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-          </svg>
-        </span>
-        <p class="home__agenda-empty-title">No hay reservas para hoy</p>
-        <p class="home__agenda-empty-text">
-          Compartí tu link para que tus clientes empiecen a reservar.
-        </p>
-        @if (bookingUrl) {
-          <button type="button" class="home__agenda-empty-action" (click)="copyBookingLink()">
-            {{ copyLabel }}
-          </button>
-        }
-      </div>
+      @if (hasTodayAppointments) {
+        <ul class="home__agenda-list">
+          @for (appointment of todayAppointments(); track appointment.id) {
+            <li class="home__agenda-item">
+              <div class="home__agenda-item-time">{{ timeLabel(appointment) }}</div>
+              <div class="home__agenda-item-copy">
+                <span class="home__agenda-item-name">{{ clientName(appointment) }}</span>
+                <span class="home__agenda-item-meta">
+                  {{ appointment.serviceName }} · {{ appointment.professionalName }}
+                </span>
+              </div>
+              <span class="home__agenda-item-status" [class.is-noshow]="appointment.status === 'NO_SHOW'">
+                {{ statusLabel(appointment) }}
+              </span>
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="home__agenda-empty">
+          <span class="home__agenda-empty-icon" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
+              <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+          </span>
+          <p class="home__agenda-empty-title">No hay reservas para hoy</p>
+          <p class="home__agenda-empty-text">
+            Compartí tu link para que tus clientes empiecen a reservar.
+          </p>
+          @if (bookingUrl) {
+            <button type="button" class="home__agenda-empty-action" (click)="copyBookingLink()">
+              {{ copyLabel }}
+            </button>
+          }
+
+          @if (showRecentFallback) {
+            <div class="home__recent">
+              <h3 class="home__recent-title">Últimas reservas</h3>
+              <ul class="home__recent-list">
+                @for (appointment of recentAppointments(); track appointment.id) {
+                  <li class="home__recent-item">
+                    <span class="home__recent-name">{{ clientName(appointment) }}</span>
+                    <span class="home__recent-meta">
+                      {{ appointment.serviceName }} · {{ timeRange(appointment) }}
+                    </span>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        </div>
+      }
     } @else {
       <div class="home__agenda-calendar">
         <p class="home__agenda-calendar-label">{{ todayLabel }}</p>
-        <div class="home__agenda-calendar-grid" aria-hidden="true">
-          @for (day of [1, 2, 3, 4, 5, 6, 7]; track day) {
-            <span class="home__agenda-calendar-cell" [class.is-today]="day === 1"></span>
-          }
-        </div>
-        <p class="home__agenda-calendar-empty">Sin turnos en el calendario.</p>
+        @if (hasTodayAppointments) {
+          <ul class="home__agenda-list home__agenda-list--compact">
+            @for (appointment of todayAppointments(); track appointment.id) {
+              <li class="home__agenda-item">
+                <div class="home__agenda-item-time">{{ timeLabel(appointment) }}</div>
+                <div class="home__agenda-item-copy">
+                  <span class="home__agenda-item-name">{{ clientName(appointment) }}</span>
+                  <span class="home__agenda-item-meta">{{ appointment.serviceName }}</span>
+                </div>
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="home__agenda-calendar-empty">Sin turnos en el calendario.</p>
+        }
       </div>
     }
   </section>

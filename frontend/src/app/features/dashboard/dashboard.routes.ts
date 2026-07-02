@@ -18,10 +18,9 @@ export const DASHBOARD_ROUTES: Routes = [
       {
         path: 'turnos',
         loadComponent: () =>
-          import('./pages/dashboard-placeholder/dashboard-placeholder.component').then(
-            (m) => m.DashboardPlaceholderComponent
+          import('./pages/appointments-page/appointments-page.component').then(
+            (m) => m.AppointmentsPageComponent
           ),
-        data: { title: 'Turnos' },
       },
       {
         path: 'clientes',

@@ -540,6 +540,16 @@
     gap: var(--space-4);
   }
 
+  &__submit-error {
+    margin: 0 0 var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--color-error-subtle);
+    color: var(--color-error);
+    font-size: var(--text-sm);
+    text-align: center;
+  }
+
   &__form-grid {
     display: grid;
     grid-template-columns: 1fr;

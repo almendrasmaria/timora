@@ -398,13 +398,16 @@
             }
 
             @if (currentStep() === 3) {
+              @if (submitError) {
+                <p class="booking__submit-error">{{ submitError }}</p>
+              }
               <button
                 type="button"
                 class="booking__continue"
-                [disabled]="!canConfirmBooking"
+                [disabled]="!canConfirmBooking || submitting()"
                 (click)="submitBooking()"
               >
-                {{ confirmLabel }}
+                {{ submitting() ? 'Reservando...' : confirmLabel }}
               </button>
             }
           </footer>

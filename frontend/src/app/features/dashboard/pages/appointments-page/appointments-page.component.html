@@ -1,0 +1,75 @@
+<section class="turnos">
+  <header class="turnos__header">
+    <div>
+      <h1 class="turnos__title">Turnos</h1>
+      <p class="turnos__subtitle">{{ viewLabel }}</p>
+    </div>
+
+    <div class="turnos__view-toggle" role="group" aria-label="Vista de turnos">
+      @for (option of viewOptions; track option.value) {
+        <button
+          type="button"
+          class="turnos__view-btn"
+          [class.is-active]="view() === option.value"
+          (click)="setView(option.value)"
+        >
+          {{ option.label }}
+        </button>
+      }
+    </div>
+  </header>
+
+  <div class="turnos__filters">
+    <button
+      type="button"
+      class="turnos__filter"
+      [class.is-active]="statusFilter() === 'all'"
+      (click)="setStatusFilter('all')"
+    >
+      Todos
+    </button>
+    <button
+      type="button"
+      class="turnos__filter"
+      [class.is-active]="statusFilter() === 'NO_SHOW'"
+      (click)="setStatusFilter('NO_SHOW')"
+    >
+      No-shows
+    </button>
+  </div>
+
+  @if (loading()) {
+    <p class="turnos__state">Cargando turnos...</p>
+  } @else if (appointments().length === 0) {
+    <div class="turnos__empty">
+      <p class="turnos__empty-title">No hay turnos en este período</p>
+      <p class="turnos__empty-text">Cuando tus clientes reserven online, van a aparecer acá.</p>
+    </div>
+  } @else {
+    <ul class="turnos__list">
+      @for (appointment of appointments(); track appointment.id) {
+        <li class="turnos__item" [class.is-noshow]="appointment.status === 'NO_SHOW'">
+          <div class="turnos__item-main">
+            <div class="turnos__item-head">
+              <span class="turnos__item-name">{{ clientName(appointment) }}</span>
+              <span class="turnos__item-status" [class.is-noshow]="appointment.status === 'NO_SHOW'">
+                {{ statusLabel(appointment) }}
+              </span>
+            </div>
+            <p class="turnos__item-service">{{ appointment.serviceName }}</p>
+            <p class="turnos__item-meta">
+              {{ scheduleLabel(appointment) }} · {{ appointment.professionalName }}
+            </p>
+            <p class="turnos__item-contact">{{ appointment.clientPhone }}</p>
+          </div>
+
+          @if (canMarkNoShow(appointment)) {
+            <button type="button" class="turnos__noshow-btn" (click)="markNoShow(appointment)">
+              Marcar no-show
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</section>

@@ -40,13 +40,7 @@ public class PublicBookingService {
 
     @Transactional(readOnly = true)
     public PublicBusinessResponse getBySlug(String slug) {
-        Business business = businessRepository.findBySlugAndOnboardingCompletedTrue(slug)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Negocio no encontrado"));
-
-        if (business.getSlug().startsWith("tmp-")) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Negocio no encontrado");
-        }
-
+        Business business = requirePublishedBusiness(slug);
         Long businessId = business.getId();
 
         var services = serviceOfferingRepository.findByBusinessIdOrderByIdAsc(businessId).stream()
@@ -86,6 +80,18 @@ public class PublicBookingService {
                 branches,
                 paymentMethods
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Business requirePublishedBusiness(String slug) {
+        Business business = businessRepository.findBySlugAndOnboardingCompletedTrue(slug)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Negocio no encontrado"));
+
+        if (business.getSlug().startsWith("tmp-")) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Negocio no encontrado");
+        }
+
+        return business;
     }
 
     private String formatProfessionalName(String firstName, String lastName) {

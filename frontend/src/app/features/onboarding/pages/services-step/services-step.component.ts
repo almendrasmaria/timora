@@ -80,7 +80,7 @@ export class ServicesStepComponent implements OnInit {
     }
 
     const value = this.form.getRawValue();
-    const price = this.resolvePrice(value.price);
+    const price = this.resolvePrice(value.paymentRequirement, value.price);
     const depositAmount = this.resolveDeposit(value.paymentRequirement, value.depositAmount);
 
     this.loading = true;
@@ -165,7 +165,8 @@ export class ServicesStepComponent implements OnInit {
     return valid;
   }
 
-  private resolvePrice(price: string): number | null {
+  private resolvePrice(requirement: ServicePaymentRequirement, price: string): number | null {
+    if (requirement === 'NO_PAYMENT') return null;
     return price ? Number(price) : null;
   }
 
@@ -184,7 +185,8 @@ export class ServicesStepComponent implements OnInit {
     const deposit = this.form.controls.depositAmount;
 
     if (requirement === 'NO_PAYMENT') {
-      price.enable({ emitEvent: false });
+      price.disable({ emitEvent: false });
+      price.setValue('', { emitEvent: false });
       deposit.disable({ emitEvent: false });
       deposit.setValue('', { emitEvent: false });
       return;

@@ -378,7 +378,7 @@ export class ConfigPageComponent implements OnInit {
     }
 
     const { name, durationMinutes, price, depositAmount, paymentRequirement } = this.serviceForm.getRawValue();
-    const resolvedPrice = price ? Number(price) : null;
+    const resolvedPrice = paymentRequirement !== 'NO_PAYMENT' && price ? Number(price) : null;
     const resolvedDeposit = paymentRequirement === 'ONLINE_DEPOSIT' && depositAmount ? Number(depositAmount) : null;
 
     this.loading.set(true);
@@ -444,7 +444,8 @@ export class ConfigPageComponent implements OnInit {
     const deposit = this.serviceForm.controls.depositAmount;
 
     if (requirement === 'NO_PAYMENT') {
-      price.enable({ emitEvent: false });
+      price.disable({ emitEvent: false });
+      price.setValue('', { emitEvent: false });
       deposit.disable({ emitEvent: false });
       deposit.setValue('', { emitEvent: false });
     } else if (requirement === 'ONLINE_FULL') {

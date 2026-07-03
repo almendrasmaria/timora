@@ -468,7 +468,7 @@
             placeholder="Hola! Recorda tu turno en &#123;negocio&#125; el &#123;fecha&#125; a las &#123;hora&#125; con &#123;profesional&#125;. Te esperamos!"
           ></textarea>
           <div class="config-textarea__hint">
-            {{ recordatoriosForm.controls.reminderTemplate.value?.length || 0 }}/500 caracteres
+            {{ (recordatoriosForm.controls.reminderTemplate.value.length || 0) }}/500 caracteres
           </div>
         </div>
 
@@ -537,7 +537,7 @@
             formControlName="bioLinkText"
           ></textarea>
           <div class="config-textarea__hint">
-            {{ (linkInstagramForm.controls.bioLinkText.value?.length || 0) }}/280 · Enter para saltos de línea
+            {{ (linkInstagramForm.controls.bioLinkText.value.length || 0) }}/280 · Enter para saltos de línea
           </div>
         </div>
 

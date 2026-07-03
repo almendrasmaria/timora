@@ -521,12 +521,12 @@
         
         <div class="config-link-card">
           <p class="config-link-card__title">TU LINK PÚBLICO</p>
-          <p class="config-link-card__url">http://localhost:4200/{{ negocioForm.controls.slug.value }}/link</p>
+          <p class="config-link-card__url">{{ getFullUrl('instagram') }}</p>
           <div class="config-link-card__actions">
-            <app-button type="button" variant="secondary" shape="pill">Copiar link</app-button>
-            <a href="#" class="config-link-card__text-link">Ver página</a>
+            <app-button type="button" variant="secondary" shape="pill" (click)="copyLink('instagram')">Copiar link</app-button>
+            <a [href]="'/' + negocioForm.controls.slug.value + '/link'" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver página</a>
           </div>
-          <p class="config-link-card__hint">localhost:4200/{{ negocioForm.controls.slug.value }}/link</p>
+          <p class="config-link-card__hint">{{ getFullUrl('instagram') }}</p>
         </div>
 
         <div class="config-form__section">
@@ -598,18 +598,18 @@
         
         <div class="config-link-card">
           <p class="config-link-card__title">TU WEB DE TURNOS</p>
-          <p class="config-link-card__url" style="color: var(--color-primary);">localhost:4200/{{ negocioForm.controls.slug.value }}</p>
+          <p class="config-link-card__url" style="color: var(--color-primary);">{{ getFullUrl('booking') }}</p>
           <div class="config-link-card__actions">
-            <app-button type="button" variant="secondary" shape="pill">
+            <app-button type="button" variant="secondary" shape="pill" (click)="copyLink('booking')">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
               </svg>
               Copiar link
             </app-button>
-            <a href="#" class="config-link-card__text-link">Ver web de turnos</a>
+            <a [href]="'/' + negocioForm.controls.slug.value" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver web de turnos</a>
           </div>
-          <p class="config-link-card__hint">localhost:4200/{{ negocioForm.controls.slug.value }}</p>
+          <p class="config-link-card__hint">{{ getFullUrl('booking') }}</p>
         </div>
 
         <div class="config-panel">

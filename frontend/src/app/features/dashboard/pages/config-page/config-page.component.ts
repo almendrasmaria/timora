@@ -612,4 +612,19 @@ export class ConfigPageComponent implements OnInit {
       });
     }
   }
+
+  getFullUrl(type: 'booking' | 'instagram'): string {
+    const slug = this.negocioForm.controls.slug.value || '';
+    const origin = window.location.origin;
+    return type === 'instagram' ? `${origin}/${slug}/link` : `${origin}/${slug}`;
+  }
+
+  copyLink(type: 'booking' | 'instagram'): void {
+    const url = this.getFullUrl(type);
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Link copiado: ' + url);
+    }).catch(err => {
+      console.error('Error al copiar:', err);
+    });
+  }
 }

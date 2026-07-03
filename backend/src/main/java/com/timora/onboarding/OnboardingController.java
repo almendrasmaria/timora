@@ -92,4 +92,19 @@ public class OnboardingController {
     public OnboardingStateResponse finish() {
         return onboardingService.finish();
     }
+
+    @PutMapping("/branches/{id}")
+    public OnboardingStateResponse updateBranch(@PathVariable Long id, @Valid @RequestBody CreateBranchRequest request) {
+        return onboardingService.updateBranch(id, request);
+    }
+
+    @PutMapping("/professionals/{id}")
+    public OnboardingStateResponse updateProfessional(@PathVariable Long id, @Valid @RequestBody CreateProfessionalRequest request) {
+        return onboardingService.updateProfessional(id, request);
+    }
+
+    @PutMapping("/services/{id}")
+    public OnboardingStateResponse updateService(@PathVariable Long id, @Valid @RequestBody CreateServiceRequest request) {
+        return onboardingService.updateService(id, request);
+    }
 }

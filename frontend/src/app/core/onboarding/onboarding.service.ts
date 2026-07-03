@@ -53,8 +53,8 @@ export class OnboardingService {
   addProfessional(data: {
     firstName: string;
     lastName: string;
-    email?: string;
     availabilityJson?: string;
+    branchIds?: number[];
   }): Observable<OnboardingState> {
     return this.http
       .post<OnboardingState>(`${environment.apiUrl}/onboarding/professionals`, data)
@@ -93,6 +93,40 @@ export class OnboardingService {
   deletePaymentMethod(id: number): Observable<OnboardingState> {
     return this.http
       .delete<OnboardingState>(`${environment.apiUrl}/onboarding/payment-methods/${id}`)
+      .pipe(tap((state) => this.syncSession(state)));
+  }
+
+  updateBranch(id: number, name: string, address: string): Observable<OnboardingState> {
+    return this.http
+      .put<OnboardingState>(`${environment.apiUrl}/onboarding/branches/${id}`, { name, address })
+      .pipe(tap((state) => this.syncSession(state)));
+  }
+
+  updateProfessional(
+    id: number,
+    data: {
+      firstName: string;
+      lastName: string;
+      availabilityJson?: string;
+      branchIds?: number[];
+    }
+  ): Observable<OnboardingState> {
+    return this.http
+      .put<OnboardingState>(`${environment.apiUrl}/onboarding/professionals/${id}`, data)
+      .pipe(tap((state) => this.syncSession(state)));
+  }
+
+  updateService(
+    id: number,
+    data: {
+      name: string;
+      durationMinutes: number;
+      price?: number | null;
+      depositAmount?: number | null;
+    }
+  ): Observable<OnboardingState> {
+    return this.http
+      .put<OnboardingState>(`${environment.apiUrl}/onboarding/services/${id}`, data)
       .pipe(tap((state) => this.syncSession(state)));
   }
 

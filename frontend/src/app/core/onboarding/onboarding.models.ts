@@ -15,26 +15,34 @@ export type PaymentMethodType =
   | 'ONLINE_FULL'
   | 'FREE';
 
+export interface BusinessState {
+  name: string;
+  category: BusinessCategory;
+  specialty?: string;
+  whatsapp: string;
+  instagram?: string;
+  slug: string;
+  brandColor?: string;
+  logoUrl?: string;
+  showWhatsappToClients: boolean;
+  reminderTemplate?: string;
+  bioLinkText?: string;
+  bioShowBooking: boolean;
+  bioShowLocation: boolean;
+  bioShowWhatsapp: boolean;
+}
+
 export interface OnboardingState {
   completed: boolean;
   currentStep: number;
-  business: {
-    name: string;
-    category: BusinessCategory | null;
-    specialty: string | null;
-    whatsapp: string | null;
-    instagram: string | null;
-    slug: string;
-    brandColor: string | null;
-  };
+  business: BusinessState;
   branches: { id: number; name: string; address: string }[];
   professionals: {
     id: number;
     firstName: string;
     lastName: string;
-    email: string | null;
-    roleLabel: string | null;
     availabilityJson: string | null;
+    branchIds: number[];
   }[];
   services: {
     id: number;

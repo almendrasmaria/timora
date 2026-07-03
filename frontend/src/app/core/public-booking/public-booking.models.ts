@@ -29,6 +29,7 @@ export interface PublicBranch {
 export interface PublicBusiness {
   name: string;
   slug: string;
+  logoUrl: string | null;
   brandColor: string | null;
   whatsapp: string | null;
   services: PublicService[];

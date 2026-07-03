@@ -56,7 +56,7 @@
   &__hero {
     position: relative;
     overflow: hidden;
-    padding: calc(env(safe-area-inset-top, 0px) + var(--space-6)) var(--space-5) var(--space-10);
+    padding: calc(env(safe-area-inset-top, 0px) + var(--space-10)) var(--space-5) var(--space-16);
     background: var(--booking-gradient, linear-gradient(155deg, var(--booking-accent) 0%, color-mix(in srgb, var(--booking-accent) 82%, #1a1028) 100%));
     color: var(--booking-hero-text);
   }
@@ -94,10 +94,17 @@
     box-shadow: var(--shadow-xs);
     border: 1px solid color-mix(in srgb, var(--booking-accent) 18%, transparent);
 
+    &-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: var(--radius-full);
+    }
+
     &--hero {
-      width: 4.5rem;
-      height: 4.5rem;
-      font-size: var(--text-2xl);
+      width: 5.25rem;
+      height: 5.25rem;
+      font-size: var(--text-3xl);
       background: rgba(255, 255, 255, 0.96);
       border: 2px solid rgba(255, 255, 255, 0.55);
       box-shadow: 0 8px 24px rgba(17, 17, 24, 0.12);
@@ -1036,13 +1043,13 @@
   }
 
   &__avatar--aside {
-    width: 4.25rem;
-    height: 4.25rem;
-    font-size: var(--text-2xl);
+    width: 7.5rem;
+    height: 7.5rem;
+    font-size: var(--text-5xl);
     background: rgba(255, 255, 255, 0.96);
     border: 2px solid rgba(255, 255, 255, 0.55);
     box-shadow: 0 8px 24px rgba(17, 17, 24, 0.14);
-    margin-bottom: var(--space-1);
+    margin-bottom: var(--space-2);
   }
 
   &__business-name--aside {

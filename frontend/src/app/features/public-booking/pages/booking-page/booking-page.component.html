@@ -14,7 +14,13 @@
       <header class="booking__hero">
         <div class="booking__hero-glow" aria-hidden="true"></div>
         <div class="booking__hero-inner">
-          <span class="booking__avatar booking__avatar--hero" aria-hidden="true">{{ businessInitial }}</span>
+          <span class="booking__avatar booking__avatar--hero" aria-hidden="true">
+            @if (business.logoUrl) {
+              <img [src]="business.logoUrl" alt="" class="booking__avatar-img">
+            } @else {
+              {{ businessInitial }}
+            }
+          </span>
           <h1 class="booking__business-name booking__business-name--hero">{{ business.name }}</h1>
           <p class="booking__tagline booking__tagline--hero">Reservá tu turno online</p>
 
@@ -33,7 +39,13 @@
         <div class="booking__aside-glow" aria-hidden="true"></div>
         <div class="booking__aside-inner">
           <div class="booking__brand booking__brand--aside">
-            <span class="booking__avatar booking__avatar--aside" aria-hidden="true">{{ businessInitial }}</span>
+            <span class="booking__avatar booking__avatar--aside" aria-hidden="true">
+              @if (business.logoUrl) {
+                <img [src]="business.logoUrl" alt="" class="booking__avatar-img">
+              } @else {
+                {{ businessInitial }}
+              }
+            </span>
             <h1 class="booking__business-name booking__business-name--aside">{{ business.name }}</h1>
             <p class="booking__tagline booking__tagline--aside">Reservá tu turno online</p>
           </div>

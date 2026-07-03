@@ -31,11 +31,13 @@ public class Professional {
     @Column(name = "last_name", nullable = false, length = 80)
     private String lastName;
 
-    @Column(length = 255)
-    private String email;
-
-    @Column(name = "role_label", length = 80)
-    private String roleLabel;
+    @jakarta.persistence.ManyToMany(fetch = FetchType.LAZY)
+    @jakarta.persistence.JoinTable(
+        name = "professional_branches",
+        joinColumns = @JoinColumn(name = "professional_id"),
+        inverseJoinColumns = @JoinColumn(name = "branch_id")
+    )
+    private java.util.Set<Branch> branches = new java.util.HashSet<>();
 
     @Column(name = "availability_json", columnDefinition = "TEXT")
     private String availabilityJson;
@@ -76,20 +78,12 @@ public class Professional {
         this.lastName = lastName;
     }
 
-    public String getEmail() {
-        return email;
+    public java.util.Set<Branch> getBranches() {
+        return branches;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getRoleLabel() {
-        return roleLabel;
-    }
-
-    public void setRoleLabel(String roleLabel) {
-        this.roleLabel = roleLabel;
+    public void setBranches(java.util.Set<Branch> branches) {
+        this.branches = branches;
     }
 
     public String getAvailabilityJson() {

@@ -113,18 +113,18 @@ export function specialtiesForCategory(category: string | null | undefined) {
 export const BUSINESS_SPECIALTIES = SERVICIOS_SPECIALTIES;
 
 export const BRAND_COLORS = [
-  { value: '#111118', label: 'Negro' },
-  { value: '#e8a4b8', label: 'Rosa' },
-  { value: '#d4b8a8', label: 'Nude' },
-  { value: '#8fd4a8', label: 'Verde' },
-  { value: '#8cb4e8', label: 'Azul' },
-  { value: '#8cd8f0', label: 'Celeste' },
-  { value: '#b8a8e8', label: 'Violeta' },
-  { value: '#78d4d4', label: 'Turquesa' },
-  { value: '#f0e088', label: 'Amarillo' },
-  { value: '#b8b8c0', label: 'Gris' },
-  { value: '#8b2942', label: 'Bordo' },
-  { value: '#a08060', label: 'Marrón' },
+  { value: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', label: 'Índigo violeta' },
+  { value: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', label: 'Rosa fucsia' },
+  { value: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', label: 'Azul celeste' },
+  { value: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', label: 'Verde menta' },
+  { value: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', label: 'Peach dorado' },
+  { value: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)', label: 'Lila suave' },
+  { value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', label: 'Nude durazno' },
+  { value: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)', label: 'Azul hielo' },
+  { value: 'linear-gradient(135deg, #fd7043 0%, #e53935 100%)', label: 'Rojo coral' },
+  { value: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', label: 'Turquesa noche' },
+  { value: 'linear-gradient(135deg, #2d3561 0%, #c05c7e 100%)', label: 'Azul bordo' },
+  { value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', label: 'Noche oscura' },
 ] as const;
 
 export const BUSINESS_CATEGORIES = [

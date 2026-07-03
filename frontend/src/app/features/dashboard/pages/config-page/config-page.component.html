@@ -425,7 +425,7 @@
               <button
                 type="button"
                 class="config-color-picker__circle"
-                [style.background-color]="color.value"
+                [style.background]="color.value"
                 [class.is-selected]="negocioForm.controls.brandColor.value === color.value"
                 [attr.aria-label]="color.label"
                 (click)="selectColor(color.value)"
@@ -537,7 +537,7 @@
             formControlName="bioLinkText"
           ></textarea>
           <div class="config-textarea__hint">
-            {{ linkInstagramForm.controls.bioLinkText.value?.length || 0 }}/280 · Enter para saltos de línea
+            {{ (linkInstagramForm.controls.bioLinkText.value?.length || 0) }}/280 · Enter para saltos de línea
           </div>
         </div>
 

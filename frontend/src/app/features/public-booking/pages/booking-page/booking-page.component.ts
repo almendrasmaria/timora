@@ -115,7 +115,19 @@ export class BookingPageComponent implements OnInit {
   }
 
   get accentColor(): string {
-    return this.business?.brandColor?.trim() || '#5b5bd6';
+    const raw = this.business?.brandColor?.trim() || '#5b5bd6';
+    if (raw.startsWith('linear-gradient')) {
+      const match = raw.match(/#[0-9a-fA-F]{3,6}/);
+      return match ? match[0] : '#5b5bd6';
+    }
+    return raw;
+  }
+
+  get accentGradient(): string {
+    const raw = this.business?.brandColor?.trim() || '';
+    if (raw.startsWith('linear-gradient')) return raw;
+    const color = raw || '#5b5bd6';
+    return `linear-gradient(155deg, ${color} 0%, color-mix(in srgb, ${color} 82%, #1a1028) 100%)`;
   }
 
   get hasBranchesStep(): boolean {

@@ -57,11 +57,7 @@
     position: relative;
     overflow: hidden;
     padding: calc(env(safe-area-inset-top, 0px) + var(--space-6)) var(--space-5) var(--space-10);
-    background: linear-gradient(
-      155deg,
-      var(--booking-accent) 0%,
-      color-mix(in srgb, var(--booking-accent) 82%, #1a1028) 100%
-    );
+    background: var(--booking-gradient, linear-gradient(155deg, var(--booking-accent) 0%, color-mix(in srgb, var(--booking-accent) 82%, #1a1028) 100%));
     color: var(--booking-hero-text);
   }
 
@@ -314,7 +310,7 @@
 
     .is-selected & {
       border-color: var(--booking-accent);
-      background: var(--booking-accent);
+      background: var(--booking-gradient, var(--booking-accent));
       color: var(--color-text-inverse);
     }
   }
@@ -377,7 +373,7 @@
     background: transparent;
 
     .is-selected & {
-      background: var(--booking-accent);
+      background: var(--booking-gradient, var(--booking-accent));
     }
   }
 
@@ -569,7 +565,7 @@
 
     &.is-selected {
       border-color: var(--booking-accent);
-      background: var(--booking-accent);
+      background: var(--booking-gradient, var(--booking-accent));
       color: var(--color-text-inverse);
     }
   }
@@ -859,7 +855,7 @@
     padding: 0 1.5rem;
     border: none;
     border-radius: var(--radius-full);
-    background: var(--booking-accent);
+    background: var(--booking-gradient, var(--booking-accent));
     color: var(--color-text-inverse);
     font-family: inherit;
     font-size: var(--text-base);
@@ -867,10 +863,13 @@
     letter-spacing: -0.01em;
     cursor: pointer;
     box-shadow: 0 4px 16px color-mix(in srgb, var(--booking-accent) 35%, transparent);
-    transition: opacity var(--duration-fast) var(--ease-out);
+    transition:
+      opacity var(--duration-fast) var(--ease-out),
+      filter var(--duration-fast) var(--ease-out);
 
     &:hover:not(:disabled) {
-      opacity: 0.94;
+      filter: brightness(1.08);
+      opacity: 0.95;
     }
 
     &:disabled {
@@ -1099,11 +1098,7 @@
       padding: 0;
       border-radius: 0;
       border: none;
-      background: linear-gradient(
-        165deg,
-        var(--booking-accent) 0%,
-        color-mix(in srgb, var(--booking-accent) 84%, #1a1028) 100%
-      );
+      background: var(--booking-gradient, linear-gradient(165deg, var(--booking-accent) 0%, color-mix(in srgb, var(--booking-accent) 84%, #1a1028) 100%));
     }
 
     &__aside-glow {

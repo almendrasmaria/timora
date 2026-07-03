@@ -27,6 +27,21 @@ export class InstagramLinkPageComponent implements OnInit {
     }
   }
 
+  getBrandGradient(): string {
+    const raw = this.business()?.brandColor || '';
+    if (raw.startsWith('linear-gradient')) return raw;
+    return raw ? `linear-gradient(135deg, ${raw} 0%, ${raw} 100%)` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+  }
+
+  getBrandBaseColor(): string {
+    const raw = this.business()?.brandColor || '';
+    if (raw.startsWith('linear-gradient')) {
+      const match = raw.match(/#[0-9a-fA-F]{3,6}/);
+      return match ? match[0] : '#667eea';
+    }
+    return raw || '#667eea';
+  }
+
   getBookingUrl(): string {
     const slug = this.route.parent?.snapshot.paramMap.get('slug');
     return `/${slug}`;

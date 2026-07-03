@@ -1,0 +1,54 @@
+@if (error()) {
+  <div class="link-page-error">
+    <p>{{ error() }}</p>
+  </div>
+}
+
+@if (business()) {
+  <div class="link-page-container" [style.--brand-color]="business().brandColor || '#333'">
+    
+    <div class="glass-card">
+      <div class="profile-header">
+        @if (business().logoUrl) {
+          <img [src]="business().logoUrl" alt="Logo de {{ business().name }}" class="profile-avatar">
+        } @else {
+          <div class="profile-avatar-placeholder">
+            {{ business().name.charAt(0) | uppercase }}
+          </div>
+        }
+        <h1 class="profile-name">{{ business().name }}</h1>
+        @if (business().category) {
+          <p class="profile-category">{{ business().category | titlecase }}</p>
+        }
+        @if (business().bioLinkText) {
+          <p class="profile-bio">{{ business().bioLinkText }}</p>
+        }
+      </div>
+
+      <div class="link-actions">
+        
+        @if (business().bioShowBooking) {
+          <a [href]="getBookingUrl()" class="link-btn link-btn--primary">
+            Reservar turno
+          </a>
+        }
+
+        @if (business().bioShowLocation && business().branches?.length > 0) {
+          <a [href]="getMapsUrl(business().branches)" target="_blank" rel="noopener noreferrer" class="link-btn link-btn--secondary">
+            Ver ubicación
+          </a>
+        }
+
+        @if (business().bioShowWhatsapp && business().whatsapp) {
+          <a [href]="getWhatsappUrl(business().whatsapp)" target="_blank" rel="noopener noreferrer" class="link-btn link-btn--secondary">
+            Contacto WhatsApp
+          </a>
+        }
+      </div>
+    </div>
+
+    <div class="footer-brand">
+      <p>Turnos con <span class="brand-highlight">Timora</span></p>
+    </div>
+  </div>
+}

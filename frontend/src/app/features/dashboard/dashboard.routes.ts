@@ -33,8 +33,8 @@ export const DASHBOARD_ROUTES: Routes = [
       {
         path: 'config',
         loadComponent: () =>
-          import('./pages/dashboard-placeholder/dashboard-placeholder.component').then(
-            (m) => m.DashboardPlaceholderComponent
+          import('./pages/config-page/config-page.component').then(
+            (m) => m.ConfigPageComponent
           ),
         data: { title: 'Configuración' },
       },

@@ -140,9 +140,21 @@ public class OnboardingService {
         professional.setBusiness(business);
         professional.setFirstName(request.firstName().trim());
         professional.setLastName(request.lastName().trim());
-        professional.setEmail(normalizeOptional(request.email()));
-        professional.setRoleLabel(normalizeOptional(request.roleLabel()));
         professional.setAvailabilityJson(normalizeOptional(request.availabilityJson()));
+
+        java.util.Set<Branch> branches = new java.util.HashSet<>();
+        if (request.branchIds() != null) {
+            for (Long branchId : request.branchIds()) {
+                Branch branch = branchRepository.findById(branchId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Branch not found"));
+                if (!branch.getBusiness().getId().equals(business.getId())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Branch does not belong to business");
+                }
+                branches.add(branch);
+            }
+        }
+        professional.setBranches(branches);
+
         professionalRepository.save(professional);
         business.setOnboardingStep(Math.max(business.getOnboardingStep(), 6));
         return buildState(business);
@@ -228,6 +240,71 @@ public class OnboardingService {
         return buildState(business);
     }
 
+    @Transactional
+    public OnboardingStateResponse updateBranch(Long id, CreateBranchRequest request) {
+        Business business = requireBusiness();
+        Branch branch = branchRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Sucursal no encontrada"));
+
+        if (!branch.getBusiness().getId().equals(business.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para editar esta sucursal");
+        }
+
+        branch.setName(request.name().trim());
+        branch.setAddress(request.address().trim());
+        branchRepository.save(branch);
+        return buildState(business);
+    }
+
+    @Transactional
+    public OnboardingStateResponse updateProfessional(Long id, CreateProfessionalRequest request) {
+        Business business = requireBusiness();
+        Professional professional = professionalRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Profesional no encontrado"));
+
+        if (!professional.getBusiness().getId().equals(business.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para editar este profesional");
+        }
+
+        professional.setFirstName(request.firstName().trim());
+        professional.setLastName(request.lastName().trim());
+        professional.setAvailabilityJson(normalizeOptional(request.availabilityJson()));
+
+        java.util.Set<Branch> branches = new java.util.HashSet<>();
+        if (request.branchIds() != null) {
+            for (Long branchId : request.branchIds()) {
+                Branch branch = branchRepository.findById(branchId)
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Branch not found"));
+                if (!branch.getBusiness().getId().equals(business.getId())) {
+                    throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Branch does not belong to business");
+                }
+                branches.add(branch);
+            }
+        }
+        professional.setBranches(branches);
+
+        professionalRepository.save(professional);
+        return buildState(business);
+    }
+
+    @Transactional
+    public OnboardingStateResponse updateService(Long id, CreateServiceRequest request) {
+        Business business = requireBusiness();
+        ServiceOffering service = serviceOfferingRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Servicio no encontrado"));
+
+        if (!service.getBusiness().getId().equals(business.getId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No tenés permiso para editar este servicio");
+        }
+
+        service.setName(request.name().trim());
+        service.setDurationMinutes(request.durationMinutes());
+        service.setPrice(request.price());
+        service.setDepositAmount(request.depositAmount());
+        serviceOfferingRepository.save(service);
+        return buildState(business);
+    }
+
     private void validateReadyToFinish(Business business) {
         Long businessId = business.getId();
 
@@ -273,9 +350,8 @@ public class OnboardingService {
                                 pro.getId(),
                                 pro.getFirstName(),
                                 pro.getLastName(),
-                                pro.getEmail(),
-                                pro.getRoleLabel(),
-                                pro.getAvailabilityJson()))
+                                pro.getAvailabilityJson(),
+                                pro.getBranches().stream().map(Branch::getId).toList()))
                         .toList();
 
         List<OnboardingStateResponse.ServiceState> services =
@@ -303,7 +379,14 @@ public class OnboardingService {
                         business.getWhatsapp(),
                         business.getInstagram(),
                         business.getSlug(),
-                        business.getBrandColor()),
+                        business.getBrandColor(),
+                        business.getLogoUrl(),
+                        business.isShowWhatsappToClients(),
+                        business.getReminderTemplate(),
+                        business.getBioLinkText(),
+                        business.isBioShowBooking(),
+                        business.isBioShowLocation(),
+                        business.isBioShowWhatsapp()),
                 branches,
                 professionals,
                 services,

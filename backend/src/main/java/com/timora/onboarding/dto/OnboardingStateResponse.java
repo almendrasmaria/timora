@@ -22,7 +22,14 @@ public record OnboardingStateResponse(
             String whatsapp,
             String instagram,
             String slug,
-            String brandColor
+            String brandColor,
+            String logoUrl,
+            boolean showWhatsappToClients,
+            String reminderTemplate,
+            String bioLinkText,
+            boolean bioShowBooking,
+            boolean bioShowLocation,
+            boolean bioShowWhatsapp
     ) {
     }
 
@@ -33,9 +40,8 @@ public record OnboardingStateResponse(
             Long id,
             String firstName,
             String lastName,
-            String email,
-            String roleLabel,
-            String availabilityJson
+            String availabilityJson,
+            List<Long> branchIds
     ) {
     }
 

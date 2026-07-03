@@ -56,7 +56,8 @@ public class PublicBookingService {
                 .map(professional -> new PublicProfessionalResponse(
                         professional.getId(),
                         formatProfessionalName(professional.getFirstName(), professional.getLastName()),
-                        professional.getAvailabilityJson()))
+                        professional.getAvailabilityJson(),
+                        professional.getBranches().stream().map(com.timora.business.Branch::getId).toList()))
                 .toList();
 
         var branches = branchRepository.findByBusinessIdOrderByIdAsc(businessId).stream()
@@ -75,6 +76,12 @@ public class PublicBookingService {
                 business.getSlug(),
                 business.getBrandColor(),
                 business.getWhatsapp(),
+                business.getLogoUrl(),
+                business.getCategory() != null ? business.getCategory().name() : null,
+                business.getBioLinkText(),
+                business.isBioShowBooking(),
+                business.isBioShowLocation(),
+                business.isBioShowWhatsapp(),
                 services,
                 professionals,
                 branches,

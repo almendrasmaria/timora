@@ -1,0 +1,1 @@
+ALTER TABLE businesses ALTER COLUMN brand_color TYPE VARCHAR(300);

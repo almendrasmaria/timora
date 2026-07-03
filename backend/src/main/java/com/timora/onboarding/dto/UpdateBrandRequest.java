@@ -9,6 +9,6 @@ public record UpdateBrandRequest(
         @Size(min = 3, max = 80)
         @Pattern(regexp = "^[a-z0-9]+(?:-[a-z0-9]+)*$")
         String slug,
-        @Size(max = 32) String brandColor
+        @Size(max = 300) String brandColor
 ) {
 }

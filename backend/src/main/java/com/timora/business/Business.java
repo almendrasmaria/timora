@@ -43,11 +43,32 @@ public class Business {
     @Column(length = 80)
     private String specialty;
 
+    @Column(name = "logo_url", length = 255)
+    private String logoUrl;
+
+    @Column(name = "show_whatsapp_to_clients", nullable = false)
+    private boolean showWhatsappToClients = true;
+
+    @Column(name = "reminder_template", length = 500)
+    private String reminderTemplate;
+
     @Column(name = "onboarding_step", nullable = false)
     private int onboardingStep = 1;
 
     @Column(name = "onboarding_completed", nullable = false)
     private boolean onboardingCompleted = false;
+
+    @Column(name = "bio_link_text", length = 280)
+    private String bioLinkText;
+
+    @Column(name = "bio_show_booking", nullable = false)
+    private boolean bioShowBooking = true;
+
+    @Column(name = "bio_show_location", nullable = false)
+    private boolean bioShowLocation = true;
+
+    @Column(name = "bio_show_whatsapp", nullable = false)
+    private boolean bioShowWhatsapp = true;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -127,6 +148,30 @@ public class Business {
         this.specialty = specialty;
     }
 
+    public String getLogoUrl() {
+        return logoUrl;
+    }
+
+    public void setLogoUrl(String logoUrl) {
+        this.logoUrl = logoUrl;
+    }
+
+    public boolean isShowWhatsappToClients() {
+        return showWhatsappToClients;
+    }
+
+    public void setShowWhatsappToClients(boolean showWhatsappToClients) {
+        this.showWhatsappToClients = showWhatsappToClients;
+    }
+
+    public String getReminderTemplate() {
+        return reminderTemplate;
+    }
+
+    public void setReminderTemplate(String reminderTemplate) {
+        this.reminderTemplate = reminderTemplate;
+    }
+
     public int getOnboardingStep() {
         return onboardingStep;
     }
@@ -141,6 +186,38 @@ public class Business {
 
     public void setOnboardingCompleted(boolean onboardingCompleted) {
         this.onboardingCompleted = onboardingCompleted;
+    }
+
+    public String getBioLinkText() {
+        return bioLinkText;
+    }
+
+    public void setBioLinkText(String bioLinkText) {
+        this.bioLinkText = bioLinkText;
+    }
+
+    public boolean isBioShowBooking() {
+        return bioShowBooking;
+    }
+
+    public void setBioShowBooking(boolean bioShowBooking) {
+        this.bioShowBooking = bioShowBooking;
+    }
+
+    public boolean isBioShowLocation() {
+        return bioShowLocation;
+    }
+
+    public void setBioShowLocation(boolean bioShowLocation) {
+        this.bioShowLocation = bioShowLocation;
+    }
+
+    public boolean isBioShowWhatsapp() {
+        return bioShowWhatsapp;
+    }
+
+    public void setBioShowWhatsapp(boolean bioShowWhatsapp) {
+        this.bioShowWhatsapp = bioShowWhatsapp;
     }
 
     public Instant getCreatedAt() {

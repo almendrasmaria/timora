@@ -17,6 +17,7 @@ export interface PublicProfessional {
   id: number;
   name: string;
   availabilityJson: string | null;
+  branchIds: number[];
 }
 
 export interface PublicBranch {
@@ -36,4 +37,4 @@ export interface PublicBusiness {
   paymentMethods: PaymentMethodType[];
 }
 
-export type BookingStep = 1 | 2 | 3;
+export type BookingStep = 1 | 2 | 3 | 4;

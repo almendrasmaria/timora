@@ -49,7 +49,6 @@ export class BookingPageComponent implements OnInit {
     notes: [''],
   });
 
-  readonly steps = BOOKING_STEPS;
   readonly slug = this.route.snapshot.paramMap.get('slug') ?? '';
 
   loading = true;
@@ -58,12 +57,31 @@ export class BookingPageComponent implements OnInit {
 
   readonly currentStep = signal<BookingStep>(1);
   readonly selectedServiceId = signal<number | null>(null);
+  readonly selectedBranchId = signal<number | null>(null);
   readonly selectedProfessionalId = signal<number | null>(null);
   readonly selectedDateKey = signal<string | null>(null);
   readonly selectedTimeSlot = signal<string | null>(null);
   readonly bookingConfirmed = signal(false);
   readonly confirmedClientName = signal('');
   readonly submitting = signal(false);
+
+  get steps(): { step: BookingStep; label: string }[] {
+    const hasBranches = (this.business?.branches?.length ?? 0) >= 2;
+    if (hasBranches) {
+      return [
+        { step: 1, label: 'Servicio' },
+        { step: 2, label: 'Sucursal' },
+        { step: 3, label: 'Fecha' },
+        { step: 4, label: 'Confirmar' },
+      ];
+    } else {
+      return [
+        { step: 1, label: 'Servicio' },
+        { step: 2, label: 'Fecha' },
+        { step: 3, label: 'Confirmar' },
+      ];
+    }
+  }
 
   confirmSubmitAttempted = false;
   submitError = '';
@@ -100,19 +118,34 @@ export class BookingPageComponent implements OnInit {
     return this.business?.brandColor?.trim() || '#5b5bd6';
   }
 
+  get hasBranchesStep(): boolean {
+    return (this.business?.branches?.length ?? 0) >= 2;
+  }
+
+  get sucursalStepNum(): number {
+    return this.hasBranchesStep ? 2 : -1;
+  }
+
+  get fechaStepNum(): number {
+    return this.hasBranchesStep ? 3 : 2;
+  }
+
+  get confirmarStepNum(): number {
+    return this.hasBranchesStep ? 4 : 3;
+  }
+
   get progressPercent(): number {
     if (this.bookingConfirmed()) {
       return 100;
     }
-
-    return (this.currentStep() / 3) * 100;
+    const total = this.hasBranchesStep ? 4 : 3;
+    return (this.currentStep() / total) * 100;
   }
 
   get currentStepLabel(): string {
     if (this.bookingConfirmed()) {
       return 'Confirmado';
     }
-
     return this.steps.find((item) => item.step === this.currentStep())?.label ?? '';
   }
 
@@ -124,20 +157,20 @@ export class BookingPageComponent implements OnInit {
     if (!this.business) {
       return false;
     }
-
-    if (this.currentStep() === 1) {
-      return this.business.services.length > 0;
-    }
-
-    if (this.currentStep() === 2) {
-      return this.business.professionals.length > 0;
-    }
-
     if (this.bookingConfirmed()) {
       return false;
     }
 
-    return this.currentStep() === 3;
+    if (this.currentStep() === 1) {
+      return this.business.services.length > 0;
+    }
+    if (this.currentStep() === this.sucursalStepNum) {
+      return this.business.branches.length > 0;
+    }
+    if (this.currentStep() === this.fechaStepNum) {
+      return this.filteredProfessionals.length > 0;
+    }
+    return this.currentStep() === this.confirmarStepNum;
   }
 
   get selectedService(): PublicService | null {
@@ -151,7 +184,7 @@ export class BookingPageComponent implements OnInit {
   }
 
   get hasMultipleProfessionals(): boolean {
-    return (this.business?.professionals.length ?? 0) > 1;
+    return (this.filteredProfessionals.length ?? 0) > 1;
   }
 
   get bookableDates(): BookableDate[] {
@@ -197,7 +230,14 @@ export class BookingPageComponent implements OnInit {
   }
 
   get selectedBranch(): PublicBranch | null {
-    return this.business?.branches[0] ?? null;
+    if (!this.business || this.business.branches.length === 0) {
+      return null;
+    }
+    if (!this.hasBranchesStep) {
+      return this.business.branches[0];
+    }
+    const id = this.selectedBranchId();
+    return this.business.branches.find((b) => b.id === id) ?? null;
   }
 
   get branchLabel(): string | null {
@@ -205,8 +245,14 @@ export class BookingPageComponent implements OnInit {
     if (!branch) {
       return null;
     }
-
     return `${branch.name} / ${branch.address}`;
+  }
+
+  get filteredProfessionals(): PublicProfessional[] {
+    const branch = this.selectedBranch;
+    const all = this.business?.professionals ?? [];
+    if (!branch) return all;
+    return all.filter((pro) => !pro.branchIds || pro.branchIds.length === 0 || pro.branchIds.includes(branch.id));
   }
 
   get bookingPayment() {
@@ -288,12 +334,28 @@ export class BookingPageComponent implements OnInit {
   }
 
   goToStep(step: BookingStep): void {
-    if (step === 2 && !this.selectedServiceId()) {
+    if (step === 1) {
+      this.currentStep.set(step);
       return;
     }
 
-    if (step === 3 && !this.canContinueFromSchedule) {
-      return;
+    if (this.hasBranchesStep) {
+      if (step === 2 && !this.selectedServiceId()) {
+        return;
+      }
+      if (step === 3 && (!this.selectedServiceId() || !this.selectedBranchId())) {
+        return;
+      }
+      if (step === 4 && !this.canContinueFromSchedule) {
+        return;
+      }
+    } else {
+      if (step === 2 && !this.selectedServiceId()) {
+        return;
+      }
+      if (step === 3 && !this.canContinueFromSchedule) {
+        return;
+      }
     }
 
     this.currentStep.set(step);
@@ -303,9 +365,28 @@ export class BookingPageComponent implements OnInit {
     if (!this.selectedServiceId()) {
       return;
     }
+    if (this.hasBranchesStep) {
+      this.currentStep.set(2);
+    } else {
+      this.initializeScheduleStep();
+      this.currentStep.set(2);
+    }
+  }
 
+  selectBranch(branchId: number): void {
+    this.selectedBranchId.set(branchId);
+  }
+
+  isBranchSelected(branchId: number): boolean {
+    return this.selectedBranchId() === branchId;
+  }
+
+  continueFromBranch(): void {
+    if (!this.selectedBranchId()) {
+      return;
+    }
     this.initializeScheduleStep();
-    this.currentStep.set(2);
+    this.currentStep.set(3);
   }
 
   continueFromSchedule(): void {
@@ -314,7 +395,7 @@ export class BookingPageComponent implements OnInit {
     }
 
     this.confirmSubmitAttempted = false;
-    this.currentStep.set(3);
+    this.currentStep.set(this.confirmarStepNum as BookingStep);
   }
 
   submitBooking(): void {
@@ -371,6 +452,7 @@ export class BookingPageComponent implements OnInit {
     this.confirmSubmitAttempted = false;
     this.confirmForm.reset();
     this.selectedServiceId.set(null);
+    this.selectedBranchId.set(null);
     this.selectedProfessionalId.set(null);
     this.selectedDateKey.set(null);
     this.selectedTimeSlot.set(null);
@@ -396,12 +478,14 @@ export class BookingPageComponent implements OnInit {
   }
 
   private initializeScheduleStep(): void {
-    const professionals = this.business?.professionals ?? [];
+    const professionals = this.filteredProfessionals;
     const currentProfessionalId = this.selectedProfessionalId();
     const hasCurrent = professionals.some((professional) => professional.id === currentProfessionalId);
 
     if (!hasCurrent && professionals.length > 0) {
       this.selectedProfessionalId.set(professionals[0].id);
+    } else if (professionals.length === 0) {
+      this.selectedProfessionalId.set(null);
     }
 
     this.resetScheduleSelection();

@@ -153,8 +153,7 @@
               </div>
             </div>
           } @else {
-          @switch (currentStep()) {
-            @case (1) {
+            @if (currentStep() === 1) {
               <header class="booking__panel-head">
                 <h2 class="booking__panel-title">Elegí un servicio</h2>
                 <p class="booking__panel-subtitle">
@@ -194,7 +193,38 @@
               }
             }
 
-            @case (2) {
+            @if (hasBranchesStep && currentStep() === 2) {
+              <header class="booking__panel-head">
+                <h2 class="booking__panel-title">Elegí sucursal</h2>
+                <p class="booking__panel-subtitle">
+                  Tocá la sucursal donde querés atenderte para continuar.
+                </p>
+              </header>
+
+              <div class="booking__branch-list">
+                @for (branch of business.branches; track branch.id) {
+                  <button
+                    type="button"
+                    class="booking__branch-card"
+                    [class.is-selected]="isBranchSelected(branch.id)"
+                    (click)="selectBranch(branch.id)"
+                  >
+                    <div class="booking__branch-radio">
+                      <span class="booking__branch-radio-inner"></span>
+                    </div>
+                    <div class="booking__branch-info">
+                      <span class="booking__branch-name">{{ branch.name }}</span>
+                      <span class="booking__branch-address">{{ branch.address }}</span>
+                    </div>
+                    <span class="booking__branch-action">
+                      {{ isBranchSelected(branch.id) ? 'SELECCIONADO' : 'ELEGIR' }}
+                    </span>
+                  </button>
+                }
+              </div>
+            }
+
+            @if (currentStep() === fechaStepNum) {
               <header class="booking__panel-head">
                 <h2 class="booking__panel-title">Elegí día y horario</h2>
                 @if (selectedService) {
@@ -204,7 +234,7 @@
                 }
               </header>
 
-              @if (business.professionals.length === 0) {
+              @if (filteredProfessionals.length === 0) {
                 <div class="booking__empty">
                   <p class="booking__empty-title">Sin profesionales disponibles</p>
                   <p class="booking__empty-text">El negocio todavía no publicó su equipo para reservas online.</p>
@@ -219,7 +249,7 @@
                   <section class="booking__schedule-section">
                     <h3 class="booking__schedule-label">Profesional</h3>
                     <div class="booking__chip-row">
-                      @for (professional of business.professionals; track professional.id) {
+                      @for (professional of filteredProfessionals; track professional.id) {
                         <button
                           type="button"
                           class="booking__pro-chip"
@@ -272,7 +302,7 @@
               }
             }
 
-            @case (3) {
+            @if (currentStep() === confirmarStepNum) {
               <header class="booking__panel-head">
                 <h2 class="booking__panel-title">Confirmá tu turno</h2>
                 <p class="booking__panel-subtitle">Completá tus datos para confirmar la reserva.</p>
@@ -366,7 +396,6 @@
               </form>
             }
           }
-          }
         </div>
 
         @if (showActions) {
@@ -386,7 +415,18 @@
               </button>
             }
 
-            @if (currentStep() === 2) {
+            @if (hasBranchesStep && currentStep() === 2) {
+              <button
+                type="button"
+                class="booking__continue"
+                [disabled]="!selectedBranchId()"
+                (click)="continueFromBranch()"
+              >
+                Continuar
+              </button>
+            }
+
+            @if (currentStep() === fechaStepNum) {
               <button
                 type="button"
                 class="booking__continue"
@@ -397,7 +437,7 @@
               </button>
             }
 
-            @if (currentStep() === 3) {
+            @if (currentStep() === confirmarStepNum) {
               @if (submitError) {
                 <p class="booking__submit-error">{{ submitError }}</p>
               }

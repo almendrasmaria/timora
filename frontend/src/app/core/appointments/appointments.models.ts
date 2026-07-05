@@ -18,6 +18,7 @@ export interface Appointment {
   startsAt: string;
   endsAt: string;
   price: number | null;
+  depositAmount: number | null;
   status: AppointmentStatus;
   createdAt: string;
 }

@@ -43,6 +43,14 @@ export class AppointmentsService {
     return this.http.patch<Appointment>(`${environment.apiUrl}/appointments/${id}/no-show`, {});
   }
 
+  update(id: number, payload: any): Observable<Appointment> {
+    return this.http.put<Appointment>(`${environment.apiUrl}/appointments/${id}`, payload);
+  }
+
+  cancel(id: number): Observable<Appointment> {
+    return this.http.patch<Appointment>(`${environment.apiUrl}/appointments/${id}/cancel`, {});
+  }
+
   createPublic(slug: string, payload: CreatePublicAppointmentRequest): Observable<Appointment> {
     return this.http.post<Appointment>(
       `${environment.apiUrl}/public/businesses/${slug}/appointments`,

@@ -1,75 +1,446 @@
 <section class="turnos">
+
+  <!-- ── HEADER ────────────────────────────────────────────────── -->
   <header class="turnos__header">
     <div>
       <h1 class="turnos__title">Turnos</h1>
       <p class="turnos__subtitle">{{ viewLabel }}</p>
     </div>
 
-    <div class="turnos__view-toggle" role="group" aria-label="Vista de turnos">
-      @for (option of viewOptions; track option.value) {
+    <div class="turnos__view-toggle" role="group" aria-label="Vista">
+      @for (opt of viewOptions; track opt.value) {
         <button
           type="button"
           class="turnos__view-btn"
-          [class.is-active]="view() === option.value"
-          (click)="setView(option.value)"
-        >
-          {{ option.label }}
-        </button>
+          [class.is-active]="view() === opt.value"
+          (click)="setView(opt.value)"
+        >{{ opt.label }}</button>
       }
     </div>
   </header>
 
-  <div class="turnos__filters">
-    <button
-      type="button"
-      class="turnos__filter"
-      [class.is-active]="statusFilter() === 'all'"
-      (click)="setStatusFilter('all')"
-    >
-      Todos
-    </button>
-    <button
-      type="button"
-      class="turnos__filter"
-      [class.is-active]="statusFilter() === 'NO_SHOW'"
-      (click)="setStatusFilter('NO_SHOW')"
-    >
-      No-shows
-    </button>
-  </div>
-
+  <!-- ── SKELETON ──────────────────────────────────────────────── -->
   @if (loading()) {
-    <p class="turnos__state">Cargando turnos...</p>
-  } @else if (appointments().length === 0) {
-    <div class="turnos__empty">
-      <p class="turnos__empty-title">No hay turnos en este período</p>
-      <p class="turnos__empty-text">Cuando tus clientes reserven online, van a aparecer acá.</p>
+    <div class="turnos__skeleton" aria-busy="true" aria-label="Cargando">
+      @for (i of [1,2,3,4]; track i) {
+        <div class="turnos__skeleton-item" [style.animation-delay]="(i * 60) + 'ms'"></div>
+      }
     </div>
-  } @else {
-    <ul class="turnos__list">
-      @for (appointment of appointments(); track appointment.id) {
-        <li class="turnos__item" [class.is-noshow]="appointment.status === 'NO_SHOW'">
-          <div class="turnos__item-main">
-            <div class="turnos__item-head">
-              <span class="turnos__item-name">{{ clientName(appointment) }}</span>
-              <span class="turnos__item-status" [class.is-noshow]="appointment.status === 'NO_SHOW'">
-                {{ statusLabel(appointment) }}
-              </span>
+  }
+
+  <!-- ── VACÍO ─────────────────────────────────────────────────── -->
+  @else if (appointments().length === 0) {
+    <div class="turnos__empty">
+      <div class="turnos__empty-icon" aria-hidden="true">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <rect width="48" height="48" rx="14" fill="var(--color-primary-subtle)"/>
+          <path d="M15 20a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H17a2 2 0 0 1-2-2V20Z"
+            stroke="var(--color-primary)" stroke-width="1.4" fill="none"/>
+          <path d="M21 16v4M27 16v4M15 24h18" stroke="var(--color-primary)" stroke-width="1.4" stroke-linecap="round"/>
+          <circle cx="24" cy="30" r="1.5" fill="var(--color-primary)" opacity="0.5"/>
+        </svg>
+      </div>
+      <p class="turnos__empty-title">Sin turnos</p>
+      <p class="turnos__empty-text">Cuando tus clientes reserven online, aparecerán acá.</p>
+    </div>
+  }
+
+  <!-- ── LISTA ─────────────────────────────────────────────────── -->
+  @else {
+    <div class="turnos__feed">
+      @for (group of grouped(); track group.dateKey) {
+        <p class="turnos__date-label">{{ group.dateLabel }}</p>
+
+        @for (appt of group.items; track appt.id) {
+          <button
+            type="button"
+            class="turnos__card"
+            [class.is-completed]="appt.status === 'COMPLETED'"
+            [class.is-noshow]="appt.status === 'NO_SHOW'"
+            [class.is-cancelled]="appt.status === 'CANCELLED'"
+            [style.--accent]="accent(appt.status)"
+            (click)="openDetail(appt)"
+          >
+            <!-- Franja de color -->
+            <span class="turnos__card-stripe" aria-hidden="true"></span>
+
+            <!-- Avatar -->
+            <span class="turnos__card-avatar" aria-hidden="true">{{ initials(appt) }}</span>
+
+            <!-- Info principal -->
+            <div class="turnos__card-body">
+              <div class="turnos__card-row">
+                <span class="turnos__card-name">
+                  {{ name(appt) }}
+                  <span class="turnos__card-status-dot" [style.background]="accent(appt.status)"></span>
+                  <span class="turnos__card-status-text" [style.color]="accent(appt.status)">{{ statusLabel(appt) }}</span>
+                </span>
+                <span class="turnos__card-time">
+                  <svg width="12" height="12" viewBox="0 0 15 15" fill="none" style="margin-right: 4px; vertical-align: middle; opacity: 0.7;">
+                    <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/>
+                    <path d="M7.5 4v3.5l2 1.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                  </svg>
+                  {{ timeRange(appt) }}
+                </span>
+              </div>
+              <div class="turnos__card-row turnos__card-row--sub">
+                <span class="turnos__card-service">
+                  {{ appt.serviceName }}
+                  <span style="opacity: 0.5; margin: 0 4px;">·</span>
+                  <span class="turnos__card-prof">{{ appt.professionalName }}</span>
+                </span>
+                @if (price(appt)) {
+                  <span class="turnos__card-price">{{ price(appt) }}</span>
+                }
+              </div>
             </div>
-            <p class="turnos__item-service">{{ appointment.serviceName }}</p>
-            <p class="turnos__item-meta">
-              {{ scheduleLabel(appointment) }} · {{ appointment.professionalName }}
-            </p>
-            <p class="turnos__item-contact">{{ appointment.clientPhone }}</p>
+
+            <!-- Chevron -->
+            <svg class="turnos__card-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        }
+      }
+    </div>
+  }
+
+  <!-- ── MODAL DE DETALLE ───────────────────────────────────────── -->
+  @if (selectedAppointment(); as appt) {
+    <app-modal title="Detalle del turno" (closed)="closeDetail()">
+
+      <!-- ── BODY DEL MODAL ──────────────────────────────────────── -->
+      <div class="detail">
+        <!-- Cliente -->
+        <div class="detail__client">
+          <span
+            class="detail__avatar"
+            [class.is-completed]="appt.status === 'COMPLETED'"
+            [class.is-noshow]="appt.status === 'NO_SHOW'"
+            [class.is-cancelled]="appt.status === 'CANCELLED'"
+          >{{ initials(appt) }}</span>
+          <div>
+            <p class="detail__name">{{ name(appt) }}</p>
+            <span
+              class="detail__badge"
+              [class.is-completed]="appt.status === 'COMPLETED'"
+              [class.is-noshow]="appt.status === 'NO_SHOW'"
+              [class.is-cancelled]="appt.status === 'CANCELLED'"
+            >{{ statusLabel(appt) }}</span>
+          </div>
+        </div>
+
+        @if (!isEditing()) {
+          <!-- MODO LECTURA (VISTA POR DEFECTO - MATCHING SCREENSHOTS) -->
+          <!-- Tarjeta Fecha y Hora -->
+          <div style="background: #f8f9fa; border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2);">
+            <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); width: 2.75rem; height: 2.75rem; display: grid; place-items: center; flex-shrink: 0; box-shadow: var(--shadow-xs);">
+              <svg width="20" height="20" viewBox="0 0 15 15" fill="none" style="color: var(--color-text-secondary);">
+                <rect x="1.5" y="2.5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
+                <path d="M4.5 1v2M10.5 1v2M1.5 6.5h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <div>
+              <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Fecha y Hora</p>
+              <p style="margin: 2px 0 0; font-size: var(--text-base); font-weight: 700; color: var(--color-text); letter-spacing: -0.02em;">{{ dateLabel(appt) }}</p>
+              <p style="margin: 2px 0 0; font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); display: flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 15 15" fill="none" style="opacity: 0.75;">
+                  <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.25"/>
+                  <path d="M7.5 4v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
+                </svg>
+                {{ timeRange(appt) }}
+              </p>
+            </div>
           </div>
 
-          @if (canMarkNoShow(appointment)) {
-            <button type="button" class="turnos__noshow-btn" (click)="markNoShow(appointment)">
-              Marcar no-show
+          <!-- Filas con Iconos de Servicio, Profesional, Sucursal -->
+          <div style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-2) var(--space-1) var(--space-4);">
+            <div style="display: flex; align-items: center; gap: var(--space-4);">
+              <div style="background: #f1f1f4; border-radius: var(--radius-full); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex-shrink: 0; color: var(--color-text-secondary);">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <path d="M7.5 1.5l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5 1.5-3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Servicio</p>
+                <p style="margin: 1px 0 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">{{ appt.serviceName }}</p>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: var(--space-4);">
+              <div style="background: #f1f1f4; border-radius: var(--radius-full); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex-shrink: 0; color: var(--color-text-secondary);">
+                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                  <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M3 13c0-2.5 2-4.5 4.5-4.5S12 10.5 12 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+              </div>
+              <div>
+                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Profesional</p>
+                <p style="margin: 1px 0 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">{{ appt.professionalName }}</p>
+              </div>
+            </div>
+
+            @if (appt.branchName) {
+              <div style="display: flex; align-items: center; gap: var(--space-4);">
+                <div style="background: #f1f1f4; border-radius: var(--radius-full); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex-shrink: 0; color: var(--color-text-secondary);">
+                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+                    <path d="M7.5 1C5.3 1 3.5 2.8 3.5 5c0 3 4 9 4 9s4-6 4-9c0-2.2-1.8-4-4-4Z" stroke="currentColor" stroke-width="1.3"/>
+                    <circle cx="7.5" cy="5" r="1.5" stroke="currentColor" stroke-width="1.3"/>
+                  </svg>
+                </div>
+                <div>
+                  <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Sucursal</p>
+                  <p style="margin: 1px 0 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">{{ appt.branchName }}</p>
+                </div>
+              </div>
+            }
+          </div>
+
+          <!-- Divider -->
+          <div style="height: 1px; background: var(--color-border); margin: 0 auto; width: 100%;"></div>
+
+          <!-- Sección: Pago -->
+          <div class="detail__section" style="padding-top: var(--space-2);">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; position: relative;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <svg width="16" height="16" viewBox="0 0 15 15" fill="none" style="color: var(--color-text-secondary);">
+                  <rect x="1" y="3" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                  <path d="M1 6h13M4 9h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                </svg>
+                <p style="margin: 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">Pago</p>
+              </div>
+
+              <!-- Menú de tres puntos -->
+              <div>
+                <button type="button" (click)="togglePaymentMenu()" style="background: none; border: none; padding: 4px; cursor: pointer; color: var(--color-text-secondary); display: grid; place-items: center; border-radius: var(--radius-md);">
+                  <svg width="16" height="16" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="7.5" cy="3" r="0.75" fill="currentColor"/>
+                    <circle cx="7.5" cy="7.5" r="0.75" fill="currentColor"/>
+                    <circle cx="7.5" cy="12" r="0.75" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Menú Dropdown: Registrar Pago -->
+                @if (showPaymentMenu()) {
+                  <div style="position: absolute; right: 0; top: 1.75rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); z-index: 10; padding: 4px; min-width: 120px;">
+                    <button type="button" (click)="openRegisterPayment(appt)" style="width: 100%; text-align: left; background: none; border: none; padding: 8px 12px; font-family: inherit; font-size: var(--text-sm); font-weight: 600; color: var(--color-text); cursor: pointer; border-radius: var(--radius-sm); transition: background var(--duration-fast);" onmouseover="this.style.background='var(--color-surface-muted)'" onmouseout="this.style.background='none'">
+                      Registrar pago
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <!-- Estado de confirmación (Abajo a la izquierda) -->
+            <div style="display: flex; align-items: center; gap: 6px; margin: 2px 0 var(--space-3);">
+              <span style="display: inline-block; width: 6px; height: 6px; border-radius: var(--radius-full);" [style.background]="accent(appt.status)"></span>
+              <span style="font-size: 0.72rem; font-weight: 700;" [style.color]="accent(appt.status)">{{ statusLabel(appt) }}</span>
+            </div>
+
+            <!-- Forma y Tipo de cobro -->
+            <div style="display: flex; gap: var(--space-4); margin: var(--space-2) 0;">
+              <div style="flex: 1;">
+                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Forma de cobro</p>
+                <p style="margin: 2px 0 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text);">Registro manual</p>
+              </div>
+              <div style="flex: 1;">
+                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Tipo de cobro</p>
+                <p style="margin: 2px 0 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text);">
+                  {{ appt.status === 'COMPLETED' ? 'Cobro completo' : (appt.depositAmount && appt.depositAmount > 0 ? 'Seña registrada' : 'Sin cobro online') }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Precio del turno e inline editor -->
+            @if (isEditingPrice()) {
+              <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin: var(--space-3) 0; box-shadow: var(--shadow-sm);">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary); display: block; margin-bottom: var(--space-2);">Precio del turno (ARS)</label>
+                <input type="number" [(ngModel)]="inlinePrice" style="width: 100%; height: 2.5rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-2); background: var(--color-surface); color: var(--color-text);" placeholder="Ej. 15000">
+                <p style="font-size: 0.72rem; color: var(--color-text-muted); margin: 0 0 var(--space-3); line-height: 1.4;">Este valor no modifica el servicio. Se usa en las estadísticas y el pendiente de este turno.</p>
+                <div style="display: flex; gap: var(--space-2);">
+                  <button type="button" (click)="saveInlinePrice(appt)" style="background: #737373; color: white; border: none; padding: 0.5rem var(--space-4); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Guardar</button>
+                  <button type="button" (click)="cancelInlinePrice()" style="background: white; color: var(--color-text); border: 1px solid var(--color-border); padding: 0.5rem var(--space-4); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer;">Cancelar</button>
+                </div>
+              </div>
+            } @else {
+              <p style="margin: var(--space-2) 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text-secondary);">
+                Precio del turno: 
+                <strong style="color: var(--color-text); font-weight: 700; font-size: 0.9rem;">{{ price(appt) || 'Sin precio' }}</strong>
+                <button type="button" style="background: none; border: none; color: var(--color-primary); font-family: inherit; font-size: 0.8rem; font-weight: 700; margin-left: 8px; cursor: pointer; text-decoration: underline;" (click)="editPriceInline(appt)">Modificar</button>
+              </p>
+            }
+
+            <!-- Cards Recibido / Pendiente -->
+            <div style="display: flex; gap: var(--space-3); margin-top: var(--space-2);">
+              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Recibido</span>
+                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-success);">{{ formatValue(receivedAmount(appt)) }}</p>
+              </div>
+              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pendiente</span>
+                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-text);">{{ formatValue(pendingAmount(appt)) }}</p>
+              </div>
+            </div>
+
+            <!-- Notas del cliente -->
+            @if (appt.notes) {
+              <div class="detail__notes" style="width: 100%; margin-top: var(--space-3);">
+                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true" style="color: var(--color-text-muted);">
+                  <path d="M2 3h9M2 6.5h9M2 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                </svg>
+                <span>{{ appt.notes }}</span>
+              </div>
+            }
+          </div>
+
+        } @else {
+          <!-- MODO EDICIÓN (FORMULARIOS DE MODIFICACIÓN) -->
+          <!-- Cobros / Finanzas -->
+          <div class="detail__section">
+            <p class="detail__section-label">Cobros / Finanzas</p>
+            <div style="display: flex; gap: var(--space-3); align-items: flex-start;">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Precio del turno (ARS)</label>
+                <input type="number" [(ngModel)]="editPrice" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;" placeholder="Ej. 15000">
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Seña recibida</label>
+                <input type="number" [(ngModel)]="editDepositAmount" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;" placeholder="Ej. 5000">
+              </div>
+            </div>
+
+            <!-- Cards Recibido / Pendiente -->
+            <div style="display: flex; gap: var(--space-3); margin-top: var(--space-2);">
+              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Recibido</span>
+                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-success);">{{ formatValue(editReceived) }}</p>
+              </div>
+              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pendiente</span>
+                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-text);">{{ formatValue(editPending) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Asignación Profesional / Servicio -->
+          <div class="detail__section" style="border-top: 1px solid var(--color-border); padding-top: var(--space-4);">
+            <p class="detail__section-label">Profesional / Servicio</p>
+            
+            <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Servicio</label>
+                <select [(ngModel)]="editServiceId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface);">
+                  @for (srv of services(); track srv.id) {
+                    <option [value]="srv.id">{{ srv.name }} ({{ duration(srv) }})</option>
+                  }
+                </select>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Profesional</label>
+                <select [(ngModel)]="editProfessionalId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface);">
+                  @for (pro of professionals(); track pro.id) {
+                    <option [value]="pro.id">{{ proDisplayName(pro) }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reprogramar Horario -->
+          <div class="detail__section" style="border-top: 1px solid var(--color-border); padding-top: var(--space-4); margin-bottom: var(--space-4);">
+            <p class="detail__section-label">Reprogramar Horario</p>
+            
+            <div style="display: flex; gap: var(--space-3);">
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Fecha</label>
+                <input type="date" [(ngModel)]="editDate" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;">
+              </div>
+              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Hora de inicio</label>
+                <input type="time" [(ngModel)]="editTime" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;">
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- ── ACCIONES DEL MODAL (PROYECTADAS EN EL FOOTER DEL MODAL) ── -->
+      <div modal-actions style="width: 100%;">
+        @if (!isEditing()) {
+          <div style="display: flex; flex-direction: column; gap: var(--space-2); width: 100%;">
+            <!-- Enviar recordatorio (WhatsApp, Verde sutil) -->
+            @if (whatsappReminderUrl(appt); as url) {
+              <a [href]="url" target="_blank" rel="noopener noreferrer" class="detail__wa-btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 2.5rem; background: #e8f7ee; color: #1da851; border: 1px solid #c9edd6; box-shadow: none; font-size: 0.85rem; font-weight: 700; box-sizing: border-box; text-decoration: none; border-radius: var(--radius-md);">
+                <svg width="14" height="14" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                  <path d="M7.5 1A6.5 6.5 0 0 0 2 7.5c0 1.1.27 2.2.8 3.1L1.5 14l3.5-1.2A6.5 6.5 0 1 0 7.5 1Z"
+                    fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.1"/>
+                  <path d="M5.5 6c.1.5.5 1.1 1 1.7.5.5 1.2 1 1.7 1.1.2.1.4 0 .6-.2l.5-.5c.2-.2.5-.2.6 0l1 1c.2.2.2.5 0 .6-.5.5-1.1.8-1.7.8C6.7 10.5 4.5 8.3 4.5 5.7c0-.6.3-1.2.7-1.7.2-.2.5-.2.6 0l1 1c.2.2.2.4 0 .6l-.5.5c-.2.2-.3.4-.3.7Z"
+                    fill="currentColor"/>
+                </svg>
+                Enviar recordatorio por WhatsApp
+              </a>
+            }
+
+            <!-- Editar turno (Primary) -->
+            <button type="button" class="detail__wa-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: var(--color-primary); box-shadow: var(--shadow-primary); box-sizing: border-box; border-radius: var(--radius-md);" (click)="isEditing.set(true)">
+              Editar turno
             </button>
-          }
-        </li>
+
+            <!-- Marcar no-show (Si aplica) -->
+            @if (canNoShow(appt)) {
+              <button type="button" class="detail__noshow-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--radius-md); padding: 0;" (click)="markNoShow(appt)">
+                Marcar no-show
+              </button>
+            }
+
+            <!-- Cancelar turno -->
+            <button type="button" class="detail__noshow-btn" style="border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-secondary); width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--radius-md); padding: 0;" (click)="cancelAppointment()">
+              Cancelar turno
+            </button>
+          </div>
+        } @else {
+          <div style="display: flex; flex-direction: column; gap: var(--space-2); width: 100%;">
+            <button type="button" class="detail__wa-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: var(--color-primary); box-shadow: var(--shadow-primary); box-sizing: border-box; border-radius: var(--radius-md);" (click)="saveChanges()">
+              Guardar cambios
+            </button>
+            <button type="button" class="detail__noshow-btn" style="border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-secondary); width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--radius-md); padding: 0;" (click)="isEditing.set(false)">
+              Volver
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- ── MODAL SECUNDARIO: REGISTRAR PAGO (MATCHING SCREENSHOT) ── -->
+      @if (showRegisterPaymentModal()) {
+        <div class="modal-backdrop" style="z-index: 300;" (click)="showRegisterPaymentModal.set(false)">
+          <div class="modal" style="width: min(100%, 28rem); padding: var(--space-5); background: var(--color-surface); box-shadow: var(--shadow-xl);" (click)="$event.stopPropagation()">
+            <!-- Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3);">
+              <h3 style="margin: 0; font-size: var(--text-lg); font-weight: 700; color: var(--color-text); letter-spacing: -0.02em;">Registrar pago</h3>
+              <button type="button" (click)="showRegisterPaymentModal.set(false)" style="background: none; border: none; font-size: 1.25rem; color: var(--color-text-muted); cursor: pointer; display: grid; place-items: center; padding: 4px; border-radius: var(--radius-md);" onmouseover="this.style.background='var(--color-surface-muted)'" onmouseout="this.style.background='none'">×</button>
+            </div>
+
+            <!-- Subtext -->
+            <p style="margin: 0 0 var(--space-4); font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.5; font-family: inherit;">
+              Registrá un pago recibido en el local. Podés cargar más de uno si el cliente paga en partes.
+            </p>
+
+            <!-- Input Monto -->
+            <div style="margin-bottom: var(--space-5);">
+              <label style="display: block; font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary); margin-bottom: var(--space-2);">Monto pagado (ARS)</label>
+              <input type="number" [(ngModel)]="registerPaymentAmount" style="width: 100%; height: 2.75rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-base); font-weight: 600; background: var(--color-surface); color: var(--color-text);" placeholder="Ej. 15000">
+            </div>
+
+            <!-- Submit Button (Large Black Button) -->
+            <button type="button" (click)="submitRegisterPayment(appt)" style="width: 100%; height: 2.75rem; background: #000; color: #fff; border: none; border-radius: var(--radius-full); font-family: inherit; font-size: var(--text-sm); font-weight: 700; cursor: pointer; transition: opacity var(--duration-fast);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+              Registrar pago
+            </button>
+          </div>
+        </div>
       }
-    </ul>
+
+    </app-modal>
   }
+
 </section>

@@ -23,6 +23,7 @@ public record AppointmentResponse(
         Instant startsAt,
         Instant endsAt,
         BigDecimal price,
+        BigDecimal depositAmount,
         AppointmentStatus status,
         Instant createdAt
 ) {

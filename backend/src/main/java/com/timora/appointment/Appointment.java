@@ -69,6 +69,9 @@ public class Appointment {
     @Column(precision = 12, scale = 2)
     private BigDecimal price;
 
+    @Column(name = "deposit_amount", precision = 12, scale = 2)
+    private BigDecimal depositAmount;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 32)
     private AppointmentStatus status = AppointmentStatus.CONFIRMED;
@@ -189,6 +192,14 @@ public class Appointment {
 
     public void setPrice(BigDecimal price) {
         this.price = price;
+    }
+
+    public BigDecimal getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(BigDecimal depositAmount) {
+        this.depositAmount = depositAmount;
     }
 
     public AppointmentStatus getStatus() {

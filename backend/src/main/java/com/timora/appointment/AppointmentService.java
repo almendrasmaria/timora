@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -156,6 +157,7 @@ public class AppointmentService {
         appointment.setStartsAt(startsAt);
         appointment.setEndsAt(endsAt);
         appointment.setPrice(service.getPrice());
+        appointment.setDepositAmount(service.getDepositAmount());
         appointment.setStatus(AppointmentStatus.CONFIRMED);
 
         return toResponse(appointmentRepository.save(appointment));
@@ -215,6 +217,7 @@ public class AppointmentService {
                 appointment.getStartsAt(),
                 appointment.getEndsAt(),
                 appointment.getPrice(),
+                appointment.getDepositAmount(),
                 appointment.getStatus(),
                 appointment.getCreatedAt()
         );
@@ -295,5 +298,62 @@ public class AppointmentService {
     }
 
     public record DateRange(Instant from, Instant to) {
+    }
+
+    @Transactional
+    public AppointmentResponse update(Long id, com.timora.appointment.dto.UpdateAppointmentRequest request) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turno no encontrado"));
+
+        if (request.serviceId() != null) {
+            var service = serviceOfferingRepository.findById(request.serviceId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Servicio inválido"));
+            appointment.setService(service);
+        }
+
+        if (request.professionalId() != null) {
+            var professional = professionalRepository.findById(request.professionalId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profesional inválido"));
+            appointment.setProfessional(professional);
+        }
+
+        if (request.startsAt() != null) {
+            Instant prevStart = appointment.getStartsAt();
+            appointment.setStartsAt(request.startsAt());
+            if (request.endsAt() != null) {
+                appointment.setEndsAt(request.endsAt());
+            } else {
+                long durationSecs = Duration.between(prevStart, appointment.getEndsAt()).getSeconds();
+                appointment.setEndsAt(request.startsAt().plusSeconds(durationSecs));
+            }
+        } else if (request.endsAt() != null) {
+            appointment.setEndsAt(request.endsAt());
+        }
+
+        if (request.price() != null) {
+            appointment.setPrice(request.price());
+        }
+
+        if (request.depositAmount() != null) {
+            appointment.setDepositAmount(request.depositAmount());
+        }
+
+        if (request.status() != null) {
+            try {
+                appointment.setStatus(AppointmentStatus.valueOf(request.status()));
+            } catch (IllegalArgumentException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Estado inválido");
+            }
+        }
+
+        return toResponse(appointmentRepository.save(appointment));
+    }
+
+    @Transactional
+    public AppointmentResponse cancel(Long id) {
+        Appointment appointment = appointmentRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turno no encontrado"));
+        appointment.setStatus(AppointmentStatus.CANCELLED);
+        return toResponse(appointmentRepository.save(appointment));
     }
 }

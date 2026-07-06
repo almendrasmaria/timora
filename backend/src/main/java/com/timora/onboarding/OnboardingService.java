@@ -7,7 +7,6 @@ import com.timora.business.BusinessCategory;
 import com.timora.business.BusinessRepository;
 import com.timora.business.PaymentMethod;
 import com.timora.business.PaymentMethodRepository;
-import com.timora.business.PaymentMethodType;
 import com.timora.business.Professional;
 import com.timora.business.ProfessionalRepository;
 import com.timora.business.ServiceOffering;

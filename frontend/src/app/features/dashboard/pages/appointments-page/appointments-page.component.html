@@ -246,7 +246,7 @@
               <div style="flex: 1;">
                 <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Tipo de cobro</p>
                 <p style="margin: 2px 0 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text);">
-                  {{ appt.status === 'COMPLETED' ? 'Cobro completo' : (appt.depositAmount && appt.depositAmount > 0 ? 'Seña registrada' : 'Sin cobro online') }}
+                  {{ paymentType(appt) }}
                 </p>
               </div>
             </div>
@@ -383,7 +383,7 @@
             }
 
             <!-- Editar turno (Primary) -->
-            <button type="button" class="detail__wa-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: var(--color-primary); box-shadow: var(--shadow-primary); box-sizing: border-box; border-radius: var(--radius-md);" (click)="isEditing.set(true)">
+            <button type="button" class="detail__wa-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: #000; color: #fff; border: none; box-sizing: border-box; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: opacity var(--duration-fast);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" (click)="isEditing.set(true)">
               Editar turno
             </button>
 
@@ -401,7 +401,7 @@
           </div>
         } @else {
           <div style="display: flex; flex-direction: column; gap: var(--space-2); width: 100%;">
-            <button type="button" class="detail__wa-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: var(--color-primary); box-shadow: var(--shadow-primary); box-sizing: border-box; border-radius: var(--radius-md);" (click)="saveChanges()">
+            <button type="button" class="detail__wa-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; background: #000; color: #fff; border: none; box-sizing: border-box; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: opacity var(--duration-fast);" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" (click)="saveChanges()">
               Guardar cambios
             </button>
             <button type="button" class="detail__noshow-btn" style="border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-secondary); width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--radius-md); padding: 0;" (click)="isEditing.set(false)">

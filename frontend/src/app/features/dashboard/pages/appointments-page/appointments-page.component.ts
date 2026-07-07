@@ -203,6 +203,12 @@ export class AppointmentsPageComponent implements OnInit {
   }
   price(a: Appointment): string | null { return a.price != null ? formatIncome(a.price) : null; }
   canNoShow(a: Appointment): boolean   { return canMarkNoShow(a); }
+  
+  paymentType(a: Appointment): string {
+    if (a.status === 'COMPLETED' && a.price && a.price > 0) return 'Cobro completo';
+    if (a.depositAmount && a.depositAmount > 0) return 'Seña registrada';
+    return 'Sin cobro online';
+  }
 
   dateLabel(a: Appointment): string    { return formatAppointmentDateLong(a.startsAt); }
   duration(a: Appointment): string {

@@ -692,10 +692,34 @@
 
       <div class="config-modal-form__schedule-section">
         <p class="config-modal-form__schedule-title">Horarios de atención</p>
-        <app-professional-schedule
-          [availability]="proAvailability()"
-          (availabilityChange)="proAvailability.set($event)"
-        />
+
+        @if (selectedBranchesForPro().length > 1) {
+          <div class="config-modal-form__schedule-tabs" style="display: flex; gap: 8px; margin-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); padding-bottom: 8px; flex-wrap: wrap;">
+            @for (branch of selectedBranchesForPro(); track branch.id) {
+              <button
+                type="button"
+                style="padding: 6px 12px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 700; cursor: pointer; transition: all var(--duration-fast);"
+                [style.background]="selectedScheduleBranchId() === branch.id ? 'var(--color-primary-subtle)' : 'var(--color-surface-muted)'"
+                [style.color]="selectedScheduleBranchId() === branch.id ? 'var(--color-primary)' : 'var(--color-text-secondary)'"
+                [style.border]="selectedScheduleBranchId() === branch.id ? '1px solid var(--color-primary)' : '1px solid var(--color-border)'"
+                (click)="selectedScheduleBranchId.set(branch.id)"
+              >
+                {{ branch.name }}
+              </button>
+            }
+          </div>
+        }
+
+        @if (selectedScheduleBranchId(); as activeBranchId) {
+          <app-professional-schedule
+            [availability]="getBranchAvailability(activeBranchId)"
+            (availabilityChange)="setBranchAvailability(activeBranchId, $event)"
+          />
+        } @else {
+          <p style="font-size: var(--text-sm); color: var(--color-text-muted); text-align: center; padding: var(--space-4) 0; font-style: italic;">
+            Seleccioná al menos una sucursal para configurar sus horarios.
+          </p>
+        }
       </div>
 
       <div modal-actions class="config-modal-form__actions">

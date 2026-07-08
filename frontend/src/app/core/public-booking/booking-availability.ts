@@ -60,13 +60,17 @@ function formatDateSublabel(date: Date): string {
   return `${date.getDate()} ${months[date.getMonth()]}`;
 }
 
-function isDayOpen(availabilityJson: string | null, date: Date): boolean {
-  const availability = parseAvailability(availabilityJson);
+function isDayOpen(availabilityJson: string | null, date: Date, branchId?: number | null): boolean {
+  const availability = parseAvailability(availabilityJson, branchId);
   const dayKey = DAY_KEYS[date.getDay()];
   return availability[dayKey]?.enabled ?? false;
 }
 
-export function getBookableDates(availabilityJson: string | null, daysAhead = 21): BookableDate[] {
+export function getBookableDates(
+  availabilityJson: string | null,
+  branchId?: number | null,
+  daysAhead = 21
+): BookableDate[] {
   const today = startOfDay(new Date());
   const dates: BookableDate[] = [];
 
@@ -74,7 +78,7 @@ export function getBookableDates(availabilityJson: string | null, daysAhead = 21
     const date = new Date(today);
     date.setDate(today.getDate() + offset);
 
-    if (!isDayOpen(availabilityJson, date)) {
+    if (!isDayOpen(availabilityJson, date, branchId)) {
       continue;
     }
 
@@ -92,9 +96,10 @@ export function getTimeSlots(
   availabilityJson: string | null,
   dateKey: string,
   durationMinutes: number,
+  branchId?: number | null,
   now = new Date()
 ): string[] {
-  const availability = parseAvailability(availabilityJson);
+  const availability = parseAvailability(availabilityJson, branchId);
   const [year, month, day] = dateKey.split('-').map(Number);
   const date = new Date(year, month - 1, day);
   const dayKey = DAY_KEYS[date.getDay()];

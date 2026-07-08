@@ -82,7 +82,8 @@ export class ConfigPageComponent implements OnInit {
 
   readonly showProModal = signal<boolean>(false);
   readonly editingPro = signal<any | null>(null);
-  readonly proAvailability = signal<ProfessionalAvailability>(createDefaultAvailability());
+  readonly proBranchAvailabilities = signal<Record<number, ProfessionalAvailability>>({});
+  readonly selectedScheduleBranchId = signal<number | null>(null);
 
   readonly showServiceModal = signal<boolean>(false);
   readonly editingService = signal<any | null>(null);
@@ -235,7 +236,8 @@ export class ConfigPageComponent implements OnInit {
   openAddProModal(): void {
     this.editingPro.set(null);
     this.proForm.reset({ displayName: '', branchIds: [] });
-    this.proAvailability.set(createDefaultAvailability());
+    this.proBranchAvailabilities.set({});
+    this.selectedScheduleBranchId.set(null);
     this.showProModal.set(true);
   }
 
@@ -246,7 +248,39 @@ export class ConfigPageComponent implements OnInit {
       displayName,
       branchIds: pro.branchIds || [],
     });
-    this.proAvailability.set(parseAvailability(pro.availabilityJson));
+
+    const branchAvails: Record<number, ProfessionalAvailability> = {};
+    if (pro.availabilityJson) {
+      try {
+        const parsed = JSON.parse(pro.availabilityJson);
+        const keys = Object.keys(parsed);
+        const isMultiBranch = keys.length > 0 && keys.every((k) => /^\d+$/.test(k));
+
+        if (isMultiBranch) {
+          for (const key of keys) {
+            branchAvails[Number(key)] = parsed[key];
+          }
+        } else {
+          // Legacy: assign the single schedule to all assigned branches
+          const legacyAvail = parsed as ProfessionalAvailability;
+          for (const bid of pro.branchIds || []) {
+            branchAvails[bid] = JSON.parse(JSON.stringify(legacyAvail));
+          }
+        }
+      } catch {
+        // Ignored, default created lazily
+      }
+    }
+
+    this.proBranchAvailabilities.set(branchAvails);
+
+    const branchIds = pro.branchIds || [];
+    if (branchIds.length > 0) {
+      this.selectedScheduleBranchId.set(branchIds[0]);
+    } else {
+      this.selectedScheduleBranchId.set(null);
+    }
+
     this.showProModal.set(true);
   }
 
@@ -281,7 +315,13 @@ export class ConfigPageComponent implements OnInit {
     }
     const { displayName, branchIds } = this.proForm.getRawValue();
     const { firstName, lastName } = splitProfessionalName(displayName);
-    const availabilityJson = serializeAvailability(this.proAvailability());
+
+    // Keep only schedules for selected branches
+    const finalAvails: Record<number, ProfessionalAvailability> = {};
+    for (const bid of branchIds) {
+      finalAvails[bid] = this.getBranchAvailability(bid);
+    }
+    const availabilityJson = JSON.stringify(finalAvails);
 
     this.loading.set(true);
     this.apiError.set('');
@@ -321,6 +361,35 @@ export class ConfigPageComponent implements OnInit {
     }
     this.proForm.controls.branchIds.setValue(selected);
     this.proForm.controls.branchIds.markAsDirty();
+
+    // Update active schedule tab
+    const currentActive = this.selectedScheduleBranchId();
+    if (selected.length === 0) {
+      this.selectedScheduleBranchId.set(null);
+    } else if (currentActive === null || !selected.includes(currentActive)) {
+      this.selectedScheduleBranchId.set(selected[0]);
+    }
+  }
+
+  selectedBranchesForPro(): any[] {
+    const selectedIds = this.proForm.controls.branchIds.value || [];
+    const allBranches = this.state()?.branches || [];
+    return allBranches.filter((b) => selectedIds.includes(b.id));
+  }
+
+  getBranchAvailability(branchId: number): ProfessionalAvailability {
+    const avails = this.proBranchAvailabilities();
+    if (!avails[branchId]) {
+      avails[branchId] = createDefaultAvailability();
+      this.proBranchAvailabilities.set({ ...avails });
+    }
+    return avails[branchId];
+  }
+
+  setBranchAvailability(branchId: number, availability: ProfessionalAvailability): void {
+    const avails = this.proBranchAvailabilities();
+    avails[branchId] = availability;
+    this.proBranchAvailabilities.set({ ...avails });
   }
 
   removePro(id: number, event: Event): void {

@@ -201,23 +201,25 @@ export class BookingPageComponent implements OnInit {
 
   get bookableDates(): BookableDate[] {
     const professional = this.selectedProfessional;
+    const branchId = this.selectedBranchId();
     if (!professional) {
       return [];
     }
 
-    return getBookableDates(professional.availabilityJson);
+    return getBookableDates(professional.availabilityJson, branchId);
   }
 
   get timeSlots(): string[] {
     const professional = this.selectedProfessional;
     const service = this.selectedService;
     const dateKey = this.selectedDateKey();
+    const branchId = this.selectedBranchId();
 
     if (!professional || !service || !dateKey) {
       return [];
     }
 
-    return getTimeSlots(professional.availabilityJson, dateKey, service.durationMinutes);
+    return getTimeSlots(professional.availabilityJson, dateKey, service.durationMinutes, branchId);
   }
 
   get canContinueFromSchedule(): boolean {

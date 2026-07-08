@@ -41,13 +41,29 @@ export function serializeAvailability(availability: ProfessionalAvailability): s
   return JSON.stringify(availability);
 }
 
-export function parseAvailability(json: string | null): ProfessionalAvailability {
+export function parseAvailability(json: string | null, branchId?: number | null): ProfessionalAvailability {
   if (!json) {
     return createDefaultAvailability();
   }
 
   try {
-    return JSON.parse(json) as ProfessionalAvailability;
+    const parsed = JSON.parse(json);
+    const keys = Object.keys(parsed);
+    const isMultiBranch = keys.length > 0 && keys.every(k => /^\d+$/.test(k));
+
+    if (isMultiBranch) {
+      if (branchId !== undefined && branchId !== null) {
+        const strBranchId = String(branchId);
+        if (parsed[strBranchId]) {
+          return parsed[strBranchId];
+        }
+      }
+      // Fallback: return the first branch's availability
+      const firstKey = keys[0];
+      return parsed[firstKey] || createDefaultAvailability();
+    }
+
+    return parsed as ProfessionalAvailability;
   } catch {
     return createDefaultAvailability();
   }

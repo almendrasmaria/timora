@@ -13,7 +13,8 @@
 
   &__container {
     width: 100%;
-    max-width: var(--layout-max-width);
+    max-width: 100%;
+    padding: 0 var(--space-4);
     margin: 0 auto;
   }
 

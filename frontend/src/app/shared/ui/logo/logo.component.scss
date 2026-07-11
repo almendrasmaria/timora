@@ -12,6 +12,19 @@
     text-transform: lowercase;
   }
 
+  &__text-short {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    &__text-full {
+      display: none;
+    }
+    &__text-short {
+      display: inline;
+    }
+  }
+
   &__dot {
     color: var(--color-primary-light);
   }

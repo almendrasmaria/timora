@@ -36,3 +36,6 @@ hs_err_pid*
 
 # Docker
 docker-data/
+
+# Uploads
+backend/uploads/

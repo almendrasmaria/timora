@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
 import {
   appointmentClientName,
   appointmentStatusLabel,
@@ -13,6 +13,7 @@ import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { publicBookingUrl } from '../../../../core/dashboard/dashboard.config';
 
 export interface AppointmentGroup {
   dateKey: string;
@@ -34,12 +35,12 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
   templateUrl: './appointments-page.component.html',
   styleUrl: './appointments-page.component.scss',
 })
-export class AppointmentsPageComponent implements OnInit {
+export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly onboardingService = inject(OnboardingService);
 
   readonly viewOptions: { value: AppointmentsView; label: string }[] = [
-    { value: 'day',   label: 'Hoy' },
+    { value: 'day',   label: 'Día' },
     { value: 'week',  label: 'Semana' },
     { value: 'month', label: 'Mes' },
   ];
@@ -53,8 +54,46 @@ export class AppointmentsPageComponent implements OnInit {
   // Lists for dropdown selectors
   readonly services = signal<any[]>([]);
   readonly professionals = signal<any[]>([]);
+  readonly branches = signal<any[]>([]);
   readonly businessName = signal<string>('');
   readonly reminderTemplate = signal<string>('');
+  readonly bookingUrl = signal<string>('');
+
+  // Scheduler and DatePicker state
+  readonly selectedDate = signal<Date>(new Date(2026, 6, 8)); // Default to July 8, 2026 to match the user mockup
+  readonly currentPickerMonth = signal<number>(6); // July
+  readonly currentPickerYear = signal<number>(2026);
+  readonly selectedProfessionalIds = signal<number[]>([]);
+  readonly selectedBranchId = signal<number | null>(null);
+  readonly selectedServiceId = signal<number | null>(null);
+  readonly searchTerm = signal<string>('');
+  readonly todayDate = new Date();
+
+  // Mobile state signals
+  readonly mobileSelectedProId = signal<number | null>(null);
+  readonly mobileTimeSlots = computed<string[]>(() => {
+    const slots: string[] = [];
+    for (let hour = 8; hour < 20; hour++) {
+      for (let min = 0; min < 60; min += 15) {
+        const hStr = String(hour).padStart(2, '0');
+        const mStr = String(min).padStart(2, '0');
+        slots.push(`${hStr}:${mStr}`);
+      }
+    }
+    return slots;
+  });
+
+  readonly mobileDateLabel = computed<string>(() => {
+    const d = this.selectedDate();
+    const weekday = new Intl.DateTimeFormat('es-AR', { weekday: 'long' }).format(d);
+    const day = d.getDate();
+    const month = new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(d);
+    return `${weekday}, ${day} de ${month}`;
+  });
+
+  readonly businessInitial = computed(() => {
+    return (this.businessName()?.[0] ?? 'M').toUpperCase();
+  });
 
   // Edit form state fields
   editServiceId = signal<number | null>(null);
@@ -71,41 +110,336 @@ export class AppointmentsPageComponent implements OnInit {
   showRegisterPaymentModal = signal<boolean>(false);
   registerPaymentAmount = 0;
 
-  readonly grouped = computed<AppointmentGroup[]>(() => {
-    const map = new Map<string, Appointment[]>();
-    for (const a of this.appointments()) {
-      const d    = new Date(a.startsAt);
-      const key  = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(a);
+  private timeInterval: any;
+
+  // Professional colors mapping
+  readonly proColors = [
+    { bg: '#fbebe6', border: '#e06c53', text: '#e06c53', name: 'pink' },
+    { bg: '#e8f7ee', border: '#1da851', text: '#1da851', name: 'green' },
+    { bg: '#f3e8ff', border: '#8b5cf6', text: '#8b5cf6', name: 'purple' },
+    { bg: '#e0f2fe', border: '#0284c7', text: '#0284c7', name: 'blue' },
+    { bg: '#fef9c3', border: '#ca8a04', text: '#ca8a04', name: 'yellow' },
+  ];
+
+  // DatePicker Days computed property (renders 42 days grid)
+  readonly pickerDays = computed<Date[]>(() => {
+    const year = this.currentPickerYear();
+    const month = this.currentPickerMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const startWeekday = firstDay.getDay(); // 0 is Sunday
+    const totalDays = lastDay.getDate();
+
+    const days: Date[] = [];
+
+    // Days from previous month
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = startWeekday - 1; i >= 0; i--) {
+      days.push(new Date(year, month - 1, prevMonthLastDay - i));
     }
-    const groups: AppointmentGroup[] = [];
-    map.forEach((items, dateKey) =>
-      groups.push({ dateKey, dateLabel: this.formatGroupDate(items[0].startsAt), items })
-    );
-    return groups.sort((a, b) => a.dateKey.localeCompare(b.dateKey));
+
+    // Days of current month
+    for (let i = 1; i <= totalDays; i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    // Days from next month to fill grid
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i++) {
+      days.push(new Date(year, month + 1, i));
+    }
+
+    return days;
   });
 
-  get viewLabel(): string {
-    const v = this.view();
-    if (v === 'day')   return 'Hoy, ' + new Intl.DateTimeFormat('es-AR', { day: 'numeric', month: 'long' }).format(new Date());
-    if (v === 'month') return new Intl.DateTimeFormat('es-AR', { month: 'long', year: 'numeric' }).format(new Date());
-    return 'Esta semana';
+  readonly filteredAppointments = computed<Appointment[]>(() => {
+    const list = this.appointments();
+    const selectedProIds = this.selectedProfessionalIds();
+    const branchId = this.selectedBranchId();
+    const serviceId = this.selectedServiceId();
+    const query = this.searchTerm().toLowerCase().trim();
+
+    return list.filter(appt => {
+      // 1. Filter by professional
+      if (!selectedProIds.includes(appt.professionalId)) {
+        return false;
+      }
+      // 2. Filter by branch (if selected)
+      if (branchId !== null && appt.branchId !== branchId) {
+        return false;
+      }
+      // 3. Filter by service (if selected)
+      if (serviceId !== null && appt.serviceId !== serviceId) {
+        return false;
+      }
+      // 4. Filter by search query
+      if (query) {
+        const clientName = `${appt.clientFirstName || ''} ${appt.clientLastName || ''}`.toLowerCase();
+        const serviceName = (appt.serviceName || '').toLowerCase();
+        const profName = (appt.professionalName || '').toLowerCase();
+        return clientName.includes(query) || serviceName.includes(query) || profName.includes(query);
+      }
+      return true;
+    });
+  });
+
+  // Active columns for scheduler
+  readonly activeProfessionals = computed<any[]>(() => {
+    const all = this.professionals();
+    const selected = this.selectedProfessionalIds();
+    return all.filter(p => selected.includes(p.id));
+  });
+
+  readonly gridColumnCount = computed<number>(() => {
+    return Math.max(this.activeProfessionals().length, 5);
+  });
+
+  readonly emptyColumnsArray = computed<number[]>(() => {
+    const activeCount = this.activeProfessionals().length;
+    const needed = Math.max(5 - activeCount, 0);
+    return Array.from({ length: needed }, (_, i) => i);
+  });
+
+  get activeDateLabel(): string {
+    const d = this.selectedDate();
+    const weekday = new Intl.DateTimeFormat('es-AR', { weekday: 'long' }).format(d);
+    const day = d.getDate();
+    const month = new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(d);
+    const year = d.getFullYear();
+    return `${weekday}, ${day} de ${month} de ${year}`;
   }
+
+  get pickerMonthLabel(): string {
+    const monthNames = [
+      'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+      'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+    ];
+    return `${monthNames[this.currentPickerMonth()]} ${this.currentPickerYear()}`;
+  }
+
+  get currentTimePosition(): string | null {
+    const now = new Date();
+    const todayStr = this.formatToISODate(now);
+    const selectedStr = this.formatToISODate(this.selectedDate());
+
+    if (todayStr !== selectedStr) return null;
+
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const gridStartMinutes = 8 * 60; // 8:00 AM
+    const gridEndMinutes = 20 * 60; // 8:00 PM
+
+    if (currentMinutes < gridStartMinutes || currentMinutes > gridEndMinutes) return null;
+
+    const pxPerMinute = 80 / 60;
+    const top = (currentMinutes - gridStartMinutes) * pxPerMinute;
+    return `${top}px`;
+  }
+
+  readonly pickerWeekdays = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+
+  readonly hourSlots = [
+    '8am', '9am', '10am', '11am', '12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm'
+  ];
 
   ngOnInit(): void {
     this.load();
     this.onboardingService.getState().subscribe({
       next: (state) => {
-        this.services.set(state.services || []);
-        this.professionals.set(state.professionals || []);
+        const srvs = state.services || [];
+        this.services.set(srvs);
+
+        const pros = state.professionals || [];
+        this.professionals.set(pros);
+        if (this.selectedProfessionalIds().length === 0) {
+          this.selectedProfessionalIds.set(pros.map((p: any) => p.id));
+        }
+        if (pros.length > 0 && !this.mobileSelectedProId()) {
+          this.mobileSelectedProId.set(pros[0].id);
+        }
+
+        const brms = state.branches || [];
+        this.branches.set(brms);
+        
         this.businessName.set(state.business?.name || '');
         this.reminderTemplate.set(
           state.business?.reminderTemplate ||
             '¡Hola! Recordá tu turno en {negocio} el {fecha} a las {hora} con {profesional}. ¡Te esperamos!'
         );
+        if (state.business?.slug) {
+          this.bookingUrl.set(publicBookingUrl(state.business.slug));
+        }
       },
     });
+
+    // Refresh currentTimePosition line indicator
+    this.timeInterval = setInterval(() => {}, 60000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timeInterval) {
+      clearInterval(this.timeInterval);
+    }
+  }
+
+  prevPickerMonth(): void {
+    const m = this.currentPickerMonth();
+    const y = this.currentPickerYear();
+    if (m === 0) {
+      this.currentPickerMonth.set(11);
+      this.currentPickerYear.set(y - 1);
+    } else {
+      this.currentPickerMonth.set(m - 1);
+    }
+  }
+
+  nextPickerMonth(): void {
+    const m = this.currentPickerMonth();
+    const y = this.currentPickerYear();
+    if (m === 11) {
+      this.currentPickerMonth.set(0);
+      this.currentPickerYear.set(y + 1);
+    } else {
+      this.currentPickerMonth.set(m + 1);
+    }
+  }
+
+  selectDate(d: Date): void {
+    this.selectedDate.set(d);
+    this.currentPickerMonth.set(d.getMonth());
+    this.currentPickerYear.set(d.getFullYear());
+    this.load();
+  }
+
+  prevDay(): void {
+    const d = new Date(this.selectedDate());
+    d.setDate(d.getDate() - 1);
+    this.selectDate(d);
+  }
+
+  nextDay(): void {
+    const d = new Date(this.selectedDate());
+    d.setDate(d.getDate() + 1);
+    this.selectDate(d);
+  }
+
+  toggleProFilter(id: number): void {
+    const ids = [...this.selectedProfessionalIds()];
+    const index = ids.indexOf(id);
+    if (index > -1) {
+      ids.splice(index, 1);
+    } else {
+      ids.push(id);
+    }
+    this.selectedProfessionalIds.set(ids);
+  }
+
+  isProFiltered(id: number): boolean {
+    return this.selectedProfessionalIds().includes(id);
+  }
+
+  onBranchChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    this.selectedBranchId.set(val ? Number(val) : null);
+  }
+
+  onServiceChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    this.selectedServiceId.set(val ? Number(val) : null);
+  }
+
+  getAppointmentsForPro(proId: number): Appointment[] {
+    return this.filteredAppointments().filter(a => a.professionalId === proId);
+  }
+
+  getProColor(proId: number): { bg: string; border: string; text: string; name: string } {
+    const pro = this.professionals().find(p => p.id === proId);
+    if (!pro) return this.proColors[0];
+    const fullName = ((pro.firstName ?? '') + ' ' + (pro.lastName ?? '')).toLowerCase();
+    
+    if (fullName.includes('miércoles') || fullName.includes('miercoles')) {
+      return this.proColors[0]; // pink/orange
+    } else if (fullName.includes('paulo')) {
+      return this.proColors[1]; // green
+    } else if (fullName.includes('cecilia')) {
+      return this.proColors[2]; // purple
+    } else if (fullName.includes('valentina')) {
+      return this.proColors[3]; // blue
+    } else if (fullName.includes('valen')) {
+      return this.proColors[4]; // yellow
+    }
+    
+    // Fallback to index-based mapping
+    const index = this.professionals().findIndex(p => p.id === proId);
+    if (index === -1) return this.proColors[0];
+    return this.proColors[index % this.proColors.length];
+  }
+
+  getProInitials(p: any): string {
+    return ((p.firstName?.[0] ?? '') + (p.lastName?.[0] ?? '')).toUpperCase();
+  }
+
+  getAppointmentPosition(startsAt: string, durationMinutes: number) {
+    const d = new Date(startsAt);
+    const startMinutes = d.getHours() * 60 + d.getMinutes();
+    const gridStartMinutes = 8 * 60; // 8:00 AM
+    
+    // 1 hour = 80px, so 1 minute = 80 / 60 = 1.3333px
+    const pxPerMinute = 80 / 60;
+    
+    const top = Math.max((startMinutes - gridStartMinutes) * pxPerMinute, 0);
+    const height = durationMinutes * pxPerMinute;
+    
+    return {
+      top: `${top}px`,
+      height: `${height}px`
+    };
+  }
+
+  getAppointmentTimeLabel(a: Appointment): string {
+    const d = new Date(a.startsAt);
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const meridiem = hours >= 12 ? 'p.m.' : 'a.m.';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    
+    let label = `${hours}:${minutes} ${meridiem}`;
+    if (a.status === 'CONFIRMED') {
+      label += ' · Pendiente';
+    } else if (a.status === 'NO_SHOW') {
+      label += ' · No asistió';
+    }
+    return label;
+  }
+
+  copyBookingLink(): void {
+    const url = this.bookingUrl();
+    if (!url) return;
+    navigator.clipboard.writeText(url).then(() => {
+      alert('¡Enlace de reserva copiado al portapapeles! Compartilo con tu cliente.');
+    });
+  }
+
+  splitName(fullName: string): { first: string; last: string } {
+    const parts = fullName.trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return { first: parts[0], last: parts.slice(1).join(' ') };
+    }
+    return { first: fullName, last: '' };
+  }
+
+  formatToISODate(d: Date): string {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  isSameDate(d1: Date, d2: Date): boolean {
+    return d1.getFullYear() === d2.getFullYear() &&
+           d1.getMonth() === d2.getMonth() &&
+           d1.getDate() === d2.getDate();
   }
 
   setView(v: AppointmentsView): void { this.view.set(v); this.load(); }
@@ -317,19 +651,44 @@ export class AppointmentsPageComponent implements OnInit {
     }
   }
 
-  // ── Private ───────────────────────────────────────────────────
-  private load(): void {
-    this.loading.set(true);
-    this.appointmentsService.list(this.view()).subscribe({
-      next: items => { this.appointments.set(items); this.loading.set(false); },
-      error: ()   => this.loading.set(false),
+  onMobileProChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    this.mobileSelectedProId.set(val ? Number(val) : null);
+  }
+
+  getAppointmentsForSlot(slot: string, proId: number | null): Appointment[] {
+    if (!proId) return [];
+    const list = this.filteredAppointments();
+    const [slotHour, slotMin] = slot.split(':').map(Number);
+    const slotMinutesStart = slotHour * 60 + slotMin;
+    const slotMinutesEnd = slotMinutesStart + 15;
+
+    return list.filter(appt => {
+      if (appt.professionalId !== proId) return false;
+      const d = new Date(appt.startsAt);
+      const apptMinutes = d.getHours() * 60 + d.getMinutes();
+      return apptMinutes >= slotMinutesStart && apptMinutes < slotMinutesEnd;
     });
   }
 
-  private formatGroupDate(iso: string): string {
-    return new Intl.DateTimeFormat('es-AR', {
-      weekday: 'long', day: 'numeric', month: 'long',
-      timeZone: 'America/Argentina/Buenos_Aires',
-    }).format(new Date(iso));
+  getProInitialsForId(proId: number): string {
+    const pro = this.professionals().find(p => p.id === proId);
+    if (!pro) return '';
+    return this.getProInitials(pro);
+  }
+
+  createNewAppointmentFromSlot(slot: string): void {
+    this.copyBookingLink();
+  }
+
+  // ── Private ───────────────────────────────────────────────────
+  private load(): void {
+    this.loading.set(true);
+    const dateStr = this.formatToISODate(this.selectedDate());
+    // We fetch 'day' view with selected date
+    this.appointmentsService.list('day', dateStr).subscribe({
+      next: items => { this.appointments.set(items); this.loading.set(false); },
+      error: ()   => this.loading.set(false),
+    });
   }
 }

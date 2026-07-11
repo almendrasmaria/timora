@@ -1,109 +1,330 @@
-<section class="turnos">
+<div class="scheduler-container">
+  
+  <!-- DESKTOP SCHEDULER WORKSPACE -->
+  <div class="desktop-scheduler">
+    <!-- ── SIDEBAR (IZQUIERDA) ────────────────────────────────────── -->
+    <aside class="scheduler-sidebar">
+      <!-- Mini-calendario (DatePicker) -->
+      <div class="datepicker">
+        <div class="datepicker__header">
+          <span class="datepicker__month-title">{{ pickerMonthLabel }}</span>
+          <div class="datepicker__nav">
+            <button type="button" class="datepicker__nav-btn" (click)="prevPickerMonth()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+            <button type="button" class="datepicker__nav-btn" (click)="nextPickerMonth()">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+        
+        <div class="datepicker__weekdays">
+          @for (day of pickerWeekdays; track day) {
+            <span class="datepicker__weekday">{{ day }}</span>
+          }
+        </div>
 
-  <!-- ── HEADER ────────────────────────────────────────────────── -->
-  <header class="turnos__header">
-    <div>
-      <h1 class="turnos__title">Turnos</h1>
-      <p class="turnos__subtitle">{{ viewLabel }}</p>
-    </div>
-
-    <div class="turnos__view-toggle" role="group" aria-label="Vista">
-      @for (opt of viewOptions; track opt.value) {
-        <button
-          type="button"
-          class="turnos__view-btn"
-          [class.is-active]="view() === opt.value"
-          (click)="setView(opt.value)"
-        >{{ opt.label }}</button>
-      }
-    </div>
-  </header>
-
-  <!-- ── SKELETON ──────────────────────────────────────────────── -->
-  @if (loading()) {
-    <div class="turnos__skeleton" aria-busy="true" aria-label="Cargando">
-      @for (i of [1,2,3,4]; track i) {
-        <div class="turnos__skeleton-item" [style.animation-delay]="(i * 60) + 'ms'"></div>
-      }
-    </div>
-  }
-
-  <!-- ── VACÍO ─────────────────────────────────────────────────── -->
-  @else if (appointments().length === 0) {
-    <div class="turnos__empty">
-      <div class="turnos__empty-icon" aria-hidden="true">
-        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-          <rect width="48" height="48" rx="14" fill="var(--color-primary-subtle)"/>
-          <path d="M15 20a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H17a2 2 0 0 1-2-2V20Z"
-            stroke="var(--color-primary)" stroke-width="1.4" fill="none"/>
-          <path d="M21 16v4M27 16v4M15 24h18" stroke="var(--color-primary)" stroke-width="1.4" stroke-linecap="round"/>
-          <circle cx="24" cy="30" r="1.5" fill="var(--color-primary)" opacity="0.5"/>
-        </svg>
+        <div class="datepicker__days-grid">
+          @for (date of pickerDays(); track date.getTime()) {
+            <button
+              type="button"
+              class="datepicker__day"
+              [class.is-today]="isSameDate(date, todayDate)"
+              [class.is-selected]="isSameDate(date, selectedDate())"
+              [class.is-outside]="date.getMonth() !== currentPickerMonth()"
+              (click)="selectDate(date)"
+            >
+              {{ date.getDate() }}
+            </button>
+          }
+        </div>
       </div>
-      <p class="turnos__empty-title">Sin turnos</p>
-      <p class="turnos__empty-text">Cuando tus clientes reserven online, aparecerán acá.</p>
-    </div>
-  }
 
-  <!-- ── LISTA ─────────────────────────────────────────────────── -->
-  @else {
-    <div class="turnos__feed">
-      @for (group of grouped(); track group.dateKey) {
-        <p class="turnos__date-label">{{ group.dateLabel }}</p>
+      <button type="button" class="scheduler-sidebar__add-btn" (click)="copyBookingLink()">
+        + Nuevo turno
+      </button>
+    </aside>
 
-        @for (appt of group.items; track appt.id) {
-          <button
-            type="button"
-            class="turnos__card"
-            [class.is-completed]="appt.status === 'COMPLETED'"
-            [class.is-noshow]="appt.status === 'NO_SHOW'"
-            [class.is-cancelled]="appt.status === 'CANCELLED'"
-            [style.--accent]="accent(appt.status)"
-            (click)="openDetail(appt)"
-          >
-            <!-- Franja de color -->
-            <span class="turnos__card-stripe" aria-hidden="true"></span>
-
-            <!-- Avatar -->
-            <span class="turnos__card-avatar" aria-hidden="true">{{ initials(appt) }}</span>
-
-            <!-- Info principal -->
-            <div class="turnos__card-body">
-              <div class="turnos__card-row">
-                <span class="turnos__card-name">
-                  {{ name(appt) }}
-                  <span class="turnos__card-status-dot" [style.background]="accent(appt.status)"></span>
-                  <span class="turnos__card-status-text" [style.color]="accent(appt.status)">{{ statusLabel(appt) }}</span>
-                </span>
-                <span class="turnos__card-time">
-                  <svg width="12" height="12" viewBox="0 0 15 15" fill="none" style="margin-right: 4px; vertical-align: middle; opacity: 0.7;">
-                    <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.3"/>
-                    <path d="M7.5 4v3.5l2 1.2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                  </svg>
-                  {{ timeRange(appt) }}
-                </span>
-              </div>
-              <div class="turnos__card-row turnos__card-row--sub">
-                <span class="turnos__card-service">
-                  {{ appt.serviceName }}
-                  <span style="opacity: 0.5; margin: 0 4px;">·</span>
-                  <span class="turnos__card-prof">{{ appt.professionalName }}</span>
-                </span>
-                @if (price(appt)) {
-                  <span class="turnos__card-price">{{ price(appt) }}</span>
-                }
-              </div>
-            </div>
-
-            <!-- Chevron -->
-            <svg class="turnos__card-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M6 4l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    <!-- ── MAIN CONTENT (CALENDARIO) ─────────────────────────────── -->
+    <main class="scheduler-main">
+      
+      <!-- Header -->
+      <header class="scheduler-header">
+        <div class="scheduler-header__left">
+          <button type="button" class="scheduler-header__nav-btn" (click)="prevDay()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
+          <button type="button" class="scheduler-header__nav-btn" (click)="nextDay()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <h2 class="scheduler-header__date-title">{{ activeDateLabel }}</h2>
+        </div>
+
+        <div class="scheduler-header__right">
+          <!-- Select Sucursal -->
+          @if (branches().length >= 2) {
+            <div class="scheduler-header__select-wrap">
+              <select
+                class="scheduler-header__select"
+                [value]="selectedBranchId() ?? ''"
+                (change)="onBranchChange($event)"
+              >
+                <option value="">Todas las sucursales</option>
+                @for (b of branches(); track b.id) {
+                  <option [value]="b.id">{{ b.name }}</option>
+                }
+              </select>
+              <svg class="scheduler-header__select-icon" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          }
+
+          <!-- Select Servicio -->
+          @if (services().length >= 1) {
+            <div class="scheduler-header__select-wrap">
+              <select
+                class="scheduler-header__select"
+                [value]="selectedServiceId() ?? ''"
+                (change)="onServiceChange($event)"
+              >
+                <option value="">Todos los servicios</option>
+                @for (s of services(); track s.id) {
+                  <option [value]="s.id">{{ s.name }}</option>
+                }
+              </select>
+              <svg class="scheduler-header__select-icon" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          }
+        </div>
+      </header>
+
+      <!-- Rejilla de Turnos (Scheduler Grid) -->
+      <div class="scheduler-grid">
+        <!-- Headers de Columnas (Profesionales) -->
+        <div class="scheduler-grid__headers-row">
+          <div class="scheduler-grid__hours-spacer">Hora</div>
+          <div
+            class="scheduler-grid__headers-cols"
+            [style.gridTemplateColumns]="'repeat(' + gridColumnCount() + ', 1fr)'"
+          >
+            @for (pro of activeProfessionals(); track pro.id) {
+              <div class="scheduler-grid__col-header">
+                <div class="scheduler-grid__col-info">
+                  <span class="scheduler-grid__col-name">{{ pro.firstName }} {{ pro.lastName }}</span>
+                  <span class="scheduler-grid__col-line" [style.background]="getProColor(pro.id).border"></span>
+                </div>
+              </div>
+            }
+            @for (i of emptyColumnsArray(); track i) {
+              <div class="scheduler-grid__col-header"></div>
+            }
+          </div>
+        </div>
+
+        <!-- Cuerpo del Scheduler (Eje Horario + Grilla) -->
+        <div class="scheduler-grid__body">
+          
+          <!-- Horas a la izquierda -->
+          <div class="scheduler-grid__hours">
+            @for (hour of hourSlots; track hour) {
+              <div class="scheduler-grid__hour-cell">
+                <span class="scheduler-grid__hour-text">{{ hour }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Rejilla y Citas -->
+          <div class="scheduler-grid__columns-container">
+            <!-- Líneas de fondo horarias -->
+            <div class="scheduler-grid__bg-lines">
+              @for (hour of hourSlots; track hour) {
+                <div class="scheduler-grid__bg-row"></div>
+              }
+            </div>
+
+            <!-- Grilla de columnas de citas -->
+            <div
+              class="scheduler-grid__columns"
+              [style.gridTemplateColumns]="'repeat(' + gridColumnCount() + ', 1fr)'"
+            >
+              @for (pro of activeProfessionals(); track pro.id) {
+                <div class="scheduler-grid__col">
+                  @for (appt of getAppointmentsForPro(pro.id); track appt.id) {
+                    <div
+                      class="scheduler-card"
+                      [class.is-pending]="appt.status === 'CONFIRMED'"
+                      [class.is-completed]="appt.status === 'COMPLETED'"
+                      [class.is-noshow]="appt.status === 'NO_SHOW'"
+                      [class.is-cancelled]="appt.status === 'CANCELLED'"
+                      [style.top]="getAppointmentPosition(appt.startsAt, appt.durationMinutes).top"
+                      [style.height]="getAppointmentPosition(appt.startsAt, appt.durationMinutes).height"
+                      [style.background]="getProColor(appt.professionalId).bg"
+                      [style.color]="getProColor(appt.professionalId).text"
+                      [style.border-color]="getProColor(appt.professionalId).border"
+                      (click)="openDetail(appt)"
+                    >
+                      <span class="scheduler-card__time" [style.color]="getProColor(appt.professionalId).text">
+                        {{ getAppointmentTimeLabel(appt) }}
+                      </span>
+                      <div class="scheduler-card__client">{{ name(appt) }}</div>
+                      <div class="scheduler-card__service">{{ appt.serviceName }}</div>
+                    </div>
+                  }
+                </div>
+              }
+              
+              <!-- Columnas de relleno vacías para completar mínimo 5 -->
+              @for (i of emptyColumnsArray(); track i) {
+                <div class="scheduler-grid__col"></div>
+              }
+
+              <!-- Indicador de Hora Actual -->
+              @if (currentTimePosition) {
+                <div class="scheduler-grid__time-indicator" [style.top]="currentTimePosition">
+                  <span class="scheduler-grid__time-indicator-dot"></span>
+                  <span class="scheduler-grid__time-indicator-line"></span>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MOBILE SCHEDULER WORKSPACE -->
+  <div class="mobile-scheduler">
+    <!-- Header Mobile -->
+    <header class="mobile-header">
+      <div class="mobile-header__center">
+        <div class="mobile-header__select-wrap">
+          <select
+            class="mobile-header__select"
+            [value]="mobileSelectedProId() ?? ''"
+            (change)="onMobileProChange($event)"
+          >
+            @for (pro of professionals(); track pro.id) {
+              <option [value]="pro.id">{{ pro.firstName }} {{ pro.lastName }}</option>
+            }
+          </select>
+          <svg class="mobile-header__select-icon" width="10" height="10" viewBox="0 0 16 16" fill="none">
+            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- Sub-header: Date navigator and select dropdowns -->
+    <div class="mobile-date-bar">
+      <div class="mobile-date-bar__nav">
+        <button type="button" class="mobile-date-bar__btn" (click)="prevDay()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <h3 class="mobile-date-bar__title">{{ mobileDateLabel() }}</h3>
+        <button type="button" class="mobile-date-bar__btn" (click)="nextDay()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filters in a smaller row -->
+      <div class="mobile-filters-row">
+        <!-- Branch dropdown -->
+        @if (branches().length >= 2) {
+          <div class="mobile-filters-row__select-wrap">
+            <select
+              class="mobile-filters-row__select"
+              [value]="selectedBranchId() ?? ''"
+              (change)="onBranchChange($event)"
+            >
+              <option value="">Todas las sucursales</option>
+              @for (b of branches(); track b.id) {
+                <option [value]="b.id">{{ b.name }}</option>
+              }
+            </select>
+          </div>
         }
+        <!-- Service dropdown -->
+        @if (services().length >= 1) {
+          <div class="mobile-filters-row__select-wrap">
+            <select
+              class="mobile-filters-row__select"
+              [value]="selectedServiceId() ?? ''"
+              (change)="onServiceChange($event)"
+            >
+              <option value="">Todos los servicios</option>
+              @for (s of services(); track s.id) {
+                <option [value]="s.id">{{ s.name }}</option>
+              }
+            </select>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Timeline Content -->
+    <div class="mobile-timeline">
+      @for (slot of mobileTimeSlots(); track slot) {
+        <div class="mobile-timeline__slot">
+          <div class="mobile-timeline__time">{{ slot }}</div>
+          <div class="mobile-timeline__content">
+            @if (getAppointmentsForSlot(slot, mobileSelectedProId()); as slotAppts) {
+              @if (slotAppts.length > 0) {
+                @for (appt of slotAppts; track appt.id) {
+                  <div
+                    class="mobile-card"
+                    [class.is-pending]="appt.status === 'CONFIRMED'"
+                    [class.is-completed]="appt.status === 'COMPLETED'"
+                    [class.is-noshow]="appt.status === 'NO_SHOW'"
+                    [class.is-cancelled]="appt.status === 'CANCELLED'"
+                    [style.background]="getProColor(appt.professionalId).bg"
+                    [style.color]="getProColor(appt.professionalId).text"
+                    [style.border-color]="getProColor(appt.professionalId).border"
+                    (click)="openDetail(appt)"
+                  >
+                    <div class="mobile-card__left">
+                      <span class="mobile-card__dot" [style.background]="getProColor(appt.professionalId).border"></span>
+                      <div class="mobile-card__details">
+                        <strong class="mobile-card__client">{{ name(appt) }}</strong>
+                        <span class="mobile-card__service">{{ appt.serviceName }}</span>
+                      </div>
+                    </div>
+                    <div class="mobile-card__right">
+                      <span class="mobile-card__pro-tag" [style.background]="getProColor(appt.professionalId).border">
+                        {{ getProInitialsForId(appt.professionalId) }}
+                      </span>
+                    </div>
+                  </div>
+                }
+              } @else {
+                <!-- Turno disponible row -->
+                <div class="mobile-available-row" (click)="createNewAppointmentFromSlot(slot)">
+                  <span class="mobile-available-row__dot"></span>
+                  <span class="mobile-available-row__text">Turno disponible</span>
+                </div>
+              }
+            }
+          </div>
+        </div>
       }
     </div>
-  }
+
+  </div>
+</div>
 
   <!-- ── MODAL DE DETALLE ───────────────────────────────────────── -->
   @if (selectedAppointment(); as appt) {
@@ -443,4 +664,4 @@
     </app-modal>
   }
 
-</section>
+

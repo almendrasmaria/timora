@@ -18,16 +18,20 @@
   display: block;
   width: 100%;
   height: 100%;
+  background: #f8f9fa;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-md);
   animation: fadeUp var(--duration-normal) var(--ease-out) both;
 }
 
 .desktop-scheduler {
   display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 0; // No gap so divider divider line goes from top to bottom
+  grid-template-columns: 280px 1fr;
+  gap: var(--space-6);
   width: 100%;
-  height: calc(100vh - 90px); // Full available height
+  height: calc(100vh - 90px);
   min-height: 500px;
+  padding-top: var(--space-4);
 }
 
 .mobile-scheduler {
@@ -38,24 +42,23 @@
 .scheduler-sidebar {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
-  border-right: 1px solid #ECEAE6; // Warm subtle line
-  padding: 0 var(--space-5) var(--space-5) 0;
+  gap: var(--space-5);
+  height: fit-content;
 
   &__add-btn {
     width: 100%;
     height: 2.75rem;
     border: none;
-    border-radius: var(--radius-lg);
-    background: #111118; // Dark background
+    border-radius: var(--radius-md);
+    background: var(--color-primary); // Blue!
     color: #ffffff;
     font-size: var(--text-sm);
     font-weight: 700;
     cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out);
+    transition: opacity var(--duration-fast) var(--ease-out);
 
     &:hover {
-      background: #252535;
+      opacity: 0.9;
     }
   }
 
@@ -141,11 +144,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  background: #ffffff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 16px -4px rgba(17, 17, 24, 0.02), 0 2px 4px -2px rgba(17, 17, 24, 0.01);
+  padding: var(--space-5);
 
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-bottom: var(--space-2);
   }
 
   &__month-title {
@@ -237,7 +246,6 @@
   flex-direction: column;
   gap: var(--space-4);
   min-width: 0;
-  padding-left: var(--space-6);
 }
 
 .scheduler-header {
@@ -246,7 +254,7 @@
   justify-content: space-between;
   gap: var(--space-4);
   padding-bottom: var(--space-4);
-  border-bottom: 1px solid #ECEAE6; // Warm subtle line
+  border-bottom: none;
 
   &__left {
     display: flex;
@@ -335,10 +343,11 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  border: 1px solid #ECEAE6; // Simple grid border
-  border-radius: 0; // Flat, borderless corners!
-  background: #ffffff; // White background!
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #ffffff;
   overflow: hidden;
+  box-shadow: 0 4px 16px -4px rgba(17, 17, 24, 0.02), 0 2px 4px -2px rgba(17, 17, 24, 0.01);
 
   // Header Row (Professionals columns header)
   &__headers-row {
@@ -526,18 +535,19 @@
   position: absolute;
   left: 2px;
   right: 2px;
-  padding: 4px 8px;
+  padding: 3px 6px;
   border: none;
   border-radius: 0;
   cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 1px;
+  gap: 0;
   text-align: left;
   overflow: hidden;
-  min-height: 70px; // Enforce minimum height so name and service are always visible!
+  min-height: 58px !important;
   box-shadow: 0 2px 8px rgba(17, 17, 24, 0.02);
+  outline: none;
   transition: all var(--duration-fast) var(--ease-out);
 
   &:hover {
@@ -564,7 +574,7 @@
   &__time {
     font-size: 0.65rem;
     font-weight: 700;
-    line-height: 1.1;
+    line-height: 1.4;
   }
 
   &__name {
@@ -574,7 +584,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.1;
+    line-height: 1.4;
   }
 
   &__service {
@@ -583,7 +593,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.1;
+    line-height: 1.5;
+    padding-bottom: 2px;
   }
 }
 

@@ -388,7 +388,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     const pxPerMinute = 80 / 60;
     
     const top = Math.max((startMinutes - gridStartMinutes) * pxPerMinute, 0);
-    const height = durationMinutes * pxPerMinute;
+    const height = Math.max(durationMinutes * pxPerMinute, 70); // Minimum 70px to fit 3 lines + descenders
     
     return {
       top: `${top}px`,

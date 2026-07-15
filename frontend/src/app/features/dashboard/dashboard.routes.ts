@@ -25,8 +25,8 @@ export const DASHBOARD_ROUTES: Routes = [
       {
         path: 'clientes',
         loadComponent: () =>
-          import('./pages/dashboard-placeholder/dashboard-placeholder.component').then(
-            (m) => m.DashboardPlaceholderComponent
+          import('./pages/clients-page/clients-page.component').then(
+            (m) => m.ClientsPageComponent
           ),
         data: { title: 'Clientes' },
       },

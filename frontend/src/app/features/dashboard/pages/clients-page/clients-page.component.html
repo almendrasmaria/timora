@@ -1,0 +1,280 @@
+<section class="clients">
+  <!-- Header -->
+  <header class="clients__header">
+    <div class="clients__header-copy">
+      <h1 class="clients__title">Clientes</h1>
+      <p class="clients__subtitle">Gestioná la ficha de tus clientes, notas internas y turnos.</p>
+    </div>
+  </header>
+
+  <!-- Filters Row -->
+  <div class="clients__filters-row">
+    <!-- Search Bar -->
+    <div class="clients__search-wrap">
+      <svg class="clients__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+      <input
+        type="text"
+        class="clients__search-input"
+        placeholder="Buscar por nombre, teléfono o email"
+        [ngModel]="searchTerm()"
+        (ngModelChange)="searchTerm.set($event); onSearch()"
+      />
+    </div>
+
+    <!-- New Client Button -->
+    <app-button type="button" variant="accent" class="clients__new-btn" (click)="openNewClientModal()">
+      + Nuevo cliente
+    </app-button>
+  </div>
+
+  <!-- Clients Count -->
+  <div class="clients__count">
+    @if (clients().length === 1) {
+      1 cliente
+    } @else {
+      {{ clients().length }} clientes
+    }
+  </div>
+
+  <!-- Clients Table / List -->
+  <div class="clients__table-card">
+    @if (loading()) {
+      <div class="clients__loading">
+        <div class="clients__spinner"></div>
+        <p>Cargando clientes...</p>
+      </div>
+    } @else if (clients().length === 0) {
+      <div class="clients__empty">
+        <p class="clients__empty-text">No se encontraron clientes.</p>
+      </div>
+    } @else {
+      <div class="clients__table-wrapper">
+        <table class="clients__table">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Contacto</th>
+              <th class="clients__th-actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (client of clients(); track client.id) {
+              <tr class="clients__tr" (click)="openDetailModal(client)">
+                <td class="clients__td-name">
+                  <span class="clients__name-text">{{ client.firstName }} {{ client.lastName }}</span>
+                </td>
+                <td class="clients__td-contact">
+                  <div class="clients__contact-stack">
+                    <span class="clients__contact-phone">{{ client.phone }}</span>
+                    @if (client.email) {
+                      <span class="clients__contact-email">{{ client.email }}</span>
+                    }
+                  </div>
+                </td>
+                <td class="clients__td-actions" (click)="$event.stopPropagation()">
+                  <div class="clients__actions-wrap">
+                    <button type="button" class="clients__action-btn" (click)="assignTurn(client, $event)">
+                      Asignar turno
+                    </button>
+                    
+                    <div class="clients__dropdown-container">
+                      <button type="button" class="clients__more-btn" (click)="toggleDropdown(client.id, $event)" aria-label="Más opciones">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <circle cx="12" cy="5" r="1.5"></circle>
+                          <circle cx="12" cy="12" r="1.5"></circle>
+                          <circle cx="12" cy="19" r="1.5"></circle>
+                        </svg>
+                      </button>
+
+                      @if (activeDropdownId() === client.id) {
+                        <div class="clients__dropdown-menu">
+                          <button type="button" (click)="openEditClientModal(client, $event)">
+                            Editar
+                          </button>
+                          <button type="button" class="clients__dropdown-delete" (click)="deleteClient(client, $event)">
+                            Eliminar
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </div>
+
+  <!-- Create / Edit Client Modal -->
+  @if (isEditModalOpen()) {
+    <app-modal
+      [title]="editingClient() ? 'Editar cliente' : 'Nuevo cliente'"
+      (closed)="closeEditModal()"
+    >
+      <form [formGroup]="clientForm" (ngSubmit)="saveClient()" class="clients__form">
+        <div class="clients__form-row">
+          <div class="clients__form-group">
+            <label class="clients__form-label">Nombre</label>
+            <input type="text" formControlName="firstName" class="clients__form-input" placeholder="Ej. María" />
+            @if (clientForm.get('firstName')?.touched && clientForm.get('firstName')?.invalid) {
+              <span class="clients__form-error">El nombre es obligatorio</span>
+            }
+          </div>
+
+          <div class="clients__form-group">
+            <label class="clients__form-label">Apellido</label>
+            <input type="text" formControlName="lastName" class="clients__form-input" placeholder="Ej. Pérez" />
+            @if (clientForm.get('lastName')?.touched && clientForm.get('lastName')?.invalid) {
+              <span class="clients__form-error">El apellido es obligatorio</span>
+            }
+          </div>
+        </div>
+
+        <div class="clients__form-group">
+          <label class="clients__form-label">Teléfono</label>
+          <input type="text" formControlName="phone" class="clients__form-input" placeholder="Ej. 11 1234 5678" />
+          @if (clientForm.get('phone')?.touched && clientForm.get('phone')?.invalid) {
+            <span class="clients__form-error">El teléfono es obligatorio</span>
+          }
+        </div>
+
+        <div class="clients__form-group">
+          <label class="clients__form-label">Email</label>
+          <input type="email" formControlName="email" class="clients__form-input" placeholder="Ej. correo@ejemplo.com" />
+          @if (clientForm.get('email')?.touched && clientForm.get('email')?.invalid) {
+            <span class="clients__form-error">Ingresá un email válido</span>
+          }
+        </div>
+
+        <div class="clients__form-actions">
+          <button type="submit" class="clients__btn-submit">
+            Guardar cambios
+          </button>
+        </div>
+      </form>
+    </app-modal>
+  }
+
+  <!-- Client Details / Profile Modal -->
+  @if (isDetailModalOpen() && selectedClient()) {
+    <app-modal
+      [title]="selectedClient()!.firstName + ' ' + selectedClient()!.lastName"
+      (closed)="closeDetailModal()"
+    >
+      <div class="clients__profile-header">
+        <p class="clients__profile-subtitle">
+          Tel: {{ selectedClient()!.phone }}
+          @if (selectedClient()!.email) {
+            · Email: {{ selectedClient()!.email }}
+          }
+        </p>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="clients__tab-bar">
+        <button
+          type="button"
+          class="clients__tab-btn"
+          [class.is-active]="activeTab() === 'history'"
+          (click)="setTab('history')"
+        >
+          Historial
+        </button>
+        <button
+          type="button"
+          class="clients__tab-btn"
+          [class.is-active]="activeTab() === 'notes'"
+          (click)="setTab('notes')"
+        >
+          Notas
+        </button>
+      </div>
+
+      <!-- Historial Tab Content -->
+      @if (activeTab() === 'history') {
+        <div class="clients__tab-pane">
+          <h4 class="clients__timeline-title">Historial de turnos</h4>
+
+          @if (selectedClient()!.appointments.length === 0) {
+            <p class="clients__empty-pane-text">No hay turnos registrados para este cliente.</p>
+          } @else {
+            <div class="clients__timeline">
+              @for (appt of selectedClient()!.appointments; track appt.id) {
+                <div class="clients__timeline-item">
+                  <div class="clients__timeline-header">
+                    <div class="clients__timeline-meta">
+                      <span class="clients__timeline-service">
+                        {{ appt.serviceName }} · {{ appt.professionalName }}
+                      </span>
+                      @if (appt.branchName) {
+                        <span class="clients__timeline-branch">{{ appt.branchName }}</span>
+                      }
+                    </div>
+                    <span class="clients__timeline-date">
+                      {{ formatAppointmentDate(appt.startsAt) }}
+                    </span>
+                  </div>
+
+                  <div class="clients__timeline-body">
+                    <span class="clients__timeline-time">
+                      {{ formatAppointmentRange(appt.startsAt, appt.endsAt) }}
+                    </span>
+                    <span
+                      class="clients__timeline-status-badge"
+                      [class.is-confirmed]="appt.status === 'CONFIRMED'"
+                      [class.is-completed]="appt.status === 'COMPLETED'"
+                      [class.is-noshow]="appt.status === 'NO_SHOW'"
+                      [class.is-cancelled]="appt.status === 'CANCELLED'"
+                    >
+                      {{ formatStatus(appt.status) }}
+                    </span>
+                  </div>
+
+                  <!-- Appointment Annotation -->
+                  <div class="clients__timeline-notes">
+                    @if (appt.notes) {
+                      <div class="clients__timeline-notes-content">
+                        <strong>Nota:</strong> {{ appt.notes }}
+                      </div>
+                      <button type="button" class="clients__timeline-notes-link" (click)="addAppointmentNote(appt, $event)">
+                        Editar anotación
+                      </button>
+                    } @else {
+                      <button type="button" class="clients__timeline-notes-link" (click)="addAppointmentNote(appt, $event)">
+                        Agregar anotación
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Notas Tab Content -->
+      @if (activeTab() === 'notes') {
+        <div class="clients__tab-pane">
+          <div class="clients__notes-form">
+            <label class="clients__form-label">Notas internas</label>
+            <textarea
+              class="clients__notes-textarea"
+              placeholder="Escribí notas privadas sobre el cliente aquí..."
+              [(ngModel)]="clientNotes"
+            ></textarea>
+            <div class="clients__notes-actions">
+              <button type="button" class="clients__btn-save-notes" (click)="saveClientNotes()">
+                Guardar notas
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </app-modal>
+  }
+</section>

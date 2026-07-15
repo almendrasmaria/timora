@@ -2,53 +2,6 @@
   
   <!-- DESKTOP SCHEDULER WORKSPACE -->
   <div class="desktop-scheduler">
-    <!-- ── SIDEBAR (IZQUIERDA) ────────────────────────────────────── -->
-    <aside class="scheduler-sidebar">
-      <!-- Mini-calendario (DatePicker) -->
-      <div class="datepicker">
-        <div class="datepicker__header">
-          <span class="datepicker__month-title">{{ pickerMonthLabel }}</span>
-          <div class="datepicker__nav">
-            <button type="button" class="datepicker__nav-btn" (click)="prevPickerMonth()">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-            <button type="button" class="datepicker__nav-btn" (click)="nextPickerMonth()">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-        
-        <div class="datepicker__weekdays">
-          @for (day of pickerWeekdays; track day) {
-            <span class="datepicker__weekday">{{ day }}</span>
-          }
-        </div>
-
-        <div class="datepicker__days-grid">
-          @for (date of pickerDays(); track date.getTime()) {
-            <button
-              type="button"
-              class="datepicker__day"
-              [class.is-today]="isSameDate(date, todayDate)"
-              [class.is-selected]="isSameDate(date, selectedDate())"
-              [class.is-outside]="date.getMonth() !== currentPickerMonth()"
-              (click)="selectDate(date)"
-            >
-              {{ date.getDate() }}
-            </button>
-          }
-        </div>
-      </div>
-
-      <button type="button" class="scheduler-sidebar__add-btn" (click)="copyBookingLink()">
-        + Nuevo turno
-      </button>
-    </aside>
-
     <!-- ── MAIN CONTENT (CALENDARIO) ─────────────────────────────── -->
     <main class="scheduler-main">
       
@@ -65,7 +18,58 @@
               <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <h2 class="scheduler-header__date-title">{{ activeDateLabel }}</h2>
+          
+          <div class="scheduler-header__date-wrapper">
+            <h2 class="scheduler-header__date-title" (click)="toggleDatePicker($event)">
+              {{ activeDateLabel }}
+              <svg class="scheduler-header__date-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" [style.transform]="showDatePicker() ? 'rotate(180deg)' : 'none'">
+                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </h2>
+
+            @if (showDatePicker()) {
+              <div class="datepicker-popover" (click)="$event.stopPropagation()">
+                <div class="datepicker">
+                  <div class="datepicker__header">
+                    <span class="datepicker__month-title">{{ pickerMonthLabel }}</span>
+                    <div class="datepicker__nav">
+                      <button type="button" class="datepicker__nav-btn" (click)="$event.stopPropagation(); prevPickerMonth()">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                          <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button type="button" class="datepicker__nav-btn" (click)="$event.stopPropagation(); nextPickerMonth()">
+                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                          <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="datepicker__weekdays">
+                    @for (day of pickerWeekdays; track day) {
+                      <span class="datepicker__weekday">{{ day }}</span>
+                    }
+                  </div>
+
+                  <div class="datepicker__days-grid">
+                    @for (date of pickerDays(); track date.getTime()) {
+                      <button
+                        type="button"
+                        class="datepicker__day"
+                        [class.is-today]="isSameDate(date, todayDate)"
+                        [class.is-selected]="isSameDate(date, selectedDate())"
+                        [class.is-outside]="date.getMonth() !== currentPickerMonth()"
+                        (click)="selectDate(date); showDatePicker.set(false)"
+                      >
+                        {{ date.getDate() }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
         </div>
 
         <div class="scheduler-header__right">
@@ -106,6 +110,11 @@
               </svg>
             </div>
           }
+
+          <!-- Botón Nuevo Turno -->
+          <button type="button" class="scheduler-header__add-btn" (click)="copyBookingLink()">
+            + Nuevo turno
+          </button>
         </div>
       </header>
 

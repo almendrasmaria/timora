@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, HostListener } from '@angular/core';
 import {
   appointmentClientName,
   appointmentStatusLabel,
@@ -109,6 +109,19 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   showPaymentMenu = signal<boolean>(false);
   showRegisterPaymentModal = signal<boolean>(false);
   registerPaymentAmount = 0;
+
+  // DatePicker popover trigger
+  readonly showDatePicker = signal<boolean>(false);
+
+  toggleDatePicker(event: Event): void {
+    event.stopPropagation();
+    this.showDatePicker.update((val) => !val);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showDatePicker.set(false);
+  }
 
   private timeInterval: any;
 

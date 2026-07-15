@@ -7,7 +7,7 @@
     </div>
 
     <div class="home__header-actions">
-      <app-button type="button" variant="accent" shape="pill" [fullWidth]="true">+ Nueva reserva</app-button>
+      <app-button type="button" variant="accent" [fullWidth]="true">+ Nueva reserva</app-button>
       @if (bookingUrl) {
         <a
           class="home__view-page"
@@ -15,81 +15,164 @@
           target="_blank"
           rel="noopener noreferrer"
         >
-          Ver página
+          Ver página pública
         </a>
       }
     </div>
   </header>
 
+  <!-- Top Stats Row -->
   <div class="home__stats">
-    <article class="home__stat-card home__stat-card--primary">
-      <div class="home__stat-head">
-        <span class="home__stat-name">Turnos</span>
-        <div class="home__period-wrap">
-          <select
-            class="home__period-select"
-            [value]="statsPeriod()"
-            (change)="onPeriodChange($event)"
-            aria-label="Período de turnos"
-          >
-            @for (option of periodOptions; track option.value) {
-              <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
+    <!-- Card 1: Turnos -->
+    <article class="home__stat-card">
+      <div class="home__stat-row">
+        <div class="home__stat-left">
+          <div class="home__stat-icon-container home__stat-icon-container--purple">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <span class="home__stat-title-text">Turnos</span>
         </div>
       </div>
-      <p class="home__stat-value">{{ appointmentsCount() }}</p>
+      <div class="home__stat-bottom">
+        <span class="home__stat-large-val">{{ appointmentsCount() }}</span>
+      </div>
     </article>
 
-    <article class="home__stat-card home__stat-card--income">
-      <div class="home__stat-head">
-        <span class="home__stat-name">Ingresos</span>
+    <!-- Card 2: Ingresos -->
+    <article class="home__stat-card">
+      <div class="home__stat-row">
+        <div class="home__stat-left">
+          <div class="home__stat-icon-container home__stat-icon-container--green">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <span class="home__stat-title-text">Ingresos</span>
+        </div>
       </div>
-      <p class="home__stat-value">{{ incomeLabel() }}</p>
+      <div class="home__stat-bottom">
+        <span class="home__stat-large-val">{{ incomeLabel() }}</span>
+      </div>
     </article>
 
-    <article class="home__stat-card home__stat-card--noshow">
-      <div class="home__stat-head">
-        <span class="home__stat-name">No-shows</span>
+    <!-- Card 3: No-shows -->
+    <article class="home__stat-card">
+      <div class="home__stat-row">
+        <div class="home__stat-left">
+          <div class="home__stat-icon-container home__stat-icon-container--blue">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="18" y1="8" x2="22" y2="12"></line>
+              <line x1="22" y1="8" x2="18" y2="12"></line>
+            </svg>
+          </div>
+          <span class="home__stat-title-text">No-shows</span>
+        </div>
       </div>
-      <p class="home__stat-value">{{ noShowCount() }}</p>
+      <div class="home__stat-bottom">
+        <span class="home__stat-large-val">{{ noShowCount() }}</span>
+      </div>
     </article>
   </div>
 
-  <section class="home__agenda">
-    <div class="home__agenda-head">
-      <h2 class="home__agenda-title">Hoy</h2>
+  <!-- Bottom Two-Column Grid -->
+  <div class="home__bottom-layout">
+    <!-- Left: Weekly Income Card with Chart -->
+    <article class="home__chart-card" [class.is-empty]="incomeCount() === 0">
+      @if (incomeCount() > 0) {
+        <div class="home__chart-header">
+          <div class="home__chart-title-wrap">
+            <h2 class="home__chart-title">Ingresos esta semana</h2>
+          </div>
+          <p class="home__chart-value-large">$45.200</p>
+        </div>
 
-      <div class="home__view-toggle" role="group" aria-label="Vista de agenda">
-        <button
-          type="button"
-          class="home__view-toggle-btn"
-          [class.is-active]="agendaView() === 'list'"
-          (click)="setAgendaView('list')"
-          aria-label="Vista lista"
-          [attr.aria-pressed]="agendaView() === 'list'"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M8 7h12M8 12h12M8 17h12M4 7h.01M4 12h.01M4 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-          </svg>
-        </button>
-        <button
-          type="button"
-          class="home__view-toggle-btn"
-          [class.is-active]="agendaView() === 'calendar'"
-          (click)="setAgendaView('calendar')"
-          aria-label="Vista calendario"
-          [attr.aria-pressed]="agendaView() === 'calendar'"
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.6" />
-            <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
-          </svg>
-        </button>
+        <div class="home__chart-container">
+          <!-- Y-Axis Labels -->
+          <div class="home__chart-y-axis">
+            <span>$12k</span>
+            <span>$9k</span>
+            <span>$6k</span>
+            <span>$3k</span>
+            <span>$0k</span>
+          </div>
+
+          <!-- SVG Plot -->
+          <div class="home__chart-plot">
+            <svg viewBox="0 0 500 150" class="home__chart-svg" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="chart-area-grad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="rgba(124, 58, 237, 0.15)" />
+                  <stop offset="100%" stop-color="rgba(124, 58, 237, 0)" />
+                </linearGradient>
+              </defs>
+
+              <!-- Grid Lines -->
+              <line x1="0" y1="10" x2="500" y2="10" stroke="#f3f4f6" stroke-width="1.2" />
+              <line x1="0" y1="42.5" x2="500" y2="42.5" stroke="#f3f4f6" stroke-width="1.2" />
+              <line x1="0" y1="75" x2="500" y2="75" stroke="#f3f4f6" stroke-width="1.2" />
+              <line x1="0" y1="107.5" x2="500" y2="107.5" stroke="#f3f4f6" stroke-width="1.2" />
+              <line x1="0" y1="140" x2="500" y2="140" stroke="#f3f4f6" stroke-width="1.2" />
+
+              <!-- Filled Area -->
+              <path d="M 15 80 C 60 90, 80 100, 112 100 C 150 100, 180 25, 209 25 C 240 25, 270 50, 306 50 C 340 50, 370 75, 403 75 C 440 75, 470 105, 500 105 L 500 140 L 15 140 Z" fill="url(#chart-area-grad)" />
+
+              <!-- Chart Line -->
+              <path d="M 15 80 C 60 90, 80 100, 112 100 C 150 100, 180 25, 209 25 C 240 25, 270 50, 306 50 C 340 50, 370 75, 403 75 C 440 75, 470 105, 500 105" fill="none" stroke="#7c3aed" stroke-width="2.5" stroke-linecap="round" />
+
+              <!-- Dots -->
+              <circle cx="15" cy="80" r="3" fill="#ffffff" stroke="#7c3aed" stroke-width="2" />
+              <circle cx="112" cy="100" r="3" fill="#ffffff" stroke="#7c3aed" stroke-width="2" />
+              <circle cx="209" cy="25" r="4.5" fill="#ffffff" stroke="#7c3aed" stroke-width="2.5" />
+              <circle cx="306" cy="50" r="3" fill="#ffffff" stroke="#7c3aed" stroke-width="2" />
+              <circle cx="403" cy="75" r="3" fill="#ffffff" stroke="#7c3aed" stroke-width="2" />
+              <circle cx="500" cy="105" r="3" fill="#ffffff" stroke="#7c3aed" stroke-width="2" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- X-Axis Labels -->
+        <div class="home__chart-x-axis">
+          <span>Lun</span>
+          <span>Mar</span>
+          <span>Mié</span>
+          <span>Jue</span>
+          <span>Vie</span>
+          <span>Sáb</span>
+        </div>
+      } @else {
+        <div class="home__chart-empty">
+          <span class="home__chart-empty-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"></line>
+              <line x1="12" y1="20" x2="12" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="14"></line>
+            </svg>
+          </span>
+          <p class="home__chart-empty-title">Todavía no registrás ingresos</p>
+          <p class="home__chart-empty-text">
+            Tus estadísticas y gráficos de ingresos aparecerán a medida que cobres turnos.
+          </p>
+        </div>
+      }
+    </article>
+
+    <!-- Right: Agenda/Turnos Column -->
+    <section class="home__agenda">
+      <div class="home__agenda-head">
+        <div class="home__agenda-head-left">
+          <h2 class="home__agenda-title">Hoy</h2>
+        </div>
+        <a routerLink="/dashboard/turnos" class="home__agenda-link">Ver calendario ↗</a>
       </div>
-    </div>
 
-    @if (agendaView() === 'list') {
       @if (hasTodayAppointments) {
         <ul class="home__agenda-list">
           @for (appointment of todayAppointments(); track appointment.id) {
@@ -110,9 +193,11 @@
       } @else {
         <div class="home__agenda-empty">
           <span class="home__agenda-empty-icon" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <rect x="4" y="5.5" width="16" height="15" rx="2" stroke="currentColor" stroke-width="1.5" />
-              <path d="M8 3.5v4M16 3.5v4M4 10h16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
           </span>
           <p class="home__agenda-empty-title">No hay reservas para hoy</p>
@@ -124,43 +209,8 @@
               {{ copyLabel }}
             </button>
           }
-
-          @if (showRecentFallback) {
-            <div class="home__recent">
-              <h3 class="home__recent-title">Últimas reservas</h3>
-              <ul class="home__recent-list">
-                @for (appointment of recentAppointments(); track appointment.id) {
-                  <li class="home__recent-item">
-                    <span class="home__recent-name">{{ clientName(appointment) }}</span>
-                    <span class="home__recent-meta">
-                      {{ appointment.serviceName }} · {{ timeRange(appointment) }}
-                    </span>
-                  </li>
-                }
-              </ul>
-            </div>
-          }
         </div>
       }
-    } @else {
-      <div class="home__agenda-calendar">
-        <p class="home__agenda-calendar-label">{{ todayLabel }}</p>
-        @if (hasTodayAppointments) {
-          <ul class="home__agenda-list home__agenda-list--compact">
-            @for (appointment of todayAppointments(); track appointment.id) {
-              <li class="home__agenda-item">
-                <div class="home__agenda-item-time">{{ timeLabel(appointment) }}</div>
-                <div class="home__agenda-item-copy">
-                  <span class="home__agenda-item-name">{{ clientName(appointment) }}</span>
-                  <span class="home__agenda-item-meta">{{ appointment.serviceName }}</span>
-                </div>
-              </li>
-            }
-          </ul>
-        } @else {
-          <p class="home__agenda-calendar-empty">Sin turnos en el calendario.</p>
-        }
-      </div>
-    }
-  </section>
+    </section>
+  </div>
 </section>

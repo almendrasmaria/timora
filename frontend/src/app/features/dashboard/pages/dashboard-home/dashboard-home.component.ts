@@ -15,12 +15,13 @@ import {
 import { Appointment } from '../../../../core/appointments/appointments.models';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
+import { RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [ButtonComponent],
+  imports: [ButtonComponent, RouterLink],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss',
 })

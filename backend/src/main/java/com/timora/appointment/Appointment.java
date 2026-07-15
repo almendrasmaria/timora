@@ -4,6 +4,7 @@ import com.timora.business.Branch;
 import com.timora.business.Business;
 import com.timora.business.Professional;
 import com.timora.business.ServiceOffering;
+import com.timora.client.Client;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -56,6 +57,10 @@ public class Appointment {
 
     @Column(name = "client_email", length = 255)
     private String clientEmail;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id")
+    private Client client;
 
     @Column(columnDefinition = "TEXT")
     private String notes;
@@ -160,6 +165,14 @@ public class Appointment {
 
     public void setClientEmail(String clientEmail) {
         this.clientEmail = clientEmail;
+    }
+
+    public Client getClient() {
+        return client;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 
     public String getNotes() {

@@ -77,4 +77,5 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("startsAt") Instant startsAt,
             @Param("endsAt") Instant endsAt
     );
+    List<Appointment> findByClientIdOrderByStartsAtDesc(Long clientId);
 }

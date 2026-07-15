@@ -12,6 +12,8 @@ import com.timora.business.ServiceOfferingRepository;
 import com.timora.publicbooking.dto.PublicCreateAppointmentRequest;
 import com.timora.user.AppUser;
 import com.timora.user.CurrentUserService;
+import com.timora.client.Client;
+import com.timora.client.ClientService;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,19 +38,22 @@ public class AppointmentService {
     private final ProfessionalRepository professionalRepository;
     private final BranchRepository branchRepository;
     private final CurrentUserService currentUserService;
+    private final ClientService clientService;
 
     public AppointmentService(
             AppointmentRepository appointmentRepository,
             ServiceOfferingRepository serviceOfferingRepository,
             ProfessionalRepository professionalRepository,
             BranchRepository branchRepository,
-            CurrentUserService currentUserService
+            CurrentUserService currentUserService,
+            ClientService clientService
     ) {
         this.appointmentRepository = appointmentRepository;
         this.serviceOfferingRepository = serviceOfferingRepository;
         this.professionalRepository = professionalRepository;
         this.branchRepository = branchRepository;
         this.currentUserService = currentUserService;
+        this.clientService = clientService;
     }
 
     @Transactional(readOnly = true)
@@ -158,6 +163,15 @@ public class AppointmentService {
         appointment.setPrice(service.getPrice());
         appointment.setDepositAmount(service.getDepositAmount());
         appointment.setStatus(AppointmentStatus.CONFIRMED);
+
+        Client client = clientService.getOrCreateClient(
+                business,
+                request.firstName(),
+                request.lastName(),
+                request.phone(),
+                request.email()
+        );
+        appointment.setClient(client);
 
         return toResponse(appointmentRepository.save(appointment));
     }

@@ -310,6 +310,66 @@
     transition: transform var(--duration-normal) var(--ease-out);
   }
 
+  &__view-switcher {
+    display: flex;
+    border: 1px solid #e1e1e6;
+    border-radius: 8px;
+    padding: 2px;
+    background: #fafafc;
+    margin-left: var(--space-4);
+  }
+
+  &__view-btn {
+    border: none;
+    padding: 6px 16px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: transparent;
+    color: var(--color-text-secondary);
+    border-radius: 0;
+    transition: all var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      color: #000000;
+    }
+
+    &.is-active {
+      background: #000000;
+      color: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 1px 2px rgba(17, 17, 24, 0.1);
+    }
+  }
+
+  &__filter-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    height: 2.25rem;
+    padding: 0 16px;
+    border: 1px solid #e1e1e6;
+    border-radius: 6px;
+    background: #ffffff;
+    color: var(--color-text);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(17, 17, 24, 0.03);
+    transition: all var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      border-color: #8e8e93;
+      background: #fafafc;
+    }
+  }
+
+  &__filter-icon {
+    color: var(--color-text-secondary);
+  }
+
   &__add-btn {
     display: inline-flex;
     align-items: center;
@@ -1212,5 +1272,29 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.scheduler-floating-add {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #000000;
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99;
+  transition: all var(--duration-fast) var(--ease-out);
+
+  &:hover {
+    transform: scale(1.05);
+    background: #111118;
   }
 }

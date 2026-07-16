@@ -69,6 +69,52 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   readonly searchTerm = signal<string>('');
   readonly todayDate = new Date();
 
+  readonly weekDays = computed<Date[]>(() => {
+    const anchor = new Date(this.selectedDate());
+    const day = anchor.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    const monday = new Date(anchor);
+    monday.setDate(anchor.getDate() + diff);
+
+    const days: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  });
+
+  readonly monthViewDays = computed<Date[]>(() => {
+    const anchor = this.selectedDate();
+    const year = anchor.getFullYear();
+    const month = anchor.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const startWeekday = firstDay.getDay();
+    const prevDaysCount = startWeekday === 0 ? 6 : startWeekday - 1;
+    const totalDays = lastDay.getDate();
+
+    const days: Date[] = [];
+
+    const prevMonthLastDay = new Date(year, month, 0).getDate();
+    for (let i = prevDaysCount - 1; i >= 0; i--) {
+      days.push(new Date(year, month - 1, prevMonthLastDay - i));
+    }
+
+    for (let i = 1; i <= totalDays; i++) {
+      days.push(new Date(year, month, i));
+    }
+
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i++) {
+      days.push(new Date(year, month + 1, i));
+    }
+
+    return days;
+  });
+
   // Mobile state signals
   readonly mobileSelectedProId = signal<number | null>(null);
   readonly mobileTimeSlots = computed<string[]>(() => {
@@ -121,6 +167,34 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   @HostListener('document:click')
   onDocumentClick(): void {
     this.showDatePicker.set(false);
+  }
+
+  readonly isFiltersModalOpen = signal<boolean>(false);
+
+  openFiltersModal(): void {
+    this.isFiltersModalOpen.set(true);
+  }
+
+  closeFiltersModal(): void {
+    this.isFiltersModalOpen.set(false);
+  }
+
+  getSelectedProValue(): string {
+    const ids = this.selectedProfessionalIds();
+    const all = this.professionals();
+    if (all.length === 0 || ids.length === all.length) {
+      return '';
+    }
+    return ids.length === 1 ? ids[0].toString() : '';
+  }
+
+  onProfessionalFilterChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    if (!val) {
+      this.selectedProfessionalIds.set(this.professionals().map(p => p.id));
+    } else {
+      this.selectedProfessionalIds.set([Number(val)]);
+    }
   }
 
   private timeInterval: any;
@@ -324,16 +398,74 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     this.load();
   }
 
-  prevDay(): void {
+  prevDate(): void {
     const d = new Date(this.selectedDate());
-    d.setDate(d.getDate() - 1);
+    if (this.view() === 'week') {
+      d.setDate(d.getDate() - 7);
+    } else if (this.view() === 'month') {
+      d.setMonth(d.getMonth() - 1);
+    } else {
+      d.setDate(d.getDate() - 1);
+    }
     this.selectDate(d);
   }
 
-  nextDay(): void {
+  nextDate(): void {
     const d = new Date(this.selectedDate());
-    d.setDate(d.getDate() + 1);
+    if (this.view() === 'week') {
+      d.setDate(d.getDate() + 7);
+    } else if (this.view() === 'month') {
+      d.setMonth(d.getMonth() + 1);
+    } else {
+      d.setDate(d.getDate() + 1);
+    }
     this.selectDate(d);
+  }
+
+  getAppointmentsForDate(date: Date): Appointment[] {
+    const dateStr = this.formatToISODate(date);
+    return this.filteredAppointments().filter(appt => {
+      const apptDateStr = this.formatToISODate(new Date(appt.startsAt));
+      return apptDateStr === dateStr;
+    });
+  }
+
+  get dateLabelForView(): string {
+    const d = this.selectedDate();
+    if (this.view() === 'week') {
+      const days = this.weekDays();
+      const first = days[0];
+      const last = days[6];
+      const monthNames = [
+        'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+        'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'
+      ];
+      return `Semana del ${first.getDate()} al ${last.getDate()} de ${monthNames[last.getMonth()]} de ${last.getFullYear()}`;
+    } else if (this.view() === 'month') {
+      const monthNames = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      ];
+      return `${monthNames[d.getMonth()]} de ${d.getFullYear()}`;
+    } else {
+      return this.activeDateLabel;
+    }
+  }
+
+  formatWeekdayLabel(d: Date): string {
+    const weekday = new Intl.DateTimeFormat('es-AR', { weekday: 'short' }).format(d).replace('.', '');
+    const weekdayCap = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    return `${weekdayCap} ${d.getDate()}`;
+  }
+
+  formatWeekday(d: Date): string {
+    return new Intl.DateTimeFormat('es-AR', { weekday: 'short' }).format(d).replace('.', '');
+  }
+
+  formatTimeOnly(startsAtStr: string): string {
+    const d = new Date(startsAtStr);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
   }
 
   toggleProFilter(id: number): void {
@@ -698,8 +830,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private load(): void {
     this.loading.set(true);
     const dateStr = this.formatToISODate(this.selectedDate());
-    // We fetch 'day' view with selected date
-    this.appointmentsService.list('day', dateStr).subscribe({
+    this.appointmentsService.list(this.view(), dateStr).subscribe({
       next: items => { this.appointments.set(items); this.loading.set(false); },
       error: ()   => this.loading.set(false),
     });

@@ -8,12 +8,12 @@
       <!-- Header -->
       <header class="scheduler-header">
         <div class="scheduler-header__left">
-          <button type="button" class="scheduler-header__nav-btn" (click)="prevDay()">
+          <button type="button" class="scheduler-header__nav-btn" (click)="prevDate()">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
           </button>
-          <button type="button" class="scheduler-header__nav-btn" (click)="nextDay()">
+          <button type="button" class="scheduler-header__nav-btn" (click)="nextDate()">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -21,7 +21,7 @@
           
           <div class="scheduler-header__date-wrapper">
             <h2 class="scheduler-header__date-title" (click)="toggleDatePicker($event)">
-              {{ activeDateLabel }}
+              {{ dateLabelForView }}
               <svg class="scheduler-header__date-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" [style.transform]="showDatePicker() ? 'rotate(180deg)' : 'none'">
                 <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -70,46 +70,32 @@
               </div>
             }
           </div>
+
+          <!-- Control de Vistas Segmentado -->
+          <div class="scheduler-header__view-switcher">
+            @for (opt of viewOptions; track opt.value) {
+              <button
+                type="button"
+                class="scheduler-header__view-btn"
+                [class.is-active]="view() === opt.value"
+                (click)="setView(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
         </div>
 
         <div class="scheduler-header__right">
-          <!-- Select Sucursal -->
-          @if (branches().length >= 2) {
-            <div class="scheduler-header__select-wrap">
-              <select
-                class="scheduler-header__select"
-                [value]="selectedBranchId() ?? ''"
-                (change)="onBranchChange($event)"
-              >
-                <option value="">Todas las sucursales</option>
-                @for (b of branches(); track b.id) {
-                  <option [value]="b.id">{{ b.name }}</option>
-                }
-              </select>
-              <svg class="scheduler-header__select-icon" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          }
-
-          <!-- Select Servicio -->
-          @if (services().length >= 1) {
-            <div class="scheduler-header__select-wrap">
-              <select
-                class="scheduler-header__select"
-                [value]="selectedServiceId() ?? ''"
-                (change)="onServiceChange($event)"
-              >
-                <option value="">Todos los servicios</option>
-                @for (s of services(); track s.id) {
-                  <option [value]="s.id">{{ s.name }}</option>
-                }
-              </select>
-              <svg class="scheduler-header__select-icon" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
-          }
+          <!-- Botón Filtros -->
+          <button type="button" class="scheduler-header__filter-btn" (click)="openFiltersModal()">
+            <svg class="scheduler-header__filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="6" x2="20" y2="6"></line>
+              <line x1="7" y1="12" x2="17" y2="12"></line>
+              <line x1="10" y1="18" x2="14" y2="18"></line>
+            </svg>
+            Filtros
+          </button>
 
           <!-- Botón Nuevo Turno -->
           <button type="button" class="scheduler-header__add-btn" (click)="copyBookingLink()">
@@ -119,96 +105,227 @@
       </header>
 
       <!-- Rejilla de Turnos (Scheduler Grid) -->
-      <div class="scheduler-grid">
-        <!-- Headers de Columnas (Profesionales) -->
-        <div class="scheduler-grid__headers-row">
-          <div class="scheduler-grid__hours-spacer">Hora</div>
-          <div
-            class="scheduler-grid__headers-cols"
-            [style.gridTemplateColumns]="'repeat(' + gridColumnCount() + ', 1fr)'"
-          >
-            @for (pro of activeProfessionals(); track pro.id) {
-              <div class="scheduler-grid__col-header">
-                <div class="scheduler-grid__col-info">
-                  <span class="scheduler-grid__col-name">{{ pro.firstName }} {{ pro.lastName }}</span>
-                  <span class="scheduler-grid__col-line" [style.background]="getProColor(pro.id).border"></span>
-                </div>
-              </div>
-            }
-            @for (i of emptyColumnsArray(); track i) {
-              <div class="scheduler-grid__col-header"></div>
-            }
-          </div>
-        </div>
-
-        <!-- Cuerpo del Scheduler (Eje Horario + Grilla) -->
-        <div class="scheduler-grid__body">
-          
-          <!-- Horas a la izquierda -->
-          <div class="scheduler-grid__hours">
-            @for (hour of hourSlots; track hour) {
-              <div class="scheduler-grid__hour-cell">
-                <span class="scheduler-grid__hour-text">{{ hour }}</span>
-              </div>
-            }
-          </div>
-
-          <!-- Rejilla y Citas -->
-          <div class="scheduler-grid__columns-container">
-            <!-- Líneas de fondo horarias -->
-            <div class="scheduler-grid__bg-lines">
-              @for (hour of hourSlots; track hour) {
-                <div class="scheduler-grid__bg-row"></div>
-              }
-            </div>
-
-            <!-- Grilla de columnas de citas -->
+      @if (view() === 'day') {
+        <div class="scheduler-grid">
+          <!-- Headers de Columnas (Profesionales) -->
+          <div class="scheduler-grid__headers-row">
+            <div class="scheduler-grid__hours-spacer">Hora</div>
             <div
-              class="scheduler-grid__columns"
+              class="scheduler-grid__headers-cols"
               [style.gridTemplateColumns]="'repeat(' + gridColumnCount() + ', 1fr)'"
             >
               @for (pro of activeProfessionals(); track pro.id) {
-                <div class="scheduler-grid__col">
-                  @for (appt of getAppointmentsForPro(pro.id); track appt.id) {
+                <div class="scheduler-grid__col-header">
+                  <div class="scheduler-grid__col-info">
+                    <span class="scheduler-grid__col-name">{{ pro.firstName }} {{ pro.lastName }}</span>
+                    <span class="scheduler-grid__col-line" [style.background]="getProColor(pro.id).border"></span>
+                  </div>
+                </div>
+              }
+              @for (i of emptyColumnsArray(); track i) {
+                <div class="scheduler-grid__col-header"></div>
+              }
+            </div>
+          </div>
+
+          <!-- Cuerpo del Scheduler (Eje Horario + Grilla) -->
+          <div class="scheduler-grid__body">
+            
+            <!-- Horas a la izquierda -->
+            <div class="scheduler-grid__hours">
+              @for (hour of hourSlots; track hour) {
+                <div class="scheduler-grid__hour-cell">
+                  <span class="scheduler-grid__hour-text">{{ hour }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Rejilla y Citas -->
+            <div class="scheduler-grid__columns-container">
+              <!-- Líneas de fondo horarias -->
+              <div class="scheduler-grid__bg-lines">
+                @for (hour of hourSlots; track hour) {
+                  <div class="scheduler-grid__bg-row"></div>
+                }
+              </div>
+
+              <!-- Grilla de columnas de citas -->
+              <div
+                class="scheduler-grid__columns"
+                [style.gridTemplateColumns]="'repeat(' + gridColumnCount() + ', 1fr)'"
+              >
+                @for (pro of activeProfessionals(); track pro.id) {
+                  <div class="scheduler-grid__col">
+                    @for (appt of getAppointmentsForPro(pro.id); track appt.id) {
+                      <div
+                        class="scheduler-card"
+                        [class.is-pending]="appt.status === 'CONFIRMED'"
+                        [class.is-completed]="appt.status === 'COMPLETED'"
+                        [class.is-noshow]="appt.status === 'NO_SHOW'"
+                        [class.is-cancelled]="appt.status === 'CANCELLED'"
+                        [style.top]="getAppointmentPosition(appt.startsAt, appt.durationMinutes).top"
+                        [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
+                        [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
+                        (click)="openDetail(appt)"
+                        style="border-radius: 4px; display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 0 6px; border: none; box-sizing: border-box; overflow: hidden; white-space: nowrap; height: 24px !important; min-height: 0 !important;"
+                      >
+                        <span style="font-size: 0.7rem; font-weight: 700; color: inherit;">
+                          {{ formatTimeOnly(appt.startsAt) }}
+                        </span>
+                        <span style="font-size: 0.7rem; font-weight: 600; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          {{ name(appt) }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                }
+                
+                <!-- Columnas de relleno vacías para completar mínimo 5 -->
+                @for (i of emptyColumnsArray(); track i) {
+                  <div class="scheduler-grid__col"></div>
+                }
+
+                <!-- Indicador de Hora Actual -->
+                @if (currentTimePosition) {
+                  <div class="scheduler-grid__time-indicator" [style.top]="currentTimePosition">
+                    <span class="scheduler-grid__time-indicator-dot"></span>
+                    <span class="scheduler-grid__time-indicator-line"></span>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else if (view() === 'week') {
+        <!-- Vista Semanal -->
+        <div class="scheduler-grid">
+          <!-- Headers de Columnas (Días de la semana) -->
+          <div class="scheduler-grid__headers-row">
+            <div class="scheduler-grid__hours-spacer">Hora</div>
+            <div
+              class="scheduler-grid__headers-cols"
+              style="display: grid; grid-template-columns: repeat(7, 1fr);"
+            >
+              @for (day of weekDays(); track day.getTime()) {
+                <div class="scheduler-grid__col-header">
+                  <div class="scheduler-grid__col-info" style="align-items: center; text-align: center;">
+                    <span class="scheduler-grid__col-name" style="font-weight: 700;">{{ formatWeekdayLabel(day) }}</span>
+                    <span class="scheduler-grid__col-line" [style.background]="isSameDate(day, todayDate) ? 'var(--color-primary)' : 'transparent'"></span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- Cuerpo del Scheduler (Eje Horario + Grilla) -->
+          <div class="scheduler-grid__body">
+            <!-- Horas a la izquierda -->
+            <div class="scheduler-grid__hours">
+              @for (hour of hourSlots; track hour) {
+                <div class="scheduler-grid__hour-cell">
+                  <span class="scheduler-grid__hour-text">{{ hour }}</span>
+                </div>
+              }
+            </div>
+
+            <!-- Rejilla y Citas -->
+            <div class="scheduler-grid__columns-container">
+              <!-- Líneas de fondo horarias -->
+              <div class="scheduler-grid__bg-lines">
+                @for (hour of hourSlots; track hour) {
+                  <div class="scheduler-grid__bg-row"></div>
+                }
+              </div>
+
+              <!-- Grilla de columnas de citas -->
+              <div
+                class="scheduler-grid__columns"
+                style="display: grid; grid-template-columns: repeat(7, 1fr);"
+              >
+                @for (day of weekDays(); track day.getTime()) {
+                  <div class="scheduler-grid__col">
+                    @for (appt of getAppointmentsForDate(day); track appt.id) {
+                      <div
+                        class="scheduler-card"
+                        [class.is-pending]="appt.status === 'CONFIRMED'"
+                        [class.is-completed]="appt.status === 'COMPLETED'"
+                        [class.is-noshow]="appt.status === 'NO_SHOW'"
+                        [class.is-cancelled]="appt.status === 'CANCELLED'"
+                        [style.top]="getAppointmentPosition(appt.startsAt, appt.durationMinutes).top"
+                        [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
+                        [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
+                        (click)="openDetail(appt)"
+                        style="border-radius: 4px; display: flex; flex-direction: row; align-items: center; gap: 6px; padding: 0 6px; border: none; box-sizing: border-box; overflow: hidden; white-space: nowrap; height: 24px !important; min-height: 0 !important;"
+                      >
+                        <span style="font-size: 0.7rem; font-weight: 700; color: inherit;">
+                          {{ formatTimeOnly(appt.startsAt) }}
+                        </span>
+                        <span style="font-size: 0.7rem; font-weight: 600; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          {{ name(appt) }}
+                        </span>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else if (view() === 'month') {
+        <!-- Vista Mensual -->
+        <div class="scheduler-grid month-view__container" style="display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-border); overflow: hidden; height: 100%;">
+          <!-- Cabecera de días de la semana (LUN, MAR, MIÉ, JUE, VIE, SÁB, DOM) -->
+          <div class="month-view__weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); background: #fcfcfd; border-bottom: 1px solid var(--color-border); text-align: center;">
+            @for (dayName of ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']; track dayName) {
+              <div style="padding: var(--space-2) 0; font-size: 0.725rem; font-weight: 700; text-transform: uppercase; color: var(--color-text-secondary); letter-spacing: 0.05em;">
+                {{ dayName }}
+              </div>
+            }
+          </div>
+
+          <!-- Cuadrícula de celdas de días -->
+          <div class="month-view__grid" style="display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(6, 1fr); gap: 1px; flex: 1; min-height: 0; background: var(--color-border);">
+            @for (date of monthViewDays(); track date.getTime()) {
+              <div
+                class="month-view__cell"
+                style="background: #ffffff; display: flex; flex-direction: column; padding: var(--space-2); min-height: 0; min-width: 0; cursor: pointer; transition: background var(--duration-fast);"
+                (click)="selectDate(date); setView('day')"
+                onmouseover="this.style.background='#fafafb'"
+                onmouseout="this.style.background='#ffffff'"
+              >
+                <!-- Número del día con círculo negro si es hoy -->
+                <span
+                  [style.background]="isSameDate(date, todayDate) ? '#000000' : 'transparent'"
+                  [style.color]="isSameDate(date, todayDate) ? '#ffffff' : (date.getMonth() !== selectedDate().getMonth() ? '#c7c7cc' : 'var(--color-text)')"
+                  style="font-size: 0.8rem; font-weight: 700; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 4px;"
+                >
+                  {{ date.getDate() }}
+                </span>
+
+                <!-- Listado de turnos en el día -->
+                <div style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px;">
+                  @for (appt of getAppointmentsForDate(date); track appt.id) {
                     <div
-                      class="scheduler-card"
                       [class.is-pending]="appt.status === 'CONFIRMED'"
                       [class.is-completed]="appt.status === 'COMPLETED'"
                       [class.is-noshow]="appt.status === 'NO_SHOW'"
                       [class.is-cancelled]="appt.status === 'CANCELLED'"
-                      [style.top]="getAppointmentPosition(appt.startsAt, appt.durationMinutes).top"
-                      [style.height]="getAppointmentPosition(appt.startsAt, appt.durationMinutes).height"
-                      [style.background]="getProColor(appt.professionalId).bg"
-                      [style.color]="getProColor(appt.professionalId).text"
-                      [style.border-color]="getProColor(appt.professionalId).border"
-                      (click)="openDetail(appt)"
+                      [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
+                      [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
+                      style="font-size: 0.7rem; font-weight: 600; padding: 4px 6px; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: opacity var(--duration-fast);"
+                      onmouseover="this.style.opacity='0.85'"
+                      onmouseout="this.style.opacity='1'"
                     >
-                      <span class="scheduler-card__time" [style.color]="getProColor(appt.professionalId).text">
-                        {{ getAppointmentTimeLabel(appt) }}
-                      </span>
-                      <div class="scheduler-card__client">{{ name(appt) }}</div>
-                      <div class="scheduler-card__service">{{ appt.serviceName }}</div>
+                      <span style="font-weight: 700; margin-right: 4px;">{{ formatTimeOnly(appt.startsAt) }}</span>
+                      <span>{{ name(appt) }}</span>
                     </div>
                   }
                 </div>
-              }
-              
-              <!-- Columnas de relleno vacías para completar mínimo 5 -->
-              @for (i of emptyColumnsArray(); track i) {
-                <div class="scheduler-grid__col"></div>
-              }
-
-              <!-- Indicador de Hora Actual -->
-              @if (currentTimePosition) {
-                <div class="scheduler-grid__time-indicator" [style.top]="currentTimePosition">
-                  <span class="scheduler-grid__time-indicator-dot"></span>
-                  <span class="scheduler-grid__time-indicator-line"></span>
-                </div>
-              }
-            </div>
+              </div>
+            }
           </div>
         </div>
-      </div>
+      }
     </main>
   </div>
 
@@ -237,13 +354,13 @@
     <!-- Sub-header: Date navigator and select dropdowns -->
     <div class="mobile-date-bar">
       <div class="mobile-date-bar__nav">
-        <button type="button" class="mobile-date-bar__btn" (click)="prevDay()">
+        <button type="button" class="mobile-date-bar__btn" (click)="prevDate()">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <h3 class="mobile-date-bar__title">{{ mobileDateLabel() }}</h3>
-        <button type="button" class="mobile-date-bar__btn" (click)="nextDay()">
+        <h3 class="mobile-date-bar__title" style="font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">{{ dateLabelForView }}</h3>
+        <button type="button" class="mobile-date-bar__btn" (click)="nextDate()">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
             <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -251,86 +368,141 @@
       </div>
 
       <!-- Filters in a smaller row -->
-      <div class="mobile-filters-row">
-        <!-- Branch dropdown -->
-        @if (branches().length >= 2) {
-          <div class="mobile-filters-row__select-wrap">
-            <select
-              class="mobile-filters-row__select"
-              [value]="selectedBranchId() ?? ''"
-              (change)="onBranchChange($event)"
-            >
-              <option value="">Todas las sucursales</option>
-              @for (b of branches(); track b.id) {
-                <option [value]="b.id">{{ b.name }}</option>
-              }
-            </select>
-          </div>
-        }
-        <!-- Service dropdown -->
-        @if (services().length >= 1) {
-          <div class="mobile-filters-row__select-wrap">
-            <select
-              class="mobile-filters-row__select"
-              [value]="selectedServiceId() ?? ''"
-              (change)="onServiceChange($event)"
-            >
-              <option value="">Todos los servicios</option>
-              @for (s of services(); track s.id) {
-                <option [value]="s.id">{{ s.name }}</option>
-              }
-            </select>
-          </div>
-        }
+      <div class="mobile-filters-row" style="display: flex; justify-content: flex-end; padding: 0 var(--space-4) var(--space-3); border-bottom: 1px solid var(--color-border); background: var(--color-surface);">
+        <button type="button" class="scheduler-header__filter-btn" style="border-radius: 6px; height: 2rem;" (click)="openFiltersModal()">
+          <svg class="scheduler-header__filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="4" y1="6" x2="20" y2="6"></line>
+            <line x1="7" y1="12" x2="17" y2="12"></line>
+            <line x1="10" y1="18" x2="14" y2="18"></line>
+          </svg>
+          Filtros
+        </button>
       </div>
     </div>
 
     <!-- Timeline Content -->
-    <div class="mobile-timeline">
-      @for (slot of mobileTimeSlots(); track slot) {
-        <div class="mobile-timeline__slot">
-          <div class="mobile-timeline__time">{{ slot }}</div>
-          <div class="mobile-timeline__content">
-            @if (getAppointmentsForSlot(slot, mobileSelectedProId()); as slotAppts) {
-              @if (slotAppts.length > 0) {
-                @for (appt of slotAppts; track appt.id) {
-                  <div
-                    class="mobile-card"
-                    [class.is-pending]="appt.status === 'CONFIRMED'"
-                    [class.is-completed]="appt.status === 'COMPLETED'"
-                    [class.is-noshow]="appt.status === 'NO_SHOW'"
-                    [class.is-cancelled]="appt.status === 'CANCELLED'"
-                    [style.background]="getProColor(appt.professionalId).bg"
-                    [style.color]="getProColor(appt.professionalId).text"
-                    [style.border-color]="getProColor(appt.professionalId).border"
-                    (click)="openDetail(appt)"
-                  >
-                    <div class="mobile-card__left">
-                      <span class="mobile-card__dot" [style.background]="getProColor(appt.professionalId).border"></span>
-                      <div class="mobile-card__details">
-                        <strong class="mobile-card__client">{{ name(appt) }}</strong>
-                        <span class="mobile-card__service">{{ appt.serviceName }}</span>
+    @if (view() === 'day') {
+      <div class="mobile-timeline">
+        @for (slot of mobileTimeSlots(); track slot) {
+          <div class="mobile-timeline__slot">
+            <div class="mobile-timeline__time">{{ slot }}</div>
+            <div class="mobile-timeline__content">
+              @if (getAppointmentsForSlot(slot, mobileSelectedProId()); as slotAppts) {
+                @if (slotAppts.length > 0) {
+                  @for (appt of slotAppts; track appt.id) {
+                    <div
+                      class="mobile-card"
+                      [class.is-pending]="appt.status === 'CONFIRMED'"
+                      [class.is-completed]="appt.status === 'COMPLETED'"
+                      [class.is-noshow]="appt.status === 'NO_SHOW'"
+                      [class.is-cancelled]="appt.status === 'CANCELLED'"
+                      [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
+                      [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
+                      (click)="openDetail(appt)"
+                      style="border-radius: 4px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: none; box-sizing: border-box; overflow: hidden; white-space: nowrap; cursor: pointer; height: 24px !important; min-height: 0 !important;"
+                    >
+                      <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <span style="font-size: 0.7rem; font-weight: 700; color: inherit;">
+                          {{ formatTimeOnly(appt.startsAt) }}
+                        </span>
+                        <strong style="font-size: 0.7rem; font-weight: 600; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                          {{ name(appt) }}
+                        </strong>
                       </div>
-                    </div>
-                    <div class="mobile-card__right">
-                      <span class="mobile-card__pro-tag" [style.background]="getProColor(appt.professionalId).border">
+                      <span style="font-size: 0.6rem; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,0.15); font-weight: 700; color: inherit;">
                         {{ getProInitialsForId(appt.professionalId) }}
                       </span>
                     </div>
+                  }
+                } @else {
+                  <!-- Turno disponible row -->
+                  <div class="mobile-available-row" (click)="createNewAppointmentFromSlot(slot)">
+                    <span class="mobile-available-row__dot"></span>
+                    <span class="mobile-available-row__text">Turno disponible</span>
                   </div>
                 }
-              } @else {
-                <!-- Turno disponible row -->
-                <div class="mobile-available-row" (click)="createNewAppointmentFromSlot(slot)">
-                  <span class="mobile-available-row__dot"></span>
-                  <span class="mobile-available-row__text">Turno disponible</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    } @else if (view() === 'week') {
+      <!-- Mobile Week List (vertical stack of days) -->
+      <div class="mobile-week-list" style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); overflow-y: auto; flex: 1;">
+        @for (day of weekDays(); track day.getTime()) {
+          <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden;">
+            <div [style.background]="isSameDate(day, todayDate) ? '#fafafc' : '#ffffff'" style="padding: var(--space-3); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
+              <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">
+                {{ formatWeekday(day) }}
+              </span>
+              <span [style.background]="isSameDate(day, todayDate) ? 'var(--color-primary)' : 'transparent'" [style.color]="isSameDate(day, todayDate) ? '#ffffff' : 'var(--color-text)'" style="font-size: 0.95rem; font-weight: 700; padding: 2px 6px; border-radius: 50%;">
+                {{ day.getDate() }}
+              </span>
+            </div>
+            <div style="padding: var(--space-2); display: flex; flex-direction: column; gap: var(--space-2); background: #fafafb;">
+              @for (appt of getAppointmentsForDate(day); track appt.id) {
+                <div
+                  class="mobile-card"
+                  [class.is-pending]="appt.status === 'CONFIRMED'"
+                  [class.is-completed]="appt.status === 'COMPLETED'"
+                  [class.is-noshow]="appt.status === 'NO_SHOW'"
+                  [class.is-cancelled]="appt.status === 'CANCELLED'"
+                  [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
+                  [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
+                  (click)="openDetail(appt)"
+                  style="border-radius: 4px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: none; box-sizing: border-box; overflow: hidden; white-space: nowrap; cursor: pointer; border-left-style: none; height: 24px !important; min-height: 0 !important;"
+                >
+                  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <span style="font-size: 0.7rem; font-weight: 700; color: inherit;">
+                      {{ formatTimeOnly(appt.startsAt) }}
+                    </span>
+                    <strong style="font-size: 0.7rem; font-weight: 600; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                      {{ name(appt) }}
+                    </strong>
+                  </div>
+                  <span style="font-size: 0.6rem; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,0.15); font-weight: 700; color: inherit;">
+                    {{ getProInitialsForId(appt.professionalId) }}
+                  </span>
+                </div>
+              } @empty {
+                <div style="font-size: 0.725rem; color: var(--color-text-muted); text-align: center; padding: var(--space-2);">
+                  Sin turnos
                 </div>
               }
-            }
+            </div>
           </div>
+        }
+      </div>
+    } @else if (view() === 'month') {
+      <!-- Mobile Month Grid (compact) -->
+      <div class="mobile-month-grid" style="display: flex; flex-direction: column; flex: 1; min-height: 0; background: #ffffff; padding: var(--space-3);">
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: var(--space-2);">
+          @for (dName of ['L', 'M', 'M', 'J', 'V', 'S', 'D']; track dName) {
+            <span style="font-size: 0.7rem; font-weight: 700; color: var(--color-text-secondary);">{{ dName }}</span>
+          }
         </div>
-      }
-    </div>
+        <div style="display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(6, 1fr); gap: 1px; background: var(--color-border); flex: 1; border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden;">
+          @for (date of monthViewDays(); track date.getTime()) {
+            <div
+              (click)="selectDate(date); setView('day')"
+              [style.background]="isSameDate(date, todayDate) ? '#fafafc' : '#ffffff'"
+              style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; min-height: 45px; position: relative; cursor: pointer;"
+            >
+              <span
+                [style.background]="isSameDate(date, todayDate) ? 'var(--color-primary)' : 'transparent'"
+                [style.color]="isSameDate(date, todayDate) ? '#ffffff' : (date.getMonth() !== selectedDate().getMonth() ? 'var(--color-text-muted)' : 'var(--color-text)')"
+                style="font-size: 0.75rem; font-weight: 600; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%;"
+              >
+                {{ date.getDate() }}
+              </span>
+              @if (getAppointmentsForDate(date).length > 0) {
+                <span style="width: 5px; height: 5px; background: var(--color-primary); border-radius: 50%; margin-top: 2px;"></span>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
 
   </div>
 </div>
@@ -672,5 +844,91 @@
 
     </app-modal>
   }
+
+  <!-- Modal de Filtros -->
+  @if (isFiltersModalOpen()) {
+    <app-modal
+      title="Filtros"
+      (closed)="closeFiltersModal()"
+    >
+      <div style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-2) 0;">
+        
+        <!-- Filtro Sucursal -->
+        @if (branches().length >= 2) {
+          <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+            <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Sucursal</label>
+            <div style="position: relative; width: 100%;">
+              <select
+                style="width: 100%; height: 2.5rem; padding: 0 32px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface); color: var(--color-text); appearance: none; -webkit-appearance: none; outline: none; cursor: pointer;"
+                [value]="selectedBranchId() ?? ''"
+                (change)="onBranchChange($event)"
+              >
+                <option value="">Todas las sucursales</option>
+                @for (b of branches(); track b.id) {
+                  <option [value]="b.id">{{ b.name }}</option>
+                }
+              </select>
+              <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        }
+
+        <!-- Filtro Profesional -->
+        @if (professionals().length >= 1) {
+          <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+            <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Profesional</label>
+            <div style="position: relative; width: 100%;">
+              <select
+                style="width: 100%; height: 2.5rem; padding: 0 32px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface); color: var(--color-text); appearance: none; -webkit-appearance: none; outline: none; cursor: pointer;"
+                [value]="getSelectedProValue()"
+                (change)="onProfessionalFilterChange($event)"
+              >
+                <option value="">Todos los profesionales</option>
+                @for (p of professionals(); track p.id) {
+                  <option [value]="p.id">{{ p.firstName }} {{ p.lastName }}</option>
+                }
+              </select>
+              <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        }
+
+        <!-- Filtro Servicio -->
+        @if (services().length >= 1) {
+          <div style="display: flex; flex-direction: column; gap: var(--space-2);">
+            <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Servicio</label>
+            <div style="position: relative; width: 100%;">
+              <select
+                style="width: 100%; height: 2.5rem; padding: 0 32px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface); color: var(--color-text); appearance: none; -webkit-appearance: none; outline: none; cursor: pointer;"
+                [value]="selectedServiceId() ?? ''"
+                (change)="onServiceChange($event)"
+              >
+                <option value="">Todos los servicios</option>
+                @for (s of services(); track s.id) {
+                  <option [value]="s.id">{{ s.name }}</option>
+                }
+              </select>
+              <svg style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
+                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </div>
+        }
+
+      </div>
+    </app-modal>
+  }
+
+  <!-- Botón flotante Nuevo Turno -->
+  <button type="button" class="scheduler-floating-add" (click)="copyBookingLink()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="12" y1="5" x2="12" y2="19"></line>
+      <line x1="5" y1="12" x2="19" y2="12"></line>
+    </svg>
+  </button>
 
 

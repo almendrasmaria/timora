@@ -11,11 +11,11 @@ Centraliza la agenda, ofrece una página pública de reservas personalizada y re
 - [x] Monorepo con frontend y backend
 - [x] PostgreSQL con Docker
 - [x] Estructura de rutas (dashboard, auth, reservas públicas)
-- [ ] Autenticación JWT (registro / login)
-- [ ] CRUD de servicios, profesionales y clientes
-- [ ] Agenda y turnos
-- [ ] Página pública de reservas (`/{slug}`)
-- [ ] Recordatorios por WhatsApp
+- [x] Autenticación JWT (registro / login)
+- [x] CRUD de servicios, profesionales y clientes
+- [x] Agenda y turnos
+- [x] Página pública de reservas (`/{slug}`)
+- [x] Recordatorios por WhatsApp
 
 ## Stack
 

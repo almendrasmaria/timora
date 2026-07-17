@@ -106,4 +106,20 @@
       color: var(--color-text);
     }
   }
+
+  &--danger {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #b91c1c;
+
+    &:hover:not(:disabled) {
+      background: #fecaca;
+      border-color: #f87171;
+    }
+
+    &:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+    }
+  }
 }

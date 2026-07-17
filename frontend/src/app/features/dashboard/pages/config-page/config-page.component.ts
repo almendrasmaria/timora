@@ -5,6 +5,7 @@ import { forkJoin, finalize } from 'rxjs';
 import { parseApiError } from '../../../../core/auth/api-error';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { ConfigService } from '../../../../core/config/config.service';
+import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import {
   OnboardingState,
   BusinessCategory,
@@ -50,6 +51,7 @@ export class ConfigPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly onboarding = inject(OnboardingService);
   private readonly configService = inject(ConfigService);
+  private readonly confirmService = inject(ConfirmService);
 
   readonly state = signal<OnboardingState | null>(null);
   readonly activeSection = signal<string>('sucursales');
@@ -222,9 +224,15 @@ export class ConfigPageComponent implements OnInit {
     });
   }
 
-  removeBranch(id: number, event: Event): void {
+  async removeBranch(id: number, event: Event): Promise<void> {
     event.stopPropagation();
-    if (!confirm('¿Estás seguro de eliminar esta sucursal?')) return;
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar sucursal',
+      message: '¿Estás seguro de eliminar esta sucursal?',
+      confirmText: 'Eliminar',
+      isDestructive: true
+    });
+    if (!confirmed) return;
     this.loading.set(true);
     this.onboarding.deleteBranch(id).pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (state) => this.state.set(state),
@@ -392,9 +400,15 @@ export class ConfigPageComponent implements OnInit {
     this.proBranchAvailabilities.set({ ...avails });
   }
 
-  removePro(id: number, event: Event): void {
+  async removePro(id: number, event: Event): Promise<void> {
     event.stopPropagation();
-    if (!confirm('¿Estás seguro de eliminar este profesional?')) return;
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar profesional',
+      message: '¿Estás seguro de eliminar este profesional?',
+      confirmText: 'Eliminar',
+      isDestructive: true
+    });
+    if (!confirmed) return;
     this.loading.set(true);
     this.onboarding.deleteProfessional(id).pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (state) => this.state.set(state),
@@ -473,9 +487,15 @@ export class ConfigPageComponent implements OnInit {
     });
   }
 
-  removeService(id: number, event: Event): void {
+  async removeService(id: number, event: Event): Promise<void> {
     event.stopPropagation();
-    if (!confirm('¿Estás seguro de eliminar este servicio?')) return;
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar servicio',
+      message: '¿Estás seguro de eliminar este servicio?',
+      confirmText: 'Eliminar',
+      isDestructive: true
+    });
+    if (!confirmed) return;
     this.loading.set(true);
     this.onboarding.deleteService(id).pipe(finalize(() => this.loading.set(false))).subscribe({
       next: (state) => this.state.set(state),

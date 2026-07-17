@@ -10,6 +10,7 @@ import {
 import { Appointment, AppointmentStatus, AppointmentsView } from '../../../../core/appointments/appointments.models';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
+import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -38,6 +39,7 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
 export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly onboardingService = inject(OnboardingService);
+  private readonly confirmService = inject(ConfirmService);
 
   readonly viewOptions: { value: AppointmentsView; label: string }[] = [
     { value: 'day',   label: 'Día' },
@@ -783,10 +785,16 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  cancelAppointment(): void {
+  async cancelAppointment(): Promise<void> {
     const appt = this.selectedAppointment();
     if (!appt) return;
-    if (confirm('¿Estás seguro de que deseas cancelar este turno?')) {
+    const confirmed = await this.confirmService.confirm({
+      title: 'Cancelar turno',
+      message: '¿Estás seguro de que deseas cancelar este turno?',
+      confirmText: 'Cancelar turno',
+      isDestructive: true
+    });
+    if (confirmed) {
       this.appointmentsService.cancel(appt.id).subscribe({
         next: (updated) => {
           this.appointments.update(list => list.map(i => i.id === updated.id ? updated : i));

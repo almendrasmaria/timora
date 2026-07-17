@@ -6,6 +6,7 @@ import { ClientsService, Client, ClientDetail } from '../../../../core/clients/c
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { Appointment, AppointmentStatus } from '../../../../core/appointments/appointments.models';
+import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
@@ -30,6 +31,7 @@ export class ClientsPageComponent implements OnInit {
   private readonly onboardingService = inject(OnboardingService);
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly fb = inject(FormBuilder);
+  private readonly confirmService = inject(ConfirmService);
 
   readonly clients = signal<Client[]>([]);
   readonly professionals = signal<any[]>([]);
@@ -222,9 +224,17 @@ export class ClientsPageComponent implements OnInit {
     });
   }
 
-  deleteClient(client: Client, event: Event): void {
+  async deleteClient(client: Client, event: Event): Promise<void> {
     event.stopPropagation();
-    const confirmed = confirm(`¿Estás seguro de que deseas eliminar al cliente "${client.firstName} ${client.lastName}"?`);
+    this.activeDropdownId.set(null);
+
+    const confirmed = await this.confirmService.confirm({
+      title: 'Eliminar cliente',
+      message: `¿Estás seguro de que deseas eliminar al cliente "${client.firstName} ${client.lastName}"?`,
+      confirmText: 'Eliminar',
+      isDestructive: true
+    });
+
     if (!confirmed) return;
 
     this.clientsService.delete(client.id).subscribe({

@@ -1,4 +1,4 @@
-<section class="home">
+<section class="home" @fadeAnimation>
   <header class="home__header">
     <div class="home__header-copy">
       <p class="home__eyebrow">{{ greeting }} · {{ todayShort }}</p>
@@ -7,7 +7,7 @@
     </div>
 
     <div class="home__header-actions">
-      <app-button type="button" variant="accent" [fullWidth]="true">+ Nueva reserva</app-button>
+      <app-button type="button" variant="accent" [fullWidth]="true">+ Nuevo turno</app-button>
       @if (bookingUrl) {
         <a
           class="home__view-page"

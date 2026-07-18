@@ -70,20 +70,20 @@
               </div>
             }
           </div>
+        </div>
 
-          <!-- Control de Vistas Segmentado -->
-          <div class="scheduler-header__view-switcher">
-            @for (opt of viewOptions; track opt.value) {
-              <button
-                type="button"
-                class="scheduler-header__view-btn"
-                [class.is-active]="view() === opt.value"
-                (click)="setView(opt.value)"
-              >
-                {{ opt.label }}
-              </button>
-            }
-          </div>
+        <!-- Control de Vistas Segmentado (Centrado) -->
+        <div class="scheduler-header__view-switcher">
+          @for (opt of viewOptions; track opt.value) {
+            <button
+              type="button"
+              class="scheduler-header__view-btn"
+              [class.is-active]="view() === opt.value"
+              (click)="setView(opt.value)"
+            >
+              {{ opt.label }}
+            </button>
+          }
         </div>
 
         <div class="scheduler-header__right">
@@ -106,7 +106,7 @@
 
       <!-- Rejilla de Turnos (Scheduler Grid) -->
       @if (view() === 'day') {
-        <div class="scheduler-grid">
+        <div class="scheduler-grid" @fadeAnimation>
           <!-- Headers de Columnas (Profesionales) -->
           <div class="scheduler-grid__headers-row">
             <div class="scheduler-grid__hours-spacer">Hora</div>
@@ -198,7 +198,7 @@
         </div>
       } @else if (view() === 'week') {
         <!-- Vista Semanal -->
-        <div class="scheduler-grid">
+        <div class="scheduler-grid" @fadeAnimation>
           <!-- Headers de Columnas (Días de la semana) -->
           <div class="scheduler-grid__headers-row">
             <div class="scheduler-grid__hours-spacer">Hora</div>
@@ -273,7 +273,7 @@
         </div>
       } @else if (view() === 'month') {
         <!-- Vista Mensual -->
-        <div class="scheduler-grid month-view__container" style="display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-border); overflow: hidden; height: 100%;">
+        <div class="scheduler-grid month-view__container" @fadeAnimation style="display: flex; flex-direction: column; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-border); overflow: hidden; height: 100%;">
           <!-- Cabecera de días de la semana (LUN, MAR, MIÉ, JUE, VIE, SÁB, DOM) -->
           <div class="month-view__weekdays" style="display: grid; grid-template-columns: repeat(7, 1fr); background: #fcfcfd; border-bottom: 1px solid var(--color-border); text-align: center;">
             @for (dayName of ['LUN', 'MAR', 'MIÉ', 'JUE', 'VIE', 'SÁB', 'DOM']; track dayName) {
@@ -329,182 +329,7 @@
     </main>
   </div>
 
-  <!-- MOBILE SCHEDULER WORKSPACE -->
-  <div class="mobile-scheduler">
-    <!-- Header Mobile -->
-    <header class="mobile-header">
-      <div class="mobile-header__center">
-        <div class="mobile-header__select-wrap">
-          <select
-            class="mobile-header__select"
-            [value]="mobileSelectedProId() ?? ''"
-            (change)="onMobileProChange($event)"
-          >
-            @for (pro of professionals(); track pro.id) {
-              <option [value]="pro.id">{{ pro.firstName }} {{ pro.lastName }}</option>
-            }
-          </select>
-          <svg class="mobile-header__select-icon" width="10" height="10" viewBox="0 0 16 16" fill="none">
-            <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </div>
-      </div>
-    </header>
 
-    <!-- Sub-header: Date navigator and select dropdowns -->
-    <div class="mobile-date-bar">
-      <div class="mobile-date-bar__nav">
-        <button type="button" class="mobile-date-bar__btn" (click)="prevDate()">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <h3 class="mobile-date-bar__title" style="font-size: 0.85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;">{{ dateLabelForView }}</h3>
-        <button type="button" class="mobile-date-bar__btn" (click)="nextDate()">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Filters in a smaller row -->
-      <div class="mobile-filters-row" style="display: flex; justify-content: flex-end; padding: 0 var(--space-4) var(--space-3); border-bottom: 1px solid var(--color-border); background: var(--color-surface);">
-        <button type="button" class="scheduler-header__filter-btn" style="border-radius: 6px; height: 2rem;" (click)="openFiltersModal()">
-          <svg class="scheduler-header__filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="4" y1="6" x2="20" y2="6"></line>
-            <line x1="7" y1="12" x2="17" y2="12"></line>
-            <line x1="10" y1="18" x2="14" y2="18"></line>
-          </svg>
-          Filtros
-        </button>
-      </div>
-    </div>
-
-    <!-- Timeline Content -->
-    @if (view() === 'day') {
-      <div class="mobile-timeline">
-        @for (slot of mobileTimeSlots(); track slot) {
-          <div class="mobile-timeline__slot">
-            <div class="mobile-timeline__time">{{ slot }}</div>
-            <div class="mobile-timeline__content">
-              @if (getAppointmentsForSlot(slot, mobileSelectedProId()); as slotAppts) {
-                @if (slotAppts.length > 0) {
-                  @for (appt of slotAppts; track appt.id) {
-                    <div
-                      class="mobile-card"
-                      [class.is-pending]="appt.status === 'CONFIRMED'"
-                      [class.is-completed]="appt.status === 'COMPLETED'"
-                      [class.is-noshow]="appt.status === 'NO_SHOW'"
-                      [class.is-cancelled]="appt.status === 'CANCELLED'"
-                      [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
-                      [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
-                      (click)="openDetail(appt)"
-                      style="border-radius: 4px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: none; box-sizing: border-box; overflow: hidden; white-space: nowrap; cursor: pointer; height: 24px !important; min-height: 0 !important;"
-                    >
-                      <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                        <span style="font-size: 0.7rem; font-weight: 700; color: inherit;">
-                          {{ formatTimeOnly(appt.startsAt) }}
-                        </span>
-                        <strong style="font-size: 0.7rem; font-weight: 600; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                          {{ name(appt) }}
-                        </strong>
-                      </div>
-                      <span style="font-size: 0.6rem; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,0.15); font-weight: 700; color: inherit;">
-                        {{ getProInitialsForId(appt.professionalId) }}
-                      </span>
-                    </div>
-                  }
-                } @else {
-                  <!-- Turno disponible row -->
-                  <div class="mobile-available-row" (click)="createNewAppointmentFromSlot(slot)">
-                    <span class="mobile-available-row__dot"></span>
-                    <span class="mobile-available-row__text">Turno disponible</span>
-                  </div>
-                }
-              }
-            </div>
-          </div>
-        }
-      </div>
-    } @else if (view() === 'week') {
-      <!-- Mobile Week List (vertical stack of days) -->
-      <div class="mobile-week-list" style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-4); overflow-y: auto; flex: 1;">
-        @for (day of weekDays(); track day.getTime()) {
-          <div style="background: #ffffff; border: 1px solid var(--color-border); border-radius: var(--radius-md); overflow: hidden;">
-            <div [style.background]="isSameDate(day, todayDate) ? '#fafafc' : '#ffffff'" style="padding: var(--space-3); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center;">
-              <span style="font-size: 0.8rem; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase;">
-                {{ formatWeekday(day) }}
-              </span>
-              <span [style.background]="isSameDate(day, todayDate) ? 'var(--color-primary)' : 'transparent'" [style.color]="isSameDate(day, todayDate) ? '#ffffff' : 'var(--color-text)'" style="font-size: 0.95rem; font-weight: 700; padding: 2px 6px; border-radius: 50%;">
-                {{ day.getDate() }}
-              </span>
-            </div>
-            <div style="padding: var(--space-2); display: flex; flex-direction: column; gap: var(--space-2); background: #fafafb;">
-              @for (appt of getAppointmentsForDate(day); track appt.id) {
-                <div
-                  class="mobile-card"
-                  [class.is-pending]="appt.status === 'CONFIRMED'"
-                  [class.is-completed]="appt.status === 'COMPLETED'"
-                  [class.is-noshow]="appt.status === 'NO_SHOW'"
-                  [class.is-cancelled]="appt.status === 'CANCELLED'"
-                  [style.background]="appt.status === 'CONFIRMED' ? '#000000' : '#f4f4f5'"
-                  [style.color]="appt.status === 'CONFIRMED' ? '#ffffff' : 'var(--color-text)'"
-                  (click)="openDetail(appt)"
-                  style="border-radius: 4px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px; border: none; box-sizing: border-box; overflow: hidden; white-space: nowrap; cursor: pointer; border-left-style: none; height: 24px !important; min-height: 0 !important;"
-                >
-                  <div style="display: flex; align-items: center; gap: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                    <span style="font-size: 0.7rem; font-weight: 700; color: inherit;">
-                      {{ formatTimeOnly(appt.startsAt) }}
-                    </span>
-                    <strong style="font-size: 0.7rem; font-weight: 600; color: inherit; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                      {{ name(appt) }}
-                    </strong>
-                  </div>
-                  <span style="font-size: 0.6rem; padding: 1px 4px; border-radius: 3px; background: rgba(255,255,255,0.15); font-weight: 700; color: inherit;">
-                    {{ getProInitialsForId(appt.professionalId) }}
-                  </span>
-                </div>
-              } @empty {
-                <div style="font-size: 0.725rem; color: var(--color-text-muted); text-align: center; padding: var(--space-2);">
-                  Sin turnos
-                </div>
-              }
-            </div>
-          </div>
-        }
-      </div>
-    } @else if (view() === 'month') {
-      <!-- Mobile Month Grid (compact) -->
-      <div class="mobile-month-grid" style="display: flex; flex-direction: column; flex: 1; min-height: 0; background: #ffffff; padding: var(--space-3);">
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; margin-bottom: var(--space-2);">
-          @for (dName of ['L', 'M', 'M', 'J', 'V', 'S', 'D']; track dName) {
-            <span style="font-size: 0.7rem; font-weight: 700; color: var(--color-text-secondary);">{{ dName }}</span>
-          }
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(7, 1fr); grid-template-rows: repeat(6, 1fr); gap: 1px; background: var(--color-border); flex: 1; border: 1px solid var(--color-border); border-radius: 6px; overflow: hidden;">
-          @for (date of monthViewDays(); track date.getTime()) {
-            <div
-              (click)="selectDate(date); setView('day')"
-              [style.background]="isSameDate(date, todayDate) ? '#fafafc' : '#ffffff'"
-              style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 4px; min-height: 45px; position: relative; cursor: pointer;"
-            >
-              <span
-                [style.background]="isSameDate(date, todayDate) ? 'var(--color-primary)' : 'transparent'"
-                [style.color]="isSameDate(date, todayDate) ? '#ffffff' : (date.getMonth() !== selectedDate().getMonth() ? 'var(--color-text-muted)' : 'var(--color-text)')"
-                style="font-size: 0.75rem; font-weight: 600; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%;"
-              >
-                {{ date.getDate() }}
-              </span>
-              @if (getAppointmentsForDate(date).length > 0) {
-                <span style="width: 5px; height: 5px; background: var(--color-primary); border-radius: 50%; margin-top: 2px;"></span>
-              }
-            </div>
-          }
-        </div>
-      </div>
-    }
-
-  </div>
 </div>
 
   <!-- ── MODAL DE DETALLE ───────────────────────────────────────── -->

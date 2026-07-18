@@ -13,6 +13,7 @@ import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { CommonModule } from '@angular/common';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { publicBookingUrl } from '../../../../core/dashboard/dashboard.config';
 
@@ -35,6 +36,14 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
   imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './appointments-page.component.html',
   styleUrl: './appointments-page.component.scss',
+  animations: [
+    trigger('fadeAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(4px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private readonly appointmentsService = inject(AppointmentsService);

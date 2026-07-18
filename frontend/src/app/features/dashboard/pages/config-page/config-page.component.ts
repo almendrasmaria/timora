@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { parseApiError } from '../../../../core/auth/api-error';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { ConfigService } from '../../../../core/config/config.service';
@@ -46,6 +47,14 @@ import {
   ],
   templateUrl: './config-page.component.html',
   styleUrl: './config-page.component.scss',
+  animations: [
+    trigger('fadeAnimation', [
+      transition('* => *', [
+        style({ opacity: 0, transform: 'translateY(4px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class ConfigPageComponent implements OnInit {
   private readonly fb = inject(FormBuilder);

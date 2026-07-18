@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal, computed, HostListener } from '@angu
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { ClientsService, Client, ClientDetail } from '../../../../core/clients/clients.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
@@ -25,6 +26,14 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
   ],
   templateUrl: './clients-page.component.html',
   styleUrl: './clients-page.component.scss',
+  animations: [
+    trigger('fadeAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(4px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class ClientsPageComponent implements OnInit {
   private readonly clientsService = inject(ClientsService);

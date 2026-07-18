@@ -192,7 +192,7 @@
   </aside>
 
   <!-- Panel de Edición Central -->
-  <main class="config-content" [class.is-loading]="loading()">
+  <main class="config-content" [class.is-loading]="loading()" [@fadeAnimation]="activeSection()">
     <header class="config-mobile-header">
       <button class="config-mobile-header__btn" (click)="activeSection.set('')">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">

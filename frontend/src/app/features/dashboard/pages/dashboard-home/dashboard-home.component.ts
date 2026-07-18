@@ -17,6 +17,7 @@ import { AppointmentsService } from '../../../../core/appointments/appointments.
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -24,6 +25,14 @@ import { ButtonComponent } from '../../../../shared/ui/button/button.component';
   imports: [ButtonComponent, RouterLink],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss',
+  animations: [
+    trigger('fadeAnimation', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(4px)' }),
+        animate('400ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ])
+    ])
+  ]
 })
 export class DashboardHomeComponent implements OnInit {
   private readonly onboarding = inject(OnboardingService);

@@ -301,35 +301,59 @@
     }
 
     &__mobile-menu {
-      display: block;
-      position: absolute;
-      top: 100%;
-      left: 0;
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
       right: 0;
-      margin-top: 0;
-      padding: var(--space-4);
+      bottom: 0;
+      width: 85%;
+      max-width: 340px;
+      z-index: 200;
+      padding: var(--space-6) var(--space-5);
+      background: var(--color-primary); // Purple
+      box-shadow: -8px 0 32px rgba(17, 17, 24, 0.4);
+      animation: shell-slide-left 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    &__mobile-menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-bottom: var(--space-6);
+    }
+
+    &__mobile-close {
+      background: transparent;
       border: none;
-      border-bottom: 1px solid var(--color-border);
-      border-radius: 0;
-      background: var(--color-surface);
-      box-shadow: var(--shadow-md);
-      animation: shell-menu-in var(--duration-normal) var(--ease-out);
+      color: rgba(255, 255, 255, 0.7);
+      cursor: pointer;
+      padding: var(--space-1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color var(--duration-fast) var(--ease-out);
+
+      &:hover {
+        color: #ffffff;
+      }
     }
 
     &__mobile-nav {
       display: flex;
       flex-direction: column;
-      gap: var(--space-1);
+      gap: var(--space-2);
+      flex: 1;
     }
 
     &__mobile-nav-link {
       display: flex;
       align-items: center;
-      height: 2.75rem;
+      height: 3rem;
       padding: 0 var(--space-4);
       border-radius: var(--radius-md);
-      color: var(--color-text-secondary);
-      font-size: var(--text-sm);
+      color: rgba(255, 255, 255, 0.7);
+      font-size: var(--text-base);
       font-weight: 500;
       text-decoration: none;
       transition:
@@ -337,45 +361,47 @@
         color var(--duration-fast) var(--ease-out);
 
       &:hover:not(.is-active) {
-        background: var(--color-surface-muted);
-        color: var(--color-text);
+        background: rgba(255, 255, 255, 0.1);
+        color: #ffffff;
       }
 
       &.is-active {
-        background: var(--color-primary-subtle);
-        color: var(--color-primary);
-        font-weight: 600;
+        background: rgba(255, 255, 255, 0.15);
+        color: #ffffff;
+        font-weight: 700;
       }
     }
 
     &__mobile-footer {
-      margin-top: var(--space-3);
-      padding-top: var(--space-3);
-      border-top: 1px solid var(--color-border);
+      margin-top: auto;
+      padding-top: var(--space-5);
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     &__mobile-slug {
-      margin: 0 0 var(--space-2);
-      padding: 0 var(--space-4);
-      font-size: var(--text-xs);
-      color: var(--color-text-muted);
+      margin: 0 0 var(--space-3);
+      padding: 0 var(--space-2);
+      font-size: var(--text-sm);
+      color: rgba(255, 255, 255, 0.8);
+      font-weight: 600;
     }
 
     &__mobile-logout {
       width: 100%;
-      height: 2.5rem;
-      border: 1px solid var(--color-border);
+      height: 2.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: var(--radius-md);
-      background: var(--color-surface);
-      color: var(--color-text-secondary);
+      background: rgba(255, 255, 255, 0.05);
+      color: #ffffff;
       font-family: var(--font-family);
       font-size: var(--text-sm);
-      font-weight: 500;
+      font-weight: 600;
       cursor: pointer;
+      transition: all var(--duration-fast) var(--ease-out);
 
       &:hover {
-        background: var(--color-surface-muted);
-        color: var(--color-text);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
       }
     }
 
@@ -400,9 +426,17 @@
   from {
     opacity: 0;
   }
-
   to {
     opacity: 1;
+  }
+}
+
+@keyframes shell-slide-left {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 

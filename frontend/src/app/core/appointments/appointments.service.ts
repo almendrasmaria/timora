@@ -57,4 +57,9 @@ export class AppointmentsService {
       payload
     );
   }
+
+  create(payload: any): Observable<Appointment> {
+    return this.http.post<Appointment>(`${environment.apiUrl}/appointments`, payload);
+  }
 }
+

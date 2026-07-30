@@ -2,6 +2,7 @@ package com.timora.appointment;
 
 import com.timora.appointment.dto.AppointmentResponse;
 import com.timora.appointment.dto.AppointmentSummaryResponse;
+import com.timora.appointment.dto.CreateAppointmentRequest;
 import com.timora.business.Branch;
 import com.timora.business.BranchRepository;
 import com.timora.business.Business;
@@ -138,6 +139,65 @@ public class AppointmentService {
         if (startsAt.isBefore(Instant.now())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No podés reservar un horario pasado");
         }
+
+        if (appointmentRepository.existsOverlapping(
+                business.getId(),
+                professional.getId(),
+                startsAt,
+                endsAt
+        )) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Ese horario ya no está disponible");
+        }
+
+        Appointment appointment = new Appointment();
+        appointment.setBusiness(business);
+        appointment.setService(service);
+        appointment.setProfessional(professional);
+        appointment.setBranch(branch);
+        appointment.setClientFirstName(request.firstName().trim());
+        appointment.setClientLastName(request.lastName().trim());
+        appointment.setClientPhone(request.phone().trim());
+        appointment.setClientEmail(normalizeOptional(request.email()));
+        appointment.setNotes(normalizeOptional(request.notes()));
+        appointment.setStartsAt(startsAt);
+        appointment.setEndsAt(endsAt);
+        appointment.setPrice(service.getPrice());
+        appointment.setDepositAmount(service.getDepositAmount());
+        appointment.setStatus(AppointmentStatus.CONFIRMED);
+
+        Client client = clientService.getOrCreateClient(
+                business,
+                request.firstName(),
+                request.lastName(),
+                request.phone(),
+                request.email()
+        );
+        appointment.setClient(client);
+
+        return toResponse(appointmentRepository.save(appointment));
+    }
+
+    @Transactional
+    public AppointmentResponse createAdmin(CreateAppointmentRequest request) {
+        Business business = requireBusiness();
+        ServiceOffering service = serviceOfferingRepository.findById(request.serviceId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Servicio inválido"));
+
+        if (!service.getBusiness().getId().equals(business.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Servicio inválido");
+        }
+
+        Professional professional = professionalRepository.findById(request.professionalId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profesional inválido"));
+
+        if (!professional.getBusiness().getId().equals(business.getId())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Profesional inválido");
+        }
+
+        Branch branch = resolveBranch(business.getId(), request.branchId());
+
+        Instant startsAt = parseStartInstant(request.date(), request.time());
+        Instant endsAt = startsAt.plusSeconds(service.getDurationMinutes() * 60L);
 
         if (appointmentRepository.existsOverlapping(
                 business.getId(),

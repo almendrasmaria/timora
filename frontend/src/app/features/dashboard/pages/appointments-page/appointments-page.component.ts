@@ -16,6 +16,7 @@ import { CommonModule } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { publicBookingUrl } from '../../../../core/dashboard/dashboard.config';
+import { ClientsService, Client } from '../../../../core/clients/clients.service';
 
 export interface AppointmentGroup {
   dateKey: string;
@@ -49,6 +50,27 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly onboardingService = inject(OnboardingService);
   private readonly confirmService = inject(ConfirmService);
+  private readonly clientsService = inject(ClientsService);
+
+  // Manual booking modal state
+  readonly showCreateModal = signal<boolean>(false);
+  readonly submittingCreate = signal<boolean>(false);
+  readonly createError = signal<string>('');
+  readonly isNewClient = signal<boolean>(false);
+  readonly clients = signal<Client[]>([]);
+
+  readonly selectedClientId = signal<number | null>(null);
+  readonly createFirstName = signal<string>('');
+  readonly createLastName = signal<string>('');
+  readonly createPhone = signal<string>('');
+  readonly createEmail = signal<string>('');
+  readonly createServiceId = signal<number | null>(null);
+  readonly createProfessionalId = signal<number | null>(null);
+  readonly createBranchId = signal<number | null>(null);
+  readonly createDate = signal<string>('');
+  readonly createTime = signal<string>('');
+  readonly createNotes = signal<string>('');
+
 
   readonly viewOptions: { value: AppointmentsView; label: string }[] = [
     { value: 'day',   label: 'Día' },
@@ -839,9 +861,125 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     return this.getProInitials(pro);
   }
 
-  createNewAppointmentFromSlot(slot: string): void {
-    this.copyBookingLink();
+  openCreateModal(slot?: string): void {
+    this.createError.set('');
+    this.isNewClient.set(false);
+    this.selectedClientId.set(null);
+    this.createFirstName.set('');
+    this.createLastName.set('');
+    this.createPhone.set('');
+    this.createEmail.set('');
+    this.createNotes.set('');
+    
+    const srvs = this.services();
+    this.createServiceId.set(this.selectedServiceId() || (srvs.length > 0 ? srvs[0].id : null));
+
+    const pros = this.professionals();
+    let proId = this.getSelectedProValue() ? Number(this.getSelectedProValue()) : null;
+    if (!proId && pros.length > 0) {
+      proId = pros[0].id;
+    }
+    this.createProfessionalId.set(proId);
+
+    const brms = this.branches();
+    this.createBranchId.set(this.selectedBranchId() || (brms.length > 0 ? brms[0].id : null));
+
+    this.createDate.set(this.formatToISODate(this.selectedDate()));
+    this.createTime.set(slot || '09:00');
+
+    this.clientsService.getAll().subscribe({
+      next: (list) => {
+        this.clients.set(list);
+      }
+    });
+
+    this.showCreateModal.set(true);
   }
+
+  onClientSelectChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    if (!val) {
+      this.selectedClientId.set(null);
+      this.createFirstName.set('');
+      this.createLastName.set('');
+      this.createPhone.set('');
+      this.createEmail.set('');
+      return;
+    }
+    const id = Number(val);
+    this.selectedClientId.set(id);
+    const client = this.clients().find(c => c.id === id);
+    if (client) {
+      this.createFirstName.set(client.firstName || '');
+      this.createLastName.set(client.lastName || '');
+      this.createPhone.set(client.phone || '');
+      this.createEmail.set(client.email || '');
+    }
+  }
+
+  onServiceIdChange(val: any): void {
+    this.createServiceId.set(val ? Number(val) : null);
+  }
+
+  onProfessionalIdChange(val: any): void {
+    this.createProfessionalId.set(val ? Number(val) : null);
+  }
+
+  onBranchIdChange(val: any): void {
+    this.createBranchId.set(val ? Number(val) : null);
+  }
+
+
+  submitCreate(): void {
+    if (this.submittingCreate()) return;
+
+    if (!this.createFirstName().trim() || !this.createLastName().trim() || !this.createPhone().trim()) {
+      this.createError.set('Nombre, apellido y teléfono son campos obligatorios');
+      return;
+    }
+
+    if (!this.createServiceId() || !this.createProfessionalId() || !this.createDate() || !this.createTime()) {
+      this.createError.set('Servicio, profesional, fecha y hora son campos obligatorios');
+      return;
+    }
+
+    this.submittingCreate.set(true);
+    this.createError.set('');
+
+    const payload = {
+      serviceId: this.createServiceId(),
+      professionalId: this.createProfessionalId(),
+      branchId: this.createBranchId(),
+      date: this.createDate(),
+      time: this.createTime(),
+      firstName: this.createFirstName().trim(),
+      lastName: this.createLastName().trim(),
+      phone: this.createPhone().trim(),
+      email: this.createEmail().trim() || null,
+      notes: this.createNotes().trim() || null
+    };
+
+    this.appointmentsService.create(payload).subscribe({
+      next: () => {
+        this.submittingCreate.set(false);
+        this.showCreateModal.set(false);
+        this.load();
+      },
+      error: (err) => {
+        this.submittingCreate.set(false);
+        this.createError.set(err.error?.message || 'Ocurrió un error al agendar el turno');
+      }
+    });
+  }
+
+  closeCreateModal(): void {
+    this.showCreateModal.set(false);
+  }
+
+  createNewAppointmentFromSlot(slot: string): void {
+    this.openCreateModal(slot);
+  }
+
 
   // ── Private ───────────────────────────────────────────────────
   private load(): void {

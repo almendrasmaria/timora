@@ -12,8 +12,8 @@
     flex-shrink: 0;
     border-radius: var(--radius-full);
     background: var(--color-primary-subtle);
-    color: var(--color-primary);
-    box-shadow: inset 0 0 0 1px rgba(91, 91, 214, 0.08);
+    border: 1px solid rgba(91, 91, 214, 0.25);
+    color: var(--color-primary-light);
   }
 
   &__text {
@@ -28,14 +28,7 @@
 @media (max-width: 640px) {
   .feature-item {
     gap: var(--space-3);
-
-    &__icon {
-      width: 1.75rem;
-      height: 1.75rem;
-    }
-
-    &__text {
-      font-size: var(--text-sm);
-    }
+    &__icon { width: 1.75rem; height: 1.75rem; }
+    &__text { font-size: var(--text-sm); }
   }
 }

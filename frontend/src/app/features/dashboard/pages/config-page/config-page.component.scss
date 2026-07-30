@@ -1,8 +1,11 @@
 .config-layout {
   display: flex;
   gap: var(--space-8);
-  align-items: flex-start;
+  align-items: stretch;
   width: 100%;
+  min-height: calc(100vh - 100px);
+  padding: var(--space-6) var(--space-6) var(--space-10);
+  box-sizing: border-box;
   margin-top: var(--space-4);
 
   @media (max-width: 768px) {
@@ -31,11 +34,10 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
-  padding: var(--space-5) var(--space-4);
-  box-shadow: var(--shadow-panel);
-  border: 1px solid var(--color-border);
+  background: transparent;
+  padding: var(--space-2) 0;
+  border: none;
+  box-shadow: none;
 
   &__title {
     font-size: var(--text-2xl);
@@ -106,9 +108,9 @@
   }
 
   &.is-active {
-    color: var(--color-text-inverse);
-    background: var(--color-primary);
-    box-shadow: var(--shadow-primary);
+    color: var(--color-primary-light);
+    background: var(--color-primary-subtle);
+    box-shadow: inset 3px 0 0 var(--color-primary-light);
   }
 
   @media (max-width: 768px) {
@@ -191,9 +193,10 @@
   min-width: 0;
   background: transparent;
   border-radius: 0;
-  padding: 0;
+  padding: 0 0 0 var(--space-8);
   box-shadow: none;
   border: none;
+  border-left: 1px solid var(--color-border);
   position: relative;
   transition: opacity var(--duration-normal) var(--ease-out);
 
@@ -260,8 +263,7 @@
   justify-content: space-between;
   align-items: center;
   gap: var(--space-4);
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
   margin-bottom: var(--space-6);
 
   @media (max-width: 768px) {
@@ -730,11 +732,12 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  padding: var(--space-2) var(--space-5);
-  font-size: var(--text-sm);
+  height: 2.75rem;
+  padding: 0 var(--space-6);
+  font-size: var(--text-base);
   font-weight: 600;
   color: var(--color-text-inverse);
-  background: var(--color-primary);
+  background: var(--gradient-accent);
   border: none;
   border-radius: 6px;
   cursor: pointer;

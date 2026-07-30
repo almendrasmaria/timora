@@ -715,7 +715,7 @@ export class ConfigPageComponent implements OnInit {
   getFullUrl(type: 'booking' | 'instagram'): string {
     const slug = this.negocioForm.controls.slug.value || '';
     const origin = window.location.origin;
-    return type === 'instagram' ? `${origin}/${slug}/link` : `${origin}/${slug}`;
+    return `${origin}/${slug}`;
   }
 
   copyLink(type: 'booking' | 'instagram'): void {

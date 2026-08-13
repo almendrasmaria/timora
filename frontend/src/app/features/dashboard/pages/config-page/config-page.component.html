@@ -526,7 +526,7 @@
             <app-button type="button" variant="secondary" shape="pill" (click)="copyLink('instagram')">Copiar link</app-button>
             <a [href]="'/' + negocioForm.controls.slug.value + '/link'" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver página</a>
           </div>
-          <p class="config-link-card__hint">{{ getFullUrl('instagram') }}</p>
+
         </div>
 
         <div class="config-form__section">
@@ -609,7 +609,7 @@
             </app-button>
             <a [href]="'/' + negocioForm.controls.slug.value" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver web de turnos</a>
           </div>
-          <p class="config-link-card__hint">{{ getFullUrl('booking') }}</p>
+
         </div>
 
         <div class="config-panel">

@@ -28,9 +28,9 @@ export class LoginComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
 
   readonly features = [
-    'Gestioná turnos desde un solo lugar',
-    'Compartí tu link de reservas con clientes',
-    'Recordatorios automáticos por WhatsApp',
+    'Menos mensajes por WhatsApp, más tiempo para atender.',
+    'Señá previa para reducir ausencias.',
+    'Tus clientes reservan solos, 24/7.',
   ];
 
   readonly form = this.fb.nonNullable.group({

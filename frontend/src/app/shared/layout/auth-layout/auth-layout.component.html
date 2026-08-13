@@ -4,12 +4,6 @@
       <a routerLink="/" class="auth-layout__logo">
         <app-logo size="lg" />
       </a>
-
-      @if (headerActionLabel && headerActionLink) {
-        <a [routerLink]="headerActionLink" class="auth-layout__header-link">
-          {{ headerActionLabel }}
-        </a>
-      }
     </div>
   </header>
 

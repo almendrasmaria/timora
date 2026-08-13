@@ -2,18 +2,29 @@
   width: 100%;
   max-width: var(--auth-card-width);
   padding: var(--space-8);
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: var(--radius-xl);
-  background: var(--color-surface);
+  background: rgba(20, 19, 31, 0.55);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   box-shadow: var(--shadow-card);
+
+  :host-context([data-theme="light"]) & {
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    box-shadow: 
+      0 4px 30px rgba(15, 23, 42, 0.02),
+      0 20px 25px -5px rgba(15, 23, 42, 0.05);
+  }
 
   &__title {
     margin: 0 0 var(--space-6);
     font-family: var(--font-display);
-    font-size: var(--text-xl);
+    font-size: var(--text-2xl);
     font-weight: 700;
     color: var(--color-text);
     letter-spacing: -0.035em;
+    text-align: center;
   }
 
   &__form {
@@ -43,12 +54,11 @@
 
   &__footer {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--space-3);
+    justify-content: center;
+    gap: var(--space-2);
     margin-top: var(--space-6);
     padding-top: var(--space-6);
-    border-top: 1px solid var(--color-border);
 
     p {
       margin: 0;
@@ -57,31 +67,24 @@
     }
   }
 
-  &__footer-link {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 3rem;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+  &__link {
     font-size: var(--text-sm);
-    font-weight: 500;
-    color: var(--color-text);
+    font-weight: 600;
+    color: var(--color-primary-light);
     text-decoration: none;
-    background: var(--color-surface-muted);
-    box-shadow: var(--shadow-xs);
-    transition:
-      background var(--duration-fast) var(--ease-out),
-      border-color var(--duration-fast) var(--ease-out),
-      transform var(--duration-fast) var(--ease-out);
+    transition: color var(--duration-fast) var(--ease-out);
 
     &:hover {
-      background: var(--color-surface-elevated);
-      border-color: var(--color-border-hover);
-      color: var(--color-text);
-      text-decoration: none;
-      transform: translateY(-1px);
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+
+    :host-context([data-theme="light"]) & {
+      color: var(--color-primary);
+
+      &:hover {
+        color: var(--color-primary-hover);
+      }
     }
   }
 }
@@ -90,9 +93,8 @@
   .auth-form-card {
     padding: var(--space-6);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
 
-    &__title { font-size: var(--text-lg); margin-bottom: var(--space-5); }
+    &__title { font-size: var(--text-xl); margin-bottom: var(--space-5); }
     &__form { gap: var(--space-4); }
     &__footer { margin-top: var(--space-5); padding-top: var(--space-5); }
   }

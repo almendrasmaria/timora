@@ -27,9 +27,9 @@ export class RegisterComponent {
   private readonly router = inject(Router);
 
   readonly features = [
-    'Agenda centralizada para tu negocio',
-    'Página pública de reservas personalizada',
-    'Recordatorios automáticos por WhatsApp',
+    'Menos mensajes por WhatsApp, más tiempo para atender.',
+    'Señá previa para reducir ausencias.',
+    'Tus clientes reservan solos, 24/7.',
   ];
 
   readonly form = this.fb.nonNullable.group(

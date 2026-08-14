@@ -1,24 +1,109 @@
-<div class="shell" [class.shell--menu-open]="mobileMenuOpen()">
-  <header class="shell__header">
-    <div class="shell__container">
-      <div class="shell__bar">
-      <a routerLink="/dashboard/inicio" class="shell__logo" (click)="closeMobileMenu()">
-        <app-logo size="md" />
+<div
+  class="shell"
+  [class.shell--collapsed]="sidebarCollapsed()"
+  [class.shell--menu-open]="mobileMenuOpen()"
+>
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <aside class="shell__sidebar" aria-label="Menú lateral">
+
+    <!-- Sidebar header: logo + toggle (visible cuando esta expandido) -->
+    <div class="shell__sidebar-head">
+      <a routerLink="/dashboard/inicio" class="shell__sidebar-logo" aria-label="Ir al inicio">
+        <app-logo size="sm" />
       </a>
+      <!-- Toggle solo visible cuando expandido (dentro del sidebar) -->
+      <button
+        type="button"
+        class="shell__sidebar-toggle shell__sidebar-toggle--inside"
+        (click)="toggleSidebar()"
+        aria-label="Colapsar menu"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="9" y1="3" x2="9" y2="21"/>
+        </svg>
+      </button>
+    </div>
 
-      <nav class="shell__nav" aria-label="Navegación principal">
-        @for (item of nav; track item.path) {
-          <a
-            class="shell__nav-link"
-            [routerLink]="['/dashboard', item.path]"
-            routerLinkActive="is-active"
-            [routerLinkActiveOptions]="{ exact: item.path === 'inicio' }"
+    <!-- Nav -->
+    <nav class="shell__sidebar-nav" aria-label="Navegacion principal">
+      @for (item of nav; track item.path) {
+        <a
+          class="shell__sidebar-link"
+          [routerLink]="['/dashboard', item.path]"
+          routerLinkActive="is-active"
+          [routerLinkActiveOptions]="{ exact: item.path === 'inicio' }"
+          [title]="item.label"
+        >
+          <svg
+            class="shell__sidebar-icon"
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.75"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
           >
-            {{ item.label }}
-          </a>
-        }
-      </nav>
+            <path [attr.d]="item.svgPath" />
+          </svg>
+          <span class="shell__sidebar-label">{{ item.label }}</span>
+        </a>
+      }
+    </nav>
 
+  </aside>
+
+  <!-- ═══════════════ CONTENIDO DERECHO ═══════════════ -->
+  <div class="shell__right">
+
+    <!-- Sub-header dentro del area de contenido (sin fondo diferente) -->
+    <div class="shell__topbar">
+
+      <!-- Lado izquierdo del topbar (Toggle + Breadcrumb juntos) -->
+      <div class="shell__topbar-left">
+        <!-- Toggle visible cuando sidebar esta colapsado (fuera del sidebar) -->
+        <button
+          type="button"
+          class="shell__sidebar-toggle shell__sidebar-toggle--outside"
+          (click)="toggleSidebar()"
+          aria-label="Expandir menu"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
+          </svg>
+        </button>
+
+        <!-- Mobile hamburger -->
+        <button
+          type="button"
+          class="shell__menu-toggle"
+          (click)="toggleMobileMenu()"
+          [attr.aria-expanded]="mobileMenuOpen()"
+          aria-controls="dashboard-mobile-menu"
+          [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menu' : 'Abrir menu'"
+        >
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+
+        <!-- Breadcrumb -->
+        <div class="shell__breadcrumb">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path [attr.d]="activePageIcon"/>
+          </svg>
+          <span class="shell__page-title">{{ activePageLabel }}</span>
+        </div>
+      </div>
+
+      <!-- User menu -->
       <div class="shell__actions">
         <div #userMenu class="shell__user-menu">
           <button
@@ -31,52 +116,45 @@
           >
             <span class="shell__avatar" aria-hidden="true">{{ businessInitial }}</span>
             <span class="shell__user-name">{{ businessName || 'Mi negocio' }}</span>
-            <svg class="shell__user-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <svg class="shell__user-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
-
           @if (userMenuOpen()) {
             <div id="shell-user-dropdown" class="shell__user-dropdown" role="menu" (click)="$event.stopPropagation()">
               @if (bookingSlug) {
                 <p class="shell__user-dropdown-slug">{{ bookingSlug }}</p>
               }
               <button type="button" class="shell__user-dropdown-item" role="menuitem" (click)="logout()">
-                Cerrar sesión
+                Cerrar sesion
               </button>
             </div>
           }
         </div>
-
-        <button
-          type="button"
-          class="shell__menu-toggle"
-          (click)="toggleMobileMenu()"
-          [attr.aria-expanded]="mobileMenuOpen()"
-          aria-controls="dashboard-mobile-menu"
-          [attr.aria-label]="mobileMenuOpen() ? 'Cerrar menú' : 'Abrir menú'"
-        >
-          <span class="shell__menu-toggle-bar"></span>
-          <span class="shell__menu-toggle-bar"></span>
-          <span class="shell__menu-toggle-bar"></span>
-        </button>
-      </div>
       </div>
 
     </div>
-  </header>
 
+    <!-- Main content -->
+    <main class="shell__main">
+      <router-outlet />
+    </main>
+
+  </div>
+
+  <!-- ═══════════════ MOBILE DRAWER ═══════════════ -->
   @if (mobileMenuOpen()) {
     <div id="dashboard-mobile-menu" class="shell__mobile-menu">
-      <div class="shell__mobile-menu-header">
-        <button type="button" class="shell__mobile-close" (click)="closeMobileMenu()" aria-label="Cerrar menú">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="shell__mobile-head">
+        <app-logo size="sm" />
+        <button type="button" class="shell__mobile-close" (click)="closeMobileMenu()" aria-label="Cerrar menu">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
       </div>
-      <nav class="shell__mobile-nav" aria-label="Menú móvil">
+      <nav class="shell__mobile-nav" aria-label="Menu movil">
         @for (item of nav; track item.path) {
           <a
             class="shell__mobile-nav-link"
@@ -85,30 +163,21 @@
             [routerLinkActiveOptions]="{ exact: item.path === 'inicio' }"
             (click)="closeMobileMenu()"
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path [attr.d]="item.svgPath" />
+            </svg>
             {{ item.label }}
           </a>
         }
       </nav>
-
       <div class="shell__mobile-footer">
         @if (bookingSlug) {
           <p class="shell__mobile-slug">{{ bookingSlug }}</p>
         }
-        <button type="button" class="shell__mobile-logout" (click)="logout()">Cerrar sesión</button>
+        <button type="button" class="shell__mobile-logout" (click)="logout()">Cerrar sesion</button>
       </div>
     </div>
+    <button type="button" class="shell__backdrop" (click)="closeMobileMenu()" aria-label="Cerrar menu"></button>
   }
 
-  @if (mobileMenuOpen()) {
-    <button
-      type="button"
-      class="shell__backdrop"
-      (click)="closeMobileMenu()"
-      aria-label="Cerrar menú"
-    ></button>
-  }
-
-  <main class="shell__main">
-    <router-outlet />
-  </main>
 </div>

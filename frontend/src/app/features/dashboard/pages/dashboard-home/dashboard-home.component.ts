@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import {
   AgendaView,
   STATS_PERIOD_OPTIONS,
@@ -47,13 +47,66 @@ export class DashboardHomeComponent implements OnInit {
   todayShort = '';
   todayLabel = '';
 
-  readonly statsPeriod = signal<StatsPeriod>('today');
+  readonly statsPeriod = signal<StatsPeriod>('month');
   readonly agendaView = signal<AgendaView>('list');
   readonly appointmentsCount = signal(0);
   readonly incomeCount = signal(0);
   readonly noShowCount = signal(0);
   readonly todayAppointments = signal<Appointment[]>([]);
   readonly recentAppointments = signal<Appointment[]>([]);
+
+  readonly filteredRecentAppointments = computed(() => {
+    const list = this.recentAppointments();
+    const period = this.statsPeriod();
+    const now = new Date();
+    
+    // Calculate start date based on active period
+    const startDate = new Date(now);
+    if (period === 'today') {
+      startDate.setHours(0, 0, 0, 0);
+    } else if (period === 'week') {
+      startDate.setDate(now.getDate() - 7);
+      startDate.setHours(0, 0, 0, 0);
+    } else {
+      // 'month' (last 30 days)
+      startDate.setDate(now.getDate() - 30);
+      startDate.setHours(0, 0, 0, 0);
+    }
+    
+    return list.filter(appt => {
+      const apptDate = new Date(appt.startsAt);
+      return apptDate.getTime() >= startDate.getTime();
+    });
+  });
+
+  readonly displayedAppointments = computed(() => {
+    const list = this.filteredRecentAppointments();
+    return list.slice(0, 5).map(appt => ({
+      id: appt.id,
+      businessName: this.businessName,
+      clientName: appt.clientFirstName + ' ' + appt.clientLastName,
+      clientEmail: appt.clientEmail || 'Sin email',
+      dateLabel: this.formatAppointmentDateForTable(appt.startsAt)
+    }));
+  });
+
+  get formattedPeriodRange(): string {
+    const now = new Date();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const formatDate = (d: Date) => `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}`;
+
+    if (this.statsPeriod() === 'today') {
+      return formatDate(now);
+    } else if (this.statsPeriod() === 'week') {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 7);
+      return `${formatDate(start)} - ${formatDate(now)}`;
+    } else {
+      const start = new Date(now);
+      start.setDate(now.getDate() - 30);
+      return `${formatDate(start)} - ${formatDate(now)}`;
+    }
+  }
 
   ngOnInit(): void {
     const now = new Date();
@@ -113,8 +166,22 @@ export class DashboardHomeComponent implements OnInit {
     return formatAppointmentTime(appointment.startsAt);
   }
 
+  formatAppointmentDateForTable(startsAtStr: string): string {
+    const d = new Date(startsAtStr);
+    const day = d.getDate();
+    const monthNames = [
+      'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+      'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+    ];
+    const month = monthNames[d.getMonth()];
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${day} DE ${month} ${pad(d.getHours())}:${pad(d.getMinutes())}hs`;
+  }
+
   incomeLabel(): string {
-    return formatIncome(this.incomeCount());
+    const val = this.incomeCount();
+    if (val === 0) return '0,00';
+    return formatIncome(val).replace('$', '').trim();
   }
 
   onPeriodChange(event: Event): void {

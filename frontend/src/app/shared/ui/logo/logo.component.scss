@@ -16,6 +16,12 @@
     display: none;
   }
 
+  // When inside a collapsed sidebar, show short version
+  .shell--collapsed &--sidebar {
+    .logo__text-full { display: none; }
+    .logo__text-short { display: inline; }
+  }
+
   &__dot {
     color: var(--color-primary-light);
   }

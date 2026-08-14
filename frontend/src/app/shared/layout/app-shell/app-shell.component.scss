@@ -1,120 +1,299 @@
+// ═══ VARIABLES ═══════════════════════════════════════════════
+$sidebar-w:           223px;
+$sidebar-w-sm:         80px; // Igual que Turnito (79-80px)
+$topbar-h:             52px;
+$sidebar-easing:       cubic-bezier(0.4, 0, 0.2, 1);
+
+// ═══ ROOT ════════════════════════════════════════════════════
 .shell {
   display: flex;
-  flex-direction: column;
   min-height: 100vh;
-  background: var(--gradient-page);
+  background: var(--color-surface); // <- Todo blanco
 
-  &__header {
-    position: sticky;
+  // ─── SIDEBAR ─────────────────────────────────────────────
+  &__sidebar {
+    position: fixed;
     top: 0;
-    z-index: 120;
-    background: var(--color-header-bg);
-    border-bottom: 1px solid var(--color-border);
-    backdrop-filter: blur(16px);
-    box-shadow: 0 1px 0 rgba(91, 91, 214, 0.04), var(--shadow-xs);
+    left: 0;
+    bottom: 0;
+    width: $sidebar-w;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border-right: none; // Borde movido al contenido derecho
+    z-index: 130;
+    overflow: hidden;
+    transition: width 260ms $sidebar-easing;
+  }
 
-    .shell__container {
-      padding: 0 var(--space-6);
+  // Header row inside sidebar: logo + toggle button
+  &__sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px; // Fija la altura para alinear verticalmente con el topbar
+    padding: 16px 16px 0px; // Restaurado al padding exacto de Turnito
+    border-bottom: none;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+
+  &__sidebar-logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    flex: 1;
+    min-width: 0;
+    transition: opacity var(--duration-fast) var(--ease-out);
+    &:hover { opacity: 0.75; }
+
+    ::ng-deep .logo {
+      font-size: 1.8rem; // Agrandamos un poco el logo en estado normal
     }
   }
 
-  &__container {
-    width: 100%;
-    padding: 0 var(--space-4);
-  }
-
-  &__bar {
+  &__sidebar-nav {
     display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    width: 100%;
-    height: 3.75rem;
-    padding: 0;
-  }
-
-  &__logo {
-    display: inline-flex;
-    flex-shrink: 0;
-    text-decoration: none;
-    &:hover { opacity: 0.80; }
-  }
-
-  &__nav {
-    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: var(--space-3) var(--space-2);
     flex: 1;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-1);
-    min-width: 0;
+    overflow: hidden;
   }
 
-  &__nav-link {
-    position: relative;
-    display: inline-flex;
+  &__sidebar-link {
+    display: flex;
     align-items: center;
-    padding: 0.4rem 0.9rem;
+    gap: var(--space-3);
+    height: 42px; // Un poco más alto para alojar el texto 16px cómodamente
+    padding: 0 var(--space-3);
+    border-radius: 8px;
     color: var(--color-text-secondary);
-    font-size: var(--text-sm);
+    font-size: 16px; // Cambiado a 16px según la foto
     font-weight: 500;
     text-decoration: none;
     white-space: nowrap;
-    border-radius: var(--radius-full);
+    overflow: hidden;
     transition:
-      color var(--duration-fast) var(--ease-out),
-      background var(--duration-fast) var(--ease-out);
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out);
 
     &:hover:not(.is-active) {
-      color: var(--color-text);
       background: var(--color-surface-muted);
+      color: var(--color-text);
     }
 
     &.is-active {
-      color: var(--color-primary-light);
-      font-weight: 600;
       background: var(--color-primary-subtle);
+      color: var(--color-primary);
+      font-weight: 600;
     }
+  }
+
+  &__sidebar-icon { 
+    flex-shrink: 0;
+    width: 20px; // Proporcional al texto 16px
+    height: 20px;
+    transition: width 200ms var(--ease-out), height 200ms var(--ease-out), stroke-width 200ms var(--ease-out);
+  }
+
+  &__sidebar-label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    // Visible by default; sidebar overflow:hidden clips it when narrow
+  }
+
+  // ─── TOGGLE BUTTONS ──────────────────────────────────────
+  // Base toggle styles
+  &__sidebar-toggle {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      color var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out);
+    &:hover {
+      background: var(--color-surface-muted);
+      color: var(--color-text);
+      border-color: var(--color-border-hover);
+    }
+
+    // Inside sidebar: shown when EXPANDED, hidden when collapsed
+    &--inside {
+      display: inline-flex; // shown by default (expanded state)
+    }
+
+    // Outside (in topbar): shown when COLLAPSED, hidden when expanded
+    &--outside {
+      display: none; // hidden by default (expanded state)
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      border: 1px solid var(--color-border);
+    }
+  }
+
+  // ─── COLLAPSED STATE ──────────────────────────────────────
+  &--collapsed {
+    .shell__sidebar { width: $sidebar-w-sm; }
+    .shell__right   { margin-left: $sidebar-w-sm; }
+
+    // Center nav links (only icons visible) and make them pill-shaped
+    .shell__sidebar-link {
+      justify-content: center;
+      padding: 0;
+      width: 48px;
+      height: 48px;
+      margin: 0 auto;
+      border-radius: 12px;
+    }
+
+    // Hide labels so icons can center properly
+    .shell__sidebar-label {
+      display: none;
+    }
+
+    // Make icons larger when collapsed
+    .shell__sidebar-icon {
+      width: 24px;
+      height: 24px;
+    }
+
+    // Sidebar head: center logo, hide inside toggle
+    .shell__sidebar-head {
+      justify-content: center;
+      padding: 16px 16px 0px; // Padding top alineado
+    }
+
+    // Hide the toggle button that was inside the sidebar
+    .shell__sidebar-toggle--inside {
+      display: none;
+    }
+
+    // Show the toggle button in the topbar
+    .shell__sidebar-toggle--outside {
+      display: inline-flex;
+    }
+
+    // Mostrar separador del topbar solo en colapsado
+    .shell__topbar-separator {
+      display: block;
+    }
+
+    // Show short logo ("t."), hide full logo ("timora.")
+    .shell__sidebar-logo {
+      flex: none;
+      width: auto;
+
+      // Target logo internals using ::ng-deep to pierce encapsulation
+      ::ng-deep {
+        .logo { font-size: 2.5rem !important; } // Logo más grande
+        .logo__text-full { display: none !important; }
+        .logo__text-short { display: inline !important; }
+      }
+    }
+  }
+
+  // ─── RIGHT PANEL ─────────────────────────────────────────
+  &__right {
+    flex: 1;
+    margin-left: $sidebar-w;
+    margin-top: 12px; // Baja el panel blanco para alinear con el logo
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    min-height: calc(100vh - 12px);
+    background: var(--color-surface);
+    transition: margin-left 260ms $sidebar-easing;
+    
+    // Curva tipo Turnito
+    border-left: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border);
+    border-top-left-radius: 20px;
+  }
+
+  // ─── TOPBAR (Inside Right Content) ───────────────────────────
+  &__topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 52px;
+    padding: 0 var(--space-6);
+    background-color: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
+    border-top-left-radius: 20px;
+
+    &-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    &-separator {
+      display: none; // Oculto cuando el sidebar está expandido
+      width: 1px;
+      height: 24px;
+      background-color: var(--color-border);
+      margin: 0 4px; // Espaciado extra
+    }
+  }
+
+  // Mobile hamburger (hidden on desktop)
+  &__menu-toggle { display: none; }
+
+  &__breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--color-text);
+    
+    svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__page-title {
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--color-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__actions {
     display: flex;
-    flex-shrink: 0;
     align-items: center;
     gap: var(--space-3);
+    flex-shrink: 0;
+    margin-left: auto;
   }
 
-  &__theme-toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
-    border: 1px solid transparent;
-    border-radius: var(--radius-full);
-    background: transparent;
-    color: var(--color-text-secondary);
-    cursor: pointer;
-    transition:
-      background var(--duration-fast) var(--ease-out),
-      border-color var(--duration-fast) var(--ease-out),
-      color var(--duration-fast) var(--ease-out);
-
-    &:hover {
-      border-color: var(--color-border);
-      background: var(--color-surface-muted);
-      color: var(--color-text);
-    }
-  }
-
-  &__user-menu {
-    position: relative;
-  }
+  // ─── USER MENU ───────────────────────────────────────────
+  &__user-menu { position: relative; }
 
   &__user-trigger {
     display: flex;
     align-items: center;
     gap: var(--space-2);
-    max-width: 11rem;
-    height: 2.5rem;
+    max-width: 13rem;
+    height: 2rem;
     padding: 0 var(--space-2) 0 var(--space-1);
     border: 1px solid transparent;
     border-radius: var(--radius-full);
@@ -123,9 +302,7 @@
     transition:
       background var(--duration-fast) var(--ease-out),
       border-color var(--duration-fast) var(--ease-out);
-
-    &:hover,
-    &[aria-expanded='true'] {
+    &:hover, &[aria-expanded='true'] {
       border-color: var(--color-border);
       background: var(--color-surface-muted);
     }
@@ -136,15 +313,13 @@
     flex-shrink: 0;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 1.625rem;
+    height: 1.625rem;
     border-radius: var(--radius-full);
     background: var(--gradient-avatar);
-    color: #ffffff;
-    font-size: var(--text-xs);
+    color: #fff;
+    font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.02em;
-    box-shadow: 0 2px 8px rgba(91, 91, 214, 0.40);
   }
 
   &__user-name {
@@ -169,16 +344,16 @@
 
   &__user-dropdown {
     position: absolute;
-    top: calc(100% + var(--space-2));
+    top: calc(100% + 6px);
     right: 0;
-    z-index: 130;
-    min-width: 11.5rem;
+    z-index: 200;
+    min-width: 12rem;
     padding: var(--space-2);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     background: var(--color-surface-elevated);
     box-shadow: var(--shadow-md);
-    animation: shell-menu-in var(--duration-normal) var(--ease-out);
+    animation: shell-menu-in 180ms var(--ease-out);
   }
 
   &__user-dropdown-slug {
@@ -195,7 +370,7 @@
     display: flex;
     align-items: center;
     width: 100%;
-    height: 2.375rem;
+    height: 2.25rem;
     padding: 0 var(--space-3);
     border: none;
     border-radius: var(--radius-md);
@@ -206,197 +381,136 @@
     font-weight: 500;
     text-align: left;
     cursor: pointer;
-    transition:
-      background var(--duration-fast) var(--ease-out),
-      color var(--duration-fast) var(--ease-out);
-
-    &:hover {
-      background: var(--color-surface-muted);
-      color: var(--color-text);
-    }
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+    &:hover { background: var(--color-surface-muted); color: var(--color-text); }
   }
 
-  &__menu-toggle {
-    display: none;
-  }
-
-  &__mobile-menu,
-  &__backdrop {
-    display: none;
-  }
-
+  // ─── MAIN ────────────────────────────────────────────────
   &__main {
     flex: 1;
     width: 100%;
     min-width: 0;
-    box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    box-sizing: border-box;
+    background: var(--color-surface); // Blanco absoluto
   }
+
+  // Mobile elements hidden by default
+  &__mobile-menu, &__backdrop { display: none; }
 }
 
-@media (max-width: 900px) {
+// ═══ MOBILE (max 768px) ══════════════════════════════════════
+@media (max-width: 768px) {
   .shell {
-    &__header {
-      padding: 0;
-      .shell__container { padding: 0 var(--space-4); }
+    &__sidebar { display: none; }
+    &__right   { 
+      margin-left: 0 !important;
+      margin-top: 0;
+      min-height: 100vh;
+      border-left: none;
+      border-top: none;
+      border-top-left-radius: 0;
     }
 
-    &__bar {
-      justify-content: space-between;
-      height: 3.5rem;
-    }
+    // Hide desktop sidebar toggle buttons
+    &__sidebar-toggle { display: none !important; }
 
-    &__actions { flex-shrink: 0; margin-left: auto; }
-
-    &__nav,
-    &__user-menu { display: none; }
-
+    // Show mobile hamburger
     &__menu-toggle {
       display: inline-flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 0.3rem;
-      width: 2.5rem;
-      height: 2.5rem;
-      padding: 0;
+      width: 2rem;
+      height: 2rem;
+      flex-shrink: 0;
       border: 1px solid var(--color-border);
-      border-radius: var(--radius-full);
-      background: var(--color-surface);
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--color-text);
       cursor: pointer;
-      transition:
-        background var(--duration-fast) var(--ease-out),
-        border-color var(--duration-fast) var(--ease-out);
-      &:hover {
-        background: var(--color-surface-muted);
-        border-color: var(--color-border-hover);
-      }
+      transition: background var(--duration-fast) var(--ease-out);
+      &:hover { background: var(--color-surface-muted); }
     }
-
-    &__menu-toggle-bar {
-      display: block;
-      width: 1.1rem;
-      height: 1.5px;
-      border-radius: var(--radius-full);
-      background: var(--color-text);
-      transition:
-        transform var(--duration-normal) var(--ease-out),
-        opacity var(--duration-fast) var(--ease-out);
-    }
-
-    &--menu-open &__menu-toggle-bar:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
-    &--menu-open &__menu-toggle-bar:nth-child(2) { opacity: 0; }
-    &--menu-open &__menu-toggle-bar:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
 
     &__mobile-menu {
       display: flex;
       flex-direction: column;
       position: fixed;
-      top: 0; right: 0; bottom: 0;
-      width: 85%;
-      max-width: 340px;
+      top: 0; left: 0; bottom: 0;
+      width: 80%;
+      max-width: 280px;
       z-index: 200;
-      padding: var(--space-6) var(--space-5);
-      background: var(--gradient-auth-panel);
-      border-left: 1px solid var(--color-border);
-      box-shadow: -8px 0 48px rgba(0, 0, 0, 0.7);
-      animation: shell-slide-left 400ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      background: var(--color-surface);
+      border-right: 1px solid var(--color-border);
+      box-shadow: 6px 0 24px rgba(0,0,0,0.1);
+      animation: shell-slide-in 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    &__mobile-menu-header {
+    &__mobile-head {
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      margin-bottom: var(--space-6);
+      justify-content: space-between;
+      height: $topbar-h;
+      padding: 0 var(--space-4);
+      border-bottom: 1px solid var(--color-border);
+      flex-shrink: 0;
     }
 
     &__mobile-close {
-      background: transparent;
-      border: none;
-      color: var(--color-text-muted);
-      cursor: pointer;
-      padding: var(--space-1);
-      display: flex;
+      display: inline-flex;
       align-items: center;
       justify-content: center;
-      transition: color var(--duration-fast) var(--ease-out);
-      &:hover { color: var(--color-text); }
+      width: 2rem;
+      height: 2rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      &:hover { background: var(--color-surface-muted); }
     }
 
     &__mobile-nav {
       display: flex;
       flex-direction: column;
-      gap: var(--space-2);
+      gap: 2px;
       flex: 1;
+      padding: var(--space-3) var(--space-2);
+      overflow-y: auto;
     }
 
     &__mobile-nav-link {
       display: flex;
       align-items: center;
-      height: 3rem;
-      padding: 0 var(--space-4);
-      border-radius: var(--radius-md);
+      gap: var(--space-3);
+      height: 40px;
+      padding: 0 var(--space-3);
+      border-radius: 8px;
       color: var(--color-text-secondary);
-      font-size: var(--text-base);
+      font-size: var(--text-sm);
       font-weight: 500;
       text-decoration: none;
-      transition:
-        background var(--duration-fast) var(--ease-out),
-        color var(--duration-fast) var(--ease-out);
-
-      &:hover:not(.is-active) {
-        background: var(--color-surface-muted);
-        color: var(--color-text);
-      }
-
-      &.is-active {
-        background: var(--color-primary-subtle);
-        color: var(--color-primary-light);
-        font-weight: 700;
-      }
+      transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+      &:hover:not(.is-active) { background: var(--color-surface-muted); color: var(--color-text); }
+      &.is-active { background: var(--color-primary-subtle); color: var(--color-primary); font-weight: 600; }
     }
 
     &__mobile-footer {
-      margin-top: auto;
-      padding-top: var(--space-5);
+      padding: var(--space-4) var(--space-3);
       border-top: 1px solid var(--color-border);
-    }
-
-    &__mobile-theme-toggle {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--space-2);
-      width: 100%;
-      height: 2.75rem;
-      margin-bottom: var(--space-3);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-md);
-      background: var(--color-surface-muted);
-      color: var(--color-text);
-      font-family: var(--font-family);
-      font-size: var(--text-sm);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--duration-fast) var(--ease-out);
-      &:hover {
-        background: var(--color-surface-elevated);
-        border-color: var(--color-border-hover);
-      }
     }
 
     &__mobile-slug {
       margin: 0 0 var(--space-3);
       padding: 0 var(--space-2);
-      font-size: var(--text-sm);
+      font-size: var(--text-xs);
       color: var(--color-text-muted);
-      font-weight: 600;
     }
 
     &__mobile-logout {
       width: 100%;
-      height: 2.75rem;
+      height: 2.5rem;
       border: 1px solid var(--color-border);
       border-radius: var(--radius-md);
       background: var(--color-surface-muted);
@@ -405,11 +519,7 @@
       font-size: var(--text-sm);
       font-weight: 600;
       cursor: pointer;
-      transition: all var(--duration-fast) var(--ease-out);
-      &:hover {
-        background: var(--color-surface-elevated);
-        border-color: var(--color-border-hover);
-      }
+      &:hover { background: var(--color-surface-elevated); }
     }
 
     &__backdrop {
@@ -418,26 +528,25 @@
       z-index: 110;
       display: block;
       border: none;
-      background: rgba(0, 0, 0, 0.55);
+      background: rgba(0,0,0,0.3);
       cursor: pointer;
-      animation: shell-fade-in var(--duration-normal) var(--ease-out);
+      animation: shell-fade-in 200ms var(--ease-out);
     }
-
-    &__main { padding: 0; }
   }
 }
 
+// ═══ KEYFRAMES ═══════════════════════════════════════════════
 @keyframes shell-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
 
-@keyframes shell-slide-left {
-  from { transform: translateX(100%); }
+@keyframes shell-slide-in {
+  from { transform: translateX(-100%); }
   to   { transform: translateX(0); }
 }
 
 @keyframes shell-menu-in {
-  from { opacity: 0; transform: translateY(-0.35rem); }
+  from { opacity: 0; transform: translateY(-0.2rem); }
   to   { opacity: 1; transform: translateY(0); }
 }

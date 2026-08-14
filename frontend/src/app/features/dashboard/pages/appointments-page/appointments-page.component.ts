@@ -71,6 +71,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   readonly createTime = signal<string>('');
   readonly createNotes = signal<string>('');
 
+  readonly mainView = signal<'list' | 'calendar'>('list');
 
   readonly viewOptions: { value: AppointmentsView; label: string }[] = [
     { value: 'day',   label: 'Día' },
@@ -304,6 +305,34 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     });
   });
 
+  readonly groupedAppointments = computed<AppointmentGroup[]>(() => {
+    const list = this.filteredAppointments();
+    const sorted = [...list].sort((a, b) => new Date(a.startsAt).getTime() - new Date(b.startsAt).getTime());
+    
+    const groups: { [key: string]: Appointment[] } = {};
+    for (const appt of sorted) {
+      const d = new Date(appt.startsAt);
+      const key = this.formatToISODate(d);
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(appt);
+    }
+    
+    return Object.keys(groups).map(key => {
+      const d = new Date(`${key}T12:00:00-03:00`);
+      const weekday = new Intl.DateTimeFormat('es-AR', { weekday: 'long' }).format(d);
+      const day = d.getDate();
+      const month = new Intl.DateTimeFormat('es-AR', { month: 'long' }).format(d);
+      const year = d.getFullYear();
+      const label = `${weekday} ${day} ${month}, ${year}`.toUpperCase();
+      
+      return {
+        dateKey: key,
+        dateLabel: label,
+        items: groups[key]
+      };
+    });
+  });
+
   // Active columns for scheduler
   readonly activeProfessionals = computed<any[]>(() => {
     const all = this.professionals();
@@ -338,13 +367,49 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     return `${monthNames[this.currentPickerMonth()]} ${this.currentPickerYear()}`;
   }
 
+  get isTodaySelected(): boolean {
+    const today = new Date();
+    return this.formatToISODate(today) === this.formatToISODate(this.selectedDate());
+  }
+
+  get isCurrentWeek(): boolean {
+    const today = new Date();
+    const todayStr = this.formatToISODate(today);
+    return this.weekDays().some(d => this.formatToISODate(d) === todayStr);
+  }
+
+  get dateRangeLabel(): string {
+    const start = new Date(this.selectedDate());
+    const end = new Date(start);
+    end.setDate(start.getDate() + 60);
+
+    const formatMonth = (d: Date) => {
+      const monthNames = [
+        'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+        'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+      ];
+      return monthNames[d.getMonth()];
+    };
+
+    return `${start.getDate()} ${formatMonth(start)} - ${end.getDate()} ${formatMonth(end)}`;
+  }
+
+  isDateInRange(date: Date): boolean {
+    const start = new Date(this.selectedDate());
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 60);
+    end.setHours(23, 59, 59, 999);
+
+    const d = new Date(date);
+    d.setHours(12, 0, 0, 0);
+
+    return d.getTime() >= start.getTime() && d.getTime() <= end.getTime();
+  }
+
   get currentTimePosition(): string | null {
     const now = new Date();
-    const todayStr = this.formatToISODate(now);
-    const selectedStr = this.formatToISODate(this.selectedDate());
-
-    if (todayStr !== selectedStr) return null;
-
     const currentMinutes = now.getHours() * 60 + now.getMinutes();
     const gridStartMinutes = 8 * 60; // 8:00 AM
     const gridEndMinutes = 20 * 60; // 8:00 PM
@@ -619,6 +684,8 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
            d1.getMonth() === d2.getMonth() &&
            d1.getDate() === d2.getDate();
   }
+
+  setMainView(v: 'list' | 'calendar'): void { this.mainView.set(v); }
 
   setView(v: AppointmentsView): void { this.view.set(v); this.load(); }
 

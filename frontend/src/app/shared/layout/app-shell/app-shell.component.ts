@@ -21,10 +21,12 @@ export class AppShellComponent implements OnInit {
   readonly nav = DASHBOARD_NAV;
   readonly mobileMenuOpen = signal(false);
   readonly userMenuOpen = signal(false);
+  readonly sidebarCollapsed = signal(false);
   private readonly userMenuRef = viewChild<ElementRef<HTMLElement>>('userMenu');
 
   businessName = '';
   bookingUrl = '';
+  private currentPath = '';
 
   get businessInitial(): string {
     const name = this.businessName.trim();
@@ -35,10 +37,23 @@ export class AppShellComponent implements OnInit {
     return this.bookingUrl.replace(/^\//, '');
   }
 
+  get activePageLabel(): string {
+    const path = this.currentPath || this.router.url;
+    const match = this.nav.find((item) => path.includes(item.path));
+    return match ? match.label : 'Inicio';
+  }
+
+  get activePageIcon(): string {
+    const path = this.currentPath || this.router.url;
+    const match = this.nav.find((item) => path.includes(item.path));
+    return match ? match.svgPath : 'M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z';
+  }
+
   ngOnInit(): void {
     this.router.events
       .pipe(filter((event) => event instanceof NavigationEnd))
-      .subscribe(() => {
+      .subscribe((event) => {
+        this.currentPath = (event as NavigationEnd).urlAfterRedirects;
         this.closeMobileMenu();
         this.closeUserMenu();
       });
@@ -58,6 +73,14 @@ export class AppShellComponent implements OnInit {
 
   closeMobileMenu(): void {
     this.mobileMenuOpen.set(false);
+  }
+
+  toggleSidebar(): void {
+    const next = !this.sidebarCollapsed();
+    this.sidebarCollapsed.set(next);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebar-collapsed', String(next));
+    }
   }
 
   toggleUserMenu(event: Event): void {

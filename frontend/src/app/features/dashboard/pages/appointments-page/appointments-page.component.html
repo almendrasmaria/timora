@@ -5,104 +5,227 @@
     <!-- ── MAIN CONTENT (CALENDARIO) ─────────────────────────────── -->
     <main class="scheduler-main">
       
-      <!-- Header -->
-      <header class="scheduler-header">
-        <div class="scheduler-header__left">
-          <button type="button" class="scheduler-header__nav-btn" (click)="prevDate()">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- MAIN TOOLBAR (Turnito Style) -->
+      <div class="timora-toolbar">
+        <div class="timora-toolbar__left" style="position: relative;">
+          <button type="button" class="timora-toolbar__date-range" (click)="toggleDatePicker($event)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            {{ dateRangeLabel }}
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
             </svg>
           </button>
-          <button type="button" class="scheduler-header__nav-btn" (click)="nextDate()">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-              <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <!-- DatePicker Popover -->
+          @if (showDatePicker()) {
+            <div class="datepicker-popover" (click)="$event.stopPropagation()">
+              <div class="datepicker">
+                <!-- Header -->
+                <div class="datepicker__header">
+                  <button type="button" class="datepicker__nav-btn" (click)="prevPickerMonth()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                  </button>
+                  <span class="datepicker__month-title">{{ pickerMonthLabel }}</span>
+                  <button type="button" class="datepicker__nav-btn" (click)="nextPickerMonth()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                  </button>
+                </div>
+
+                <!-- Weekdays -->
+                <div class="datepicker__weekdays">
+                  @for (dayName of ['LU', 'MA', 'MI', 'JU', 'VI', 'SA', 'DO']; track dayName) {
+                    <span class="datepicker__weekday">{{ dayName }}</span>
+                  }
+                </div>
+
+                <!-- Days Grid -->
+                <div class="datepicker__days-grid">
+                  @for (date of pickerDays(); track date.getTime()) {
+                    <button
+                      type="button"
+                      class="datepicker__day"
+                      [class.is-outside]="date.getMonth() !== currentPickerMonth()"
+                      [class.is-today]="isSameDate(date, todayDate)"
+                      [class.is-selected]="isSameDate(date, selectedDate())"
+                      [class.is-in-range]="isDateInRange(date)"
+                      (click)="selectDate(date)"
+                    >
+                      {{ date.getDate() }}
+                    </button>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+        <div class="timora-toolbar__right">
+
+          <button type="button" class="timora-toolbar__btn-primary" (click)="openCreateModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <line x1="10" y1="16" x2="14" y2="16"></line>
+              <line x1="12" y1="14" x2="12" y2="18"></line>
             </svg>
+            Agendar reserva
           </button>
-          
-          <div class="scheduler-header__date-wrapper">
-            <h2 class="scheduler-header__date-title" (click)="toggleDatePicker($event)">
-              {{ dateLabelForView }}
-              <svg class="scheduler-header__date-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" [style.transform]="showDatePicker() ? 'rotate(180deg)' : 'none'">
-                <path d="m6 9 6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </div>
+      </div>
+
+      <!-- SUB TOOLBAR (Search, Filters, View toggle) -->
+      <div class="timora-subtoolbar">
+        <div class="timora-subtoolbar__left">
+          <div class="timora-search">
+            <svg class="timora-search__icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input type="text" class="timora-search__input" placeholder="Buscar por nombre, correo, teléfono.." [(ngModel)]="searchTerm">
+          </div>
+          <button type="button" class="timora-subtoolbar__btn" (click)="openFiltersModal()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="4" y1="21" x2="4" y2="14"></line>
+              <line x1="4" y1="10" x2="4" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="12"></line>
+              <line x1="12" y1="8" x2="12" y2="3"></line>
+              <line x1="20" y1="21" x2="20" y2="16"></line>
+              <line x1="20" y1="12" x2="20" y2="3"></line>
+              <line x1="1" y1="14" x2="7" y2="14"></line>
+              <line x1="9" y1="8" x2="15" y2="8"></line>
+              <line x1="17" y1="16" x2="23" y2="16"></line>
+            </svg>
+            Filtrar
+          </button>
+
+        </div>
+        <div class="timora-subtoolbar__right">
+          <div class="timora-view-toggle">
+            <button type="button" class="timora-view-toggle__btn" [class.is-active]="mainView() === 'list'" (click)="setMainView('list')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
               </svg>
-            </h2>
+              Lista
+            </button>
+            <button type="button" class="timora-view-toggle__btn" [class.is-active]="mainView() === 'calendar'" (click)="setMainView('calendar')">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              Calendario
+            </button>
+          </div>
+        </div>
+      </div>
 
-            @if (showDatePicker()) {
-              <div class="datepicker-popover" (click)="$event.stopPropagation()">
-                <div class="datepicker">
-                  <div class="datepicker__header">
-                    <span class="datepicker__month-title">{{ pickerMonthLabel }}</span>
-                    <div class="datepicker__nav">
-                      <button type="button" class="datepicker__nav-btn" (click)="$event.stopPropagation(); prevPickerMonth()">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                          <path d="M10 12L4 8L10 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </button>
-                      <button type="button" class="datepicker__nav-btn" (click)="$event.stopPropagation(); nextPickerMonth()">
-                        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
-                          <path d="M6 4L12 8L6 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                      </button>
-                    </div>
+      <!-- LIST VIEW -->
+      @if (mainView() === 'list') {
+        <div class="timora-list">
+          <div class="timora-list__header">
+            <div class="timora-list__col timora-list__col--time">HORA</div>
+            <div class="timora-list__col timora-list__col--service">SERVICIO</div>
+            <div class="timora-list__col timora-list__col--client">CLIENTE</div>
+            <div class="timora-list__col timora-list__col--status">ESTADO</div>
+          </div>
+          
+          <div class="timora-list__body">
+            @for (group of groupedAppointments(); track group.dateKey) {
+              <div class="timora-list__group">
+                <div class="timora-list__group-header">
+                  <div class="timora-list__group-title">
+                    <span class="timora-list__group-dot"></span>
+                    {{ group.dateLabel }}
                   </div>
-                  
-                  <div class="datepicker__weekdays">
-                    @for (day of pickerWeekdays; track day) {
-                      <span class="datepicker__weekday">{{ day }}</span>
-                    }
-                  </div>
-
-                  <div class="datepicker__days-grid">
-                    @for (date of pickerDays(); track date.getTime()) {
-                      <button
-                        type="button"
-                        class="datepicker__day"
-                        [class.is-today]="isSameDate(date, todayDate)"
-                        [class.is-selected]="isSameDate(date, selectedDate())"
-                        [class.is-outside]="date.getMonth() !== currentPickerMonth()"
-                        (click)="selectDate(date); showDatePicker.set(false)"
-                      >
-                        {{ date.getDate() }}
-                      </button>
-                    }
+                  <div class="timora-list__group-line"></div>
+                  <div class="timora-list__group-count">
+                    {{ group.items.length }} reserva{{ group.items.length !== 1 ? 's' : '' }}
                   </div>
                 </div>
+                
+                <div class="timora-list__group-items">
+                  @for (appt of group.items; track appt.id) {
+                    <div class="timora-list__item" (click)="openDetail(appt)">
+                      <div class="timora-list__col timora-list__col--time">
+                        <span class="timora-list__time">{{ formatTimeOnly(appt.startsAt) }}</span>
+                      </div>
+                      <div class="timora-list__col timora-list__col--service">
+                        <span class="timora-list__service-name">{{ appt.serviceName }}</span>
+                      </div>
+                      <div class="timora-list__col timora-list__col--client">
+                        <span class="timora-list__client-name">{{ appt.clientFirstName }} {{ appt.clientLastName }}</span>
+                        <span class="timora-list__client-email">{{ appt.clientEmail || 'Sin email' }}</span>
+                      </div>
+                      <div class="timora-list__col timora-list__col--status">
+                        <span class="timora-list__badge" [class]="'timora-list__badge--' + appt.status.toLowerCase()">
+                          <svg *ngIf="appt.status === 'CONFIRMED' || appt.status === 'COMPLETED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                          <svg *ngIf="appt.status === 'CANCELLED' || appt.status === 'NO_SHOW'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+                          {{ statusLabel(appt) }}
+                        </span>
+                        
+                        <button type="button" class="timora-list__menu-btn" (click)="$event.stopPropagation();">
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="1"></circle>
+                            <circle cx="12" cy="5" r="1"></circle>
+                            <circle cx="12" cy="19" r="1"></circle>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+            @if (groupedAppointments().length === 0) {
+              <div class="timora-list__empty">
+                <p>No hay reservas para mostrar</p>
               </div>
             }
           </div>
         </div>
+      }
 
-        <!-- Control de Vistas Segmentado (Centrado) -->
-        <div class="scheduler-header__view-switcher">
-          @for (opt of viewOptions; track opt.value) {
-            <button
-              type="button"
-              class="scheduler-header__view-btn"
-              [class.is-active]="view() === opt.value"
-              (click)="setView(opt.value)"
-            >
-              {{ opt.label }}
+      <!-- CALENDAR VIEW -->
+      @if (mainView() === 'calendar') {
+        <!-- Calendar Sub-header -->
+        <div class="timora-calendar-header">
+          <div class="timora-calendar-header__nav">
+            <button type="button" class="timora-calendar-header__btn" (click)="prevDate()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
             </button>
-          }
+            <button type="button" class="timora-calendar-header__btn" (click)="nextDate()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+            <button type="button" class="timora-calendar-header__btn-today" (click)="selectDate(todayDate)">Hoy</button>
+          </div>
+          
+          <h2 class="timora-calendar-header__title">{{ pickerMonthLabel }}</h2>
+          
+          <div class="timora-calendar-header__views">
+            @for (opt of viewOptions; track opt.value) {
+              <button
+                type="button"
+                class="timora-calendar-header__view-btn"
+                [class.is-active]="view() === opt.value"
+                (click)="setView(opt.value)"
+              >
+                {{ opt.label }}
+              </button>
+            }
+          </div>
         </div>
-
-        <div class="scheduler-header__right">
-          <!-- Botón Filtros -->
-          <button type="button" class="scheduler-header__filter-btn" (click)="openFiltersModal()">
-            <svg class="scheduler-header__filter-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="4" y1="6" x2="20" y2="6"></line>
-              <line x1="7" y1="12" x2="17" y2="12"></line>
-              <line x1="10" y1="18" x2="14" y2="18"></line>
-            </svg>
-            Filtros
-          </button>
-
-          <!-- Botón Nuevo Turno -->
-          <button type="button" class="scheduler-header__add-btn" (click)="openCreateModal()">
-            + Nuevo turno
-          </button>
-        </div>
-      </header>
 
       <!-- Rejilla de Turnos (Scheduler Grid) -->
       @if (view() === 'day') {
@@ -186,7 +309,7 @@
                 }
 
                 <!-- Indicador de Hora Actual -->
-                @if (currentTimePosition) {
+                @if (currentTimePosition && isTodaySelected) {
                   <div class="scheduler-grid__time-indicator" [style.top]="currentTimePosition">
                     <span class="scheduler-grid__time-indicator-dot"></span>
                     <span class="scheduler-grid__time-indicator-line"></span>
@@ -267,6 +390,14 @@
                     }
                   </div>
                 }
+                
+                <!-- Indicador de Hora Actual -->
+                @if (currentTimePosition && isCurrentWeek) {
+                  <div class="scheduler-grid__time-indicator" [style.top]="currentTimePosition">
+                    <span class="scheduler-grid__time-indicator-dot"></span>
+                    <span class="scheduler-grid__time-indicator-line"></span>
+                  </div>
+                }
               </div>
             </div>
           </div>
@@ -288,16 +419,16 @@
             @for (date of monthViewDays(); track date.getTime()) {
               <div
                 class="month-view__cell"
-                style="background: var(--color-surface); display: flex; flex-direction: column; padding: var(--space-2); min-height: 0; min-width: 0; cursor: pointer; transition: background var(--duration-fast);"
+                [style.background]="isSameDate(date, todayDate) ? 'var(--color-primary-subtle)' : 'var(--color-surface)'"
+                style="display: flex; flex-direction: column; padding: var(--space-2); min-height: 0; min-width: 0; cursor: pointer; transition: background var(--duration-fast);"
                 (click)="selectDate(date); setView('day')"
                 onmouseover="this.style.background='var(--color-surface-elevated)'"
-                onmouseout="this.style.background='var(--color-surface)'"
+                [attr.onmouseout]="isSameDate(date, todayDate) ? 'this.style.background=\'var(--color-primary-subtle)\'' : 'this.style.background=\'var(--color-surface)\''"
               >
                 <!-- Número del día con círculo negro si es hoy -->
                 <span
-                  [style.background]="isSameDate(date, todayDate) ? '#000000' : 'transparent'"
-                  [style.color]="isSameDate(date, todayDate) ? '#ffffff' : (date.getMonth() !== selectedDate().getMonth() ? '#c7c7cc' : 'var(--color-text)')"
-                  style="font-size: 0.8rem; font-weight: 700; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; margin-bottom: 4px;"
+                  [style.color]="isSameDate(date, todayDate) ? 'var(--color-primary)' : (date.getMonth() !== selectedDate().getMonth() ? '#c7c7cc' : 'var(--color-text)')"
+                  style="font-size: 0.8rem; font-weight: 700; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 4px;"
                 >
                   {{ date.getDate() }}
                 </span>
@@ -325,6 +456,7 @@
             }
           </div>
         </div>
+      }
       }
     </main>
   </div>
@@ -906,6 +1038,7 @@
       </div>
     </app-modal>
   }
+
 
 
 

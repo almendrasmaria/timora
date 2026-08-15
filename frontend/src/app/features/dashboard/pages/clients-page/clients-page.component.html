@@ -1,42 +1,50 @@
 <section class="clients" @fadeAnimation>
-  <!-- Header -->
-  <header class="clients__header">
-    <div class="clients__header-copy">
-      <h1 class="clients__title">Clientes</h1>
-      <p class="clients__subtitle">Gestioná la ficha de tus clientes, notas internas y turnos.</p>
-    </div>
-  </header>
 
   <!-- Filters Row -->
   <div class="clients__filters-row">
-    <!-- Search Bar -->
-    <div class="clients__search-wrap">
-      <svg class="clients__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-      </svg>
-      <input
-        type="text"
-        class="clients__search-input"
-        placeholder="Buscar por nombre, teléfono o email"
-        [ngModel]="searchTerm()"
-        (ngModelChange)="searchTerm.set($event); onSearch()"
-      />
+    <!-- Left actions: Search + Export -->
+    <div class="clients__filters-left">
+      <div class="clients__search-wrap">
+        <svg class="clients__search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input
+          type="text"
+          class="clients__search-input"
+          placeholder="Buscar por nombre, correo, teléfono.."
+          [ngModel]="searchTerm()"
+          (ngModelChange)="searchTerm.set($event); onSearch()"
+        />
+      </div>
+
+      <button type="button" class="clients__export-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+          <polyline points="10 9 9 9 8 9"></polyline>
+        </svg>
+        Exportar
+      </button>
     </div>
 
-    <!-- New Client Button -->
-    <app-button type="button" variant="primary" class="clients__new-btn" (click)="openNewClientModal()">
-      + Nuevo cliente
-    </app-button>
+    <!-- Right actions: Create client -->
+    <button type="button" class="clients__create-btn" (click)="openNewClientModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="8.5" cy="7" r="4"></circle>
+        <line x1="20" y1="8" x2="20" y2="14"></line>
+        <line x1="23" y1="11" x2="17" y2="11"></line>
+      </svg>
+      Crear cliente
+    </button>
   </div>
 
   <!-- Clients Count -->
   <div class="clients__count">
-    @if (clients().length === 1) {
-      1 cliente
-    } @else {
-      {{ clients().length }} clientes
-    }
+    <span class="clients__count-number">{{ clients().length }}</span> clientes totales
   </div>
 
   <!-- Clients Table / List -->
@@ -55,9 +63,11 @@
         <table class="clients__table">
           <thead>
             <tr>
-              <th>Cliente</th>
-              <th>Contacto</th>
-              <th class="clients__th-actions">Acciones</th>
+              <th>Nombre</th>
+              <th>Teléfono</th>
+              <th>Correo</th>
+              <th>Reservas</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -66,35 +76,39 @@
                 <td class="clients__td-name">
                   <span class="clients__name-text">{{ client.firstName }} {{ client.lastName }}</span>
                 </td>
-                <td class="clients__td-contact">
-                  <div class="clients__contact-stack">
-                    <span class="clients__contact-phone">{{ client.phone }}</span>
-                    @if (client.email) {
-                      <span class="clients__contact-email">{{ client.email }}</span>
-                    }
-                  </div>
+                <td class="clients__td-phone">
+                  <span class="clients__phone-text">{{ client.phone }}</span>
+                </td>
+                <td class="clients__td-email">
+                  <span class="clients__email-text">{{ client.email || '-' }}</span>
+                </td>
+                <td class="clients__td-reservas">
+                  <span class="clients__badge-reservas">{{ client.appointmentsCount || 0 }}</span>
                 </td>
                 <td class="clients__td-actions" (click)="$event.stopPropagation()">
                   <div class="clients__actions-wrap">
-                    <button type="button" class="clients__action-btn" (click)="assignTurn(client, $event)">
-                      Asignar turno
-                    </button>
-                    
                     <div class="clients__dropdown-container">
-                      <button type="button" class="clients__more-btn" (click)="toggleDropdown(client.id, $event)" aria-label="Más opciones">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <circle cx="12" cy="5" r="1.5"></circle>
-                          <circle cx="12" cy="12" r="1.5"></circle>
-                          <circle cx="12" cy="19" r="1.5"></circle>
+                      <button type="button" class="clients__options-btn" (click)="toggleDropdown(client.id, $event)">
+                        Opciones
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="6 9 12 15 18 9"></polyline>
                         </svg>
                       </button>
 
                       @if (activeDropdownId() === client.id) {
                         <div class="clients__dropdown-menu">
                           <button type="button" (click)="openEditClientModal(client, $event)">
-                            Editar
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                              <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                            </svg>
+                            Modificar
                           </button>
                           <button type="button" class="clients__dropdown-delete" (click)="deleteClient(client, $event)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                              <polyline points="3 6 5 6 21 6"></polyline>
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
                             Eliminar
                           </button>
                         </div>
@@ -160,121 +174,229 @@
     </app-modal>
   }
 
-  <!-- Client Details / Profile Modal -->
-  @if (isDetailModalOpen() && selectedClient()) {
-    <app-modal
-      [title]="selectedClient()!.firstName + ' ' + selectedClient()!.lastName"
-      (closed)="closeDetailModal()"
-    >
-      <div class="clients__profile-header">
-        <p class="clients__profile-subtitle">
-          Tel: {{ selectedClient()!.phone }}
-          @if (selectedClient()!.email) {
-            · Email: {{ selectedClient()!.email }}
-          }
-        </p>
-      </div>
-
-      <!-- Tab bar -->
-      <div class="clients__tab-bar">
-        <button
-          type="button"
-          class="clients__tab-btn"
-          [class.is-active]="activeTab() === 'history'"
-          (click)="setTab('history')"
-        >
-          Historial
+  <!-- Client Details Drawer -->
+  <div class="clients__drawer-overlay" [class.is-open]="isDetailModalOpen() && selectedClient()" (click)="closeDetailModal()"></div>
+  <div class="clients__drawer" [class.is-open]="isDetailModalOpen() && selectedClient()">
+    @if (selectedClient()) {
+      <!-- Drawer Header -->
+      <div class="clients__drawer-header">
+        <button type="button" class="clients__drawer-close" (click)="closeDetailModal()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Cerrar detalle
         </button>
-        <button
-          type="button"
-          class="clients__tab-btn"
-          [class.is-active]="activeTab() === 'notes'"
-          (click)="setTab('notes')"
-        >
-          Notas
-        </button>
-      </div>
 
-      <!-- Historial Tab Content -->
-      @if (activeTab() === 'history') {
-        <div class="clients__tab-pane">
-          <h4 class="clients__timeline-title">Historial de turnos</h4>
-
-          @if (selectedClient()!.appointments.length === 0) {
-            <p class="clients__empty-pane-text">No hay turnos registrados para este cliente.</p>
-          } @else {
-            <div class="clients__timeline">
-              @for (appt of selectedClient()!.appointments; track appt.id) {
-                <div class="clients__timeline-item">
-                  <div class="clients__timeline-header">
-                    <div class="clients__timeline-meta">
-                      <span class="clients__timeline-service">
-                        {{ appt.serviceName }} · {{ appt.professionalName }}
-                      </span>
-                      @if (appt.branchName) {
-                        <span class="clients__timeline-branch">{{ appt.branchName }}</span>
-                      }
-                    </div>
-                    <span class="clients__timeline-date">
-                      {{ formatAppointmentDate(appt.startsAt) }}
-                    </span>
-                  </div>
-
-                  <div class="clients__timeline-body">
-                    <span class="clients__timeline-time">
-                      {{ formatAppointmentRange(appt.startsAt, appt.endsAt) }}
-                    </span>
-                    <span
-                      class="clients__timeline-status-badge"
-                      [class.is-confirmed]="appt.status === 'CONFIRMED'"
-                      [class.is-completed]="appt.status === 'COMPLETED'"
-                      [class.is-noshow]="appt.status === 'NO_SHOW'"
-                      [class.is-cancelled]="appt.status === 'CANCELLED'"
-                    >
-                      {{ formatStatus(appt.status) }}
-                    </span>
-                  </div>
-
-                  <!-- Appointment Annotation -->
-                  <div class="clients__timeline-notes">
-                    @if (appt.notes) {
-                      <div class="clients__timeline-notes-content">
-                        <strong>Nota:</strong> {{ appt.notes }}
-                      </div>
-                      <button type="button" class="clients__timeline-notes-link" (click)="addAppointmentNote(appt, $event)">
-                        Editar anotación
-                      </button>
-                    } @else {
-                      <button type="button" class="clients__timeline-notes-link" (click)="addAppointmentNote(appt, $event)">
-                        Agregar anotación
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      }
-
-      <!-- Notas Tab Content -->
-      @if (activeTab() === 'notes') {
-        <div class="clients__tab-pane">
-          <div class="clients__notes-form">
-            <label class="clients__form-label">Notas internas</label>
-            <textarea
-              class="clients__notes-textarea"
-              placeholder="Escribí notas privadas sobre el cliente aquí..."
-              [(ngModel)]="clientNotes"
-            ></textarea>
-            <div class="clients__notes-actions">
-              <button type="button" class="clients__btn-save-notes" (click)="saveClientNotes()">
-                Guardar notas
+        <div class="clients__drawer-dropdown-container">
+          <button type="button" class="clients__drawer-options-btn" (click)="toggleDrawerDropdown($event)">
+            Opciones
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </button>
+          
+          @if (drawerDropdownOpen()) {
+            <div class="clients__drawer-dropdown-menu">
+              <div class="clients__drawer-dropdown-header">CLIENTE</div>
+              <button type="button" (click)="openEditClientModal(selectedClient()!, $event)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Modificar
+              </button>
+              <button type="button" class="clients__drawer-dropdown-delete" (click)="deleteClient(selectedClient()!, $event)">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+                Eliminar
               </button>
             </div>
-          </div>
+          }
         </div>
-      }
-    </app-modal>
-  }
+      </div>
+
+      <!-- Profile Summary -->
+      <div class="clients__drawer-profile">
+        <h2 class="clients__drawer-name">{{ selectedClient()!.firstName }} {{ selectedClient()!.lastName }}</h2>
+        <div class="clients__drawer-meta">
+          @if (selectedClient()!.email) {
+            <span class="clients__drawer-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                <polyline points="22,6 12,13 2,6"></polyline>
+              </svg>
+              {{ selectedClient()!.email }}
+            </span>
+          }
+          @if (selectedClient()!.email && selectedClient()!.phone) {
+            <span class="clients__drawer-meta-separator">·</span>
+          }
+          @if (selectedClient()!.phone) {
+            <span class="clients__drawer-meta-item">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+              </svg>
+              {{ selectedClient()!.phone }}
+            </span>
+          }
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="clients__drawer-tabs">
+        <button
+          type="button"
+          class="clients__drawer-tab-btn"
+          [class.is-active]="activeDrawerTab() === 'stats'"
+          (click)="setDrawerTab('stats')"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          Estadísticas
+        </button>
+        <button
+          type="button"
+          class="clients__drawer-tab-btn"
+          [class.is-active]="activeDrawerTab() === 'history'"
+          (click)="setDrawerTab('history')"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Historial de reservas
+        </button>
+        <button
+          type="button"
+          class="clients__drawer-tab-btn"
+          [class.is-active]="activeDrawerTab() === 'ficha'"
+          (click)="setDrawerTab('ficha')"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Ficha
+        </button>
+      </div>
+
+      <!-- Drawer Content Area -->
+      <div class="clients__drawer-content">
+
+        <!-- 1. Estadísticas Tab -->
+        @if (activeDrawerTab() === 'stats') {
+          <div class="clients__drawer-pane">
+            <div class="clients__drawer-stats-grid">
+              <div class="clients__drawer-stat-card">
+                <div class="clients__drawer-stat-inner">
+                  <span class="clients__drawer-stat-title">Reservas totales</span>
+                  <span class="clients__drawer-stat-val">{{ selectedClient()!.appointments.length }}</span>
+                </div>
+                <span class="clients__drawer-stat-sub">Desde siempre</span>
+              </div>
+              <div class="clients__drawer-stat-card">
+                <div class="clients__drawer-stat-inner">
+                  <span class="clients__drawer-stat-title">Ingresos totales</span>
+                  <span class="clients__drawer-stat-val">$ {{ formatEarnings(selectedClient()!) }}</span>
+                </div>
+                <span class="clients__drawer-stat-sub">Desde siempre</span>
+              </div>
+            </div>
+            
+          </div>
+        }
+
+        <!-- 2. Historial de reservas Tab -->
+        @if (activeDrawerTab() === 'history') {
+          <div class="clients__drawer-pane">
+            <div class="clients__history-toolbar">
+              <div class="clients__history-search-wrap">
+                <svg class="clients__history-search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="11" cy="11" r="8"></circle>
+                  <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input
+                  type="text"
+                  class="clients__history-search-input"
+                  placeholder="Buscar por agenda, servicio.."
+                  [(ngModel)]="historySearchTerm"
+                />
+              </div>
+              <button type="button" class="clients__history-export-btn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                  <polyline points="14 2 14 8 20 8"></polyline>
+                  <line x1="16" y1="13" x2="8" y2="13"></line>
+                  <line x1="16" y1="17" x2="8" y2="17"></line>
+                  <polyline points="10 9 9 9 8 9"></polyline>
+                </svg>
+                Exportar
+              </button>
+            </div>
+
+            <div class="clients__history-count">
+              {{ getFilteredHistory(selectedClient()!).length }} reservas
+            </div>
+
+            <!-- List/Table of history -->
+            <div class="clients__history-table-card">
+              @if (getFilteredHistory(selectedClient()!).length === 0) {
+                <p class="clients__drawer-empty-text">No se encontraron reservas.</p>
+              } @else {
+                <table class="clients__history-table">
+                  <thead>
+                    <tr>
+                      <th>Servicio</th>
+                      <th>Fecha</th>
+                      <th>Hora</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (appt of getFilteredHistory(selectedClient()!); track appt.id) {
+                      <tr>
+                        <td>
+                          <span class="clients__history-service-tag">{{ appt.serviceName }}</span>
+                        </td>
+                        <td>{{ formatHistoryDate(appt.startsAt) }}</td>
+                        <td>{{ formatHistoryTime(appt.startsAt) }}</td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- 3. Ficha Tab -->
+        @if (activeDrawerTab() === 'ficha') {
+          <div class="clients__drawer-pane">
+            <div class="clients__notes-form">
+              <label class="clients__form-label">Notas internas</label>
+              <textarea
+                class="clients__notes-textarea"
+                placeholder="Escribí notas privadas sobre el cliente aquí..."
+                [(ngModel)]="clientNotes"
+              ></textarea>
+              <div class="clients__notes-actions">
+                <button type="button" class="clients__btn-save-notes" (click)="saveClientNotes()">
+                  Guardar notas
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    }
+  </div>
 </section>

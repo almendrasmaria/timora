@@ -60,6 +60,7 @@ export class ClientsPageComponent implements OnInit {
   @HostListener('document:click')
   closeDropdowns(): void {
     this.activeDropdownId.set(null);
+    this.drawerDropdownOpen.set(false);
   }
 
   assignTurn(client: Client, event: Event): void {
@@ -186,6 +187,9 @@ export class ClientsPageComponent implements OnInit {
         this.selectedClient.set(res);
         this.clientNotes.set(res.notes || '');
         this.activeTab.set('history');
+        this.activeDrawerTab.set('stats');
+        this.drawerDropdownOpen.set(false);
+        this.historySearchTerm = '';
         this.isDetailModalOpen.set(true);
       },
       error: () => {
@@ -308,5 +312,77 @@ export class ClientsPageComponent implements OnInit {
   getProName(proId: number): string {
     const pro = this.professionals().find(p => p.id === proId);
     return pro ? `${pro.firstName} ${pro.lastName}` : '';
+  }
+
+  readonly activeDrawerTab = signal<'stats' | 'history' | 'ficha'>('stats');
+  readonly drawerDropdownOpen = signal(false);
+  historySearchTerm = '';
+
+  setDrawerTab(tab: 'stats' | 'history' | 'ficha'): void {
+    this.activeDrawerTab.set(tab);
+  }
+
+  toggleDrawerDropdown(event: Event): void {
+    event.stopPropagation();
+    this.drawerDropdownOpen.update(v => !v);
+  }
+
+  formatEarnings(client: ClientDetail): string {
+    if (!client.appointments || client.appointments.length === 0) return '0,00';
+    const sum = client.appointments
+      .filter(a => a.status === 'CONFIRMED' || a.status === 'COMPLETED')
+      .reduce((acc, a) => acc + (a.price || 0), 0);
+    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(sum);
+  }
+
+  getLatestAppointmentDate(client: ClientDetail): string {
+    if (!client.appointments || client.appointments.length === 0) return 'SIN RESERVAS';
+    const dates = client.appointments.map(a => new Date(a.startsAt));
+    const latest = new Date(Math.max(...dates.map(d => d.getTime())));
+    const options: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    };
+    return new Intl.DateTimeFormat('es-AR', options).format(latest).toUpperCase();
+  }
+
+  getFilteredHistory(client: ClientDetail): Appointment[] {
+    if (!client.appointments) return [];
+    const term = this.historySearchTerm.trim().toLowerCase();
+    if (!term) return client.appointments;
+    return client.appointments.filter(a =>
+      (a.serviceName && a.serviceName.toLowerCase().includes(term)) ||
+      (a.professionalName && a.professionalName.toLowerCase().includes(term))
+    );
+  }
+
+  formatHistoryDate(dateStr: string): string {
+    const d = new Date(dateStr);
+    const options: Intl.DateTimeFormatOptions = {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    };
+    const formatted = new Intl.DateTimeFormat('es-AR', options).format(d).replace('.', '');
+    return formatted.toUpperCase();
+  }
+
+  formatHistoryTime(dateStr: string): string {
+    const d = new Date(dateStr);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+
+  blockClient(event: Event): void {
+    event.stopPropagation();
+    this.drawerDropdownOpen.set(false);
+    alert('Cliente bloqueado.');
+  }
+
+  mergeClient(event: Event): void {
+    event.stopPropagation();
+    this.drawerDropdownOpen.set(false);
+    alert('Opción de fusión.');
   }
 }

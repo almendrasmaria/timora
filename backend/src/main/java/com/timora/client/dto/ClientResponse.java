@@ -9,5 +9,6 @@ public record ClientResponse(
     String phone,
     String email,
     String notes,
-    Instant createdAt
+    Instant createdAt,
+    Long appointmentsCount
 ) {}

@@ -151,6 +151,7 @@ public class ClientService {
     }
 
     private ClientResponse toResponse(Client client) {
+        long appointmentsCount = appointmentRepository.countByClientId(client.getId());
         return new ClientResponse(
                 client.getId(),
                 client.getFirstName(),
@@ -158,7 +159,8 @@ public class ClientService {
                 client.getPhone(),
                 client.getEmail(),
                 client.getNotes(),
-                client.getCreatedAt()
+                client.getCreatedAt(),
+                appointmentsCount
         );
     }
 

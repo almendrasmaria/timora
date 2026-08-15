@@ -12,6 +12,7 @@ export interface Client {
   email: string | null;
   notes: string | null;
   createdAt: string;
+  appointmentsCount: number;
 }
 
 export interface ClientDetail extends Client {

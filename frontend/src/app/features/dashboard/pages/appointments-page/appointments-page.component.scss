@@ -485,7 +485,7 @@
   &__item {
     display: flex;
     align-items: center;
-    padding: var(--space-4);
+    padding: 8px var(--space-4);
     border-bottom: none;
     background: #ffffff;
     cursor: pointer;
@@ -591,14 +591,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: 39px;
+    height: 39px;
     background: var(--color-surface-muted);
     border: none;
-    border-radius: var(--radius-md);
+    border-radius: 12px;
     cursor: pointer;
     color: var(--color-text);
     transition: background var(--duration-fast);
+    font-size: 16px;
 
     &:hover {
       background: var(--color-border);
@@ -609,10 +610,10 @@
     background: var(--color-primary-subtle);
     color: var(--color-primary);
     border: none;
-    border-radius: var(--radius-md);
-    padding: 0 var(--space-3);
-    height: 32px;
-    font-size: 0.85rem;
+    border-radius: 12px;
+    padding: 6.4px 13.6px;
+    height: 39px;
+    font-size: 16px;
     font-weight: 700;
     cursor: pointer;
     margin-left: 4px;
@@ -1453,27 +1454,285 @@
   to   { opacity: 1; transform: translateY(0); }
 }
 
-.scheduler-floating-add {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gradient-accent);
-  color: #ffffff;
-  border: none;
-  box-shadow: var(--shadow-primary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 99;
-  transition: all var(--duration-fast) var(--ease-out);
 
-  &:hover {
-    transform: scale(1.06);
-    filter: brightness(1.10);
+.timora-list-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: #ffffff;
+
+  .timora-list {
+    border: none;
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  // ── Toolbar responsiva ──────────────────────────────────────
+  .timora-toolbar {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: var(--space-3);
+    margin-bottom: var(--space-3);
+    padding: var(--space-2) 0;
+
+    &__left {
+      width: 100%;
+    }
+
+    &__right {
+      width: 100%;
+      margin-left: 0;
+    }
+
+    &__date-range {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    &__btn-primary {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  // ── Sub-toolbar responsiva ───────────────────────────────────
+  .timora-subtoolbar {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+
+    &__left {
+      display: flex;
+      flex-direction: row;
+      width: 100%;
+      gap: var(--space-2);
+    }
+
+    &__right {
+      width: 100%;
+      
+      .timora-view-toggle {
+        width: 100%;
+        display: flex;
+        
+        &__btn {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  .timora-search {
+    width: 100% !important;
+    flex: 1;
+  }
+
+  // ── Lista adaptada a Tarjetas Móviles ────────────────────────
+  .timora-list-wrapper {
+    overflow-x: visible !important;
+    border: none !important;
+    background: transparent !important;
+
+    .timora-list {
+      border: none;
+      border-radius: 0;
+    }
+  }
+
+  .timora-list {
+    min-width: auto !important;
+    background: transparent !important;
+    border: none !important;
+    gap: var(--space-3);
+  }
+
+  .timora-list__header {
+    display: none !important;
+  }
+
+  .timora-list__body {
+    max-height: none !important;
+    overflow-y: visible !important;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .timora-list__group-header {
+    padding: var(--space-2) var(--space-1) !important;
+  }
+
+  .timora-list__group-items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .timora-list__item {
+    display: grid !important;
+    grid-template-areas:
+      "time status"
+      "service service"
+      "client client";
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    padding: 16px !important;
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: #ffffff;
+    }
+  }
+
+  .timora-list__col {
+    width: auto !important;
+    flex: none !important;
+    padding: 0 !important;
+    
+    &--time {
+      grid-area: time;
+      display: flex;
+      align-items: center;
+    }
+    
+    &--status {
+      grid-area: status;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: flex-end !important;
+      gap: 8px;
+      width: auto !important;
+    }
+    
+    &--service {
+      grid-area: service;
+      margin-top: 4px;
+    }
+    
+    &--client {
+      grid-area: client;
+      margin-top: 4px;
+      border-top: 1px solid var(--color-surface-muted);
+      padding-top: 8px;
+    }
+  }
+
+  .timora-list__time {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .timora-list__service-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  .timora-list__client-name {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .timora-list__client-email {
+    font-size: 12px;
+    color: var(--color-text-muted);
+  }
+
+  // ── Calendario Cabecera Responsiva ───────────────────────────
+  .timora-calendar-header {
+    flex-direction: column;
+    align-items: center !important;
+    gap: var(--space-3);
+    margin-bottom: var(--space-4);
+  }
+
+  .timora-calendar-header__title {
+    order: 1;
+    font-size: 22px !important;
+    font-weight: 700;
+    color: var(--color-text);
+    text-align: center;
+    margin: 0 !important;
+  }
+
+  .timora-calendar-header__nav {
+    order: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+
+    .timora-calendar-header__btn {
+      width: 44px;
+      height: 39px;
+      font-size: 16px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:first-child {
+        border-radius: 12px 0 0 12px;
+        border-right: 1px solid rgba(0, 0, 0, 0.08);
+      }
+
+      &:nth-child(2) {
+        border-radius: 0 12px 12px 0;
+      }
+    }
+
+    .timora-calendar-header__btn-today {
+      height: 39px;
+      font-size: 16px;
+      font-weight: 700;
+      padding: 0 var(--space-4);
+      border-radius: 12px;
+      background: var(--color-primary) !important;
+      color: #ffffff !important;
+      margin-left: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+    }
+  }
+
+  .timora-calendar-header__views {
+    order: 3;
+    width: 100%;
+    display: flex;
+    background: var(--color-surface-muted);
+    border-radius: var(--radius-md);
+    padding: 2px;
+    box-sizing: border-box;
+
+    .timora-calendar-header__view-btn {
+      flex: 1;
+      text-align: center;
+      padding: 8px var(--space-2);
+      font-size: 15px;
+      font-weight: 600;
+      background: transparent;
+      border: none;
+      border-radius: calc(var(--radius-md) - 2px);
+      color: var(--color-text-secondary);
+      cursor: pointer;
+      transition: all var(--duration-fast);
+
+      &.is-active {
+        background: var(--color-surface);
+        color: var(--color-text);
+        box-shadow: var(--shadow-sm);
+      }
+    }
   }
 }
 

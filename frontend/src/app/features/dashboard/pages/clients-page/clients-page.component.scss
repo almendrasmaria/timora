@@ -255,7 +255,7 @@
   &__td-email,
   &__td-reservas,
   &__td-actions {
-    padding: 10px 16px;
+    padding: 8px 16px;
     vertical-align: middle;
   }
 
@@ -1201,5 +1201,36 @@
 @keyframes spinner {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .clients {
+    padding: 16px 16px var(--space-8);
+    gap: var(--space-4);
+  }
+  .clients__table th {
+    font-size: 16px;
+  }
+  .clients__name-text {
+    font-size: 14px;
+  }
+  .clients__phone-text {
+    font-size: 14px;
+  }
+  .clients__email-text {
+    font-size: 14px;
+  }
+  .clients__drawer-meta-item {
+    font-size: 16px;
+  }
+  .clients__drawer-meta-separator {
+    font-size: 16px;
+  }
+  .clients__drawer-stat-title {
+    font-size: 16px;
+  }
+  .clients__drawer-stat-sub {
+    font-size: 14px;
   }
 }

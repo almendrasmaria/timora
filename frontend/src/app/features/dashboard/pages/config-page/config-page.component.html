@@ -1,7 +1,6 @@
 <div class="config-layout" [class.is-mobile-menu-active]="!activeSection()" [class.is-mobile-content-active]="!!activeSection()">
   <!-- Sidebar de Categorías -->
   <aside class="config-sidebar" aria-label="Menú de configuración">
-    <h1 class="config-sidebar__title">Configuración</h1>
     <div class="config-sidebar__group">
       <p class="config-sidebar__group-title">Agenda y Equipo</p>
       <nav class="config-sidebar__nav">
@@ -211,412 +210,470 @@
 
     <!-- 1. Sucursales -->
     @if (activeSection() === 'sucursales') {
-      <header class="config-content__header">
-        <div class="config-content__header-text">
-          <h1 class="config-content__title">Sucursales</h1>
-          <p class="config-content__description">Gestioná las direcciones y ubicaciones físicas de tu negocio.</p>
-        </div>
-        <button type="button" class="config-add-btn" (click)="openAddBranchModal()">
-          + Nueva sucursal
-        </button>
-      </header>
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div class="config-content__header-text">
+            <h1 class="config-content__title">Sucursales</h1>
+            <p class="config-content__description">Gestioná las direcciones y ubicaciones físicas de tu negocio.</p>
+          </div>
+          <button type="button" class="config-add-btn" (click)="openAddBranchModal()">
+            + Nueva sucursal
+          </button>
+        </header>
 
-      <div class="config-grid">
-        @for (branch of state()?.branches; track branch.id) {
-          <div class="config-card">
-            <div class="config-card__body">
-              <h2 class="config-card__title">{{ branch.name }}</h2>
-              <p class="config-card__subtitle">{{ branch.address }}</p>
+        <div class="config-grid">
+          @for (branch of state()?.branches; track branch.id) {
+            <div class="config-card">
+              <div class="config-card__body">
+                <h2 class="config-card__title">{{ branch.name }}</h2>
+                <p class="config-card__subtitle">{{ branch.address }}</p>
+              </div>
+              <div class="config-card__actions">
+                <button type="button" class="config-card__btn-edit" (click)="openEditBranchModal(branch)">
+                  Editar
+                </button>
+                <button type="button" class="config-card__btn-delete" (click)="removeBranch(branch.id, $event)">
+                  Eliminar
+                </button>
+              </div>
             </div>
-            <div class="config-card__actions">
-              <button type="button" class="config-card__btn-edit" (click)="openEditBranchModal(branch)">
-                Editar
-              </button>
-              <button type="button" class="config-card__btn-delete" (click)="removeBranch(branch.id, $event)">
-                Eliminar
-              </button>
+          } @empty {
+            <div class="config-empty">
+              <p>No tenés sucursales configuradas. Agregá la primera para continuar.</p>
             </div>
-          </div>
-        } @empty {
-          <div class="config-empty">
-            <p>No tenés sucursales configuradas. Agregá la primera para continuar.</p>
-          </div>
-        }
+          }
+        </div>
       </div>
     }
 
     <!-- 2. Profesionales (Equipo) -->
     @if (activeSection() === 'profesionales') {
-      <header class="config-content__header">
-        <div class="config-content__header-text">
-          <h1 class="config-content__title">Profesionales</h1>
-          <p class="config-content__description">Administrá los integrantes de tu equipo, sus datos y horarios de atención.</p>
-        </div>
-        <button type="button" class="config-add-btn" (click)="openAddProModal()">
-          + Nuevo profesional
-        </button>
-      </header>
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div class="config-content__header-text">
+            <h1 class="config-content__title">Profesionales</h1>
+            <p class="config-content__description">Administrá los integrantes de tu equipo, sus datos y horarios de atención.</p>
+          </div>
+          <button type="button" class="config-add-btn" (click)="openAddProModal()">
+            + Nuevo profesional
+          </button>
+        </header>
 
-      <div class="config-grid">
-        @for (pro of state()?.professionals; track pro.id) {
-          <div class="config-card">
-            <div class="config-card__pro-info">
-              <div class="config-card__avatar">{{ proInitials(pro) }}</div>
-              <div class="config-card__body">
-                <h2 class="config-card__title">{{ pro.firstName }} {{ pro.lastName }}</h2>
-                <p class="config-card__subtitle">{{ proBranchesSummary(pro) }}</p>
-                <p class="config-card__meta-text">{{ proScheduleSummary(pro) }}</p>
+        <div class="config-grid">
+          @for (pro of state()?.professionals; track pro.id) {
+            <div class="config-card">
+              <div class="config-card__pro-info">
+                <div class="config-card__body">
+                  <h2 class="config-card__title">{{ pro.firstName }} {{ pro.lastName }}</h2>
+                  <p class="config-card__subtitle">{{ proBranchesSummary(pro) }}</p>
+                  <p class="config-card__meta-text">{{ proScheduleSummary(pro) }}</p>
+                </div>
+              </div>
+              <div class="config-card__actions">
+                <button type="button" class="config-card__btn-edit" (click)="openEditProModal(pro)">
+                  Editar
+                </button>
+                <button type="button" class="config-card__btn-delete" (click)="removePro(pro.id, $event)">
+                  Eliminar
+                </button>
               </div>
             </div>
-            <div class="config-card__actions">
-              <button type="button" class="config-card__btn-edit" (click)="openEditProModal(pro)">
-                Editar
-              </button>
-              <button type="button" class="config-card__btn-delete" (click)="removePro(pro.id, $event)">
-                Eliminar
-              </button>
+          } @empty {
+            <div class="config-empty">
+              <p>No tenés profesionales agregados en tu equipo.</p>
             </div>
-          </div>
-        } @empty {
-          <div class="config-empty">
-            <p>No tenés profesionales agregados en tu equipo.</p>
-          </div>
-        }
+          }
+        </div>
       </div>
     }
 
     <!-- 3. Servicios -->
     @if (activeSection() === 'servicios') {
-      <header class="config-content__header">
-        <div class="config-content__header-text">
-          <h1 class="config-content__title">Servicios</h1>
-          <p class="config-content__description">Definí el menú de servicios que ofrecés con sus respectivos precios y duraciones.</p>
-        </div>
-        <button type="button" class="config-add-btn" (click)="openAddServiceModal()">
-          + Nuevo servicio
-        </button>
-      </header>
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div class="config-content__header-text">
+            <h1 class="config-content__title">Servicios</h1>
+            <p class="config-content__description">Definí el menú de servicios que ofrecés con sus respectivos precios y duraciones.</p>
+          </div>
+          <button type="button" class="config-add-btn" (click)="openAddServiceModal()">
+            + Nuevo servicio
+          </button>
+        </header>
 
-      <div class="config-grid">
-        @for (service of state()?.services; track service.id) {
-          <div class="config-card">
-            <div class="config-card__body">
-              <h2 class="config-card__title">{{ service.name }}</h2>
-              <p class="config-card__subtitle">{{ serviceMeta(service) }}</p>
+        <div class="config-grid">
+          @for (service of state()?.services; track service.id) {
+            <div class="config-card">
+              <div class="config-card__body">
+                <h2 class="config-card__title">{{ service.name }}</h2>
+                <p class="config-card__subtitle">{{ serviceMeta(service) }}</p>
+              </div>
+              <div class="config-card__actions">
+                <button type="button" class="config-card__btn-edit" (click)="openEditServiceModal(service)">
+                  Editar
+                </button>
+                <button type="button" class="config-card__btn-delete" (click)="removeService(service.id, $event)">
+                  Eliminar
+                </button>
+              </div>
             </div>
-            <div class="config-card__actions">
-              <button type="button" class="config-card__btn-edit" (click)="openEditServiceModal(service)">
-                Editar
-              </button>
-              <button type="button" class="config-card__btn-delete" (click)="removeService(service.id, $event)">
-                Eliminar
-              </button>
+          } @empty {
+            <div class="config-empty">
+              <p>No tenés servicios definidos. Agregá al menos uno para habilitar reservas.</p>
             </div>
-          </div>
-        } @empty {
-          <div class="config-empty">
-            <p>No tenés servicios definidos. Agregá al menos uno para habilitar reservas.</p>
-          </div>
-        }
+          }
+        </div>
       </div>
     }
 
     <!-- 4. Formas de cobro -->
     @if (activeSection() === 'cobros') {
-      <header class="config-content__header">
-        <div>
-          <h1 class="config-content__title">Formas de cobro</h1>
-          <p class="config-content__description">Activá o desactivá los métodos que aceptás para que tus clientes paguen.</p>
-        </div>
-      </header>
-
-      <div class="config-methods">
-        @for (option of paymentOptions; track option.value) {
-          <div
-            class="config-method-card"
-            [class.is-selected]="isPaymentSelected(option)"
-            (click)="togglePaymentMethod(option)"
-          >
-            <div class="config-method-card__checkbox">
-              <span class="config-method-card__checkbox-indicator" *ngIf="isPaymentSelected(option)">✓</span>
-            </div>
-            <div class="config-method-card__content">
-              <h2 class="config-method-card__title">{{ option.label }}</h2>
-              <p class="config-method-card__description">{{ option.description }}</p>
-            </div>
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div>
+            <h1 class="config-content__title">Formas de cobro</h1>
+            <p class="config-content__description">Activá o desactivá los métodos que aceptás para que tus clientes paguen.</p>
           </div>
-        }
+        </header>
+
+        <div class="config-methods">
+          @for (option of paymentOptions; track option.value) {
+            <div
+              class="config-method-card"
+              [class.is-selected]="isPaymentSelected(option)"
+              (click)="togglePaymentMethod(option)"
+            >
+              <div class="config-method-card__checkbox">
+                <span class="config-method-card__checkbox-indicator" *ngIf="isPaymentSelected(option)">✓</span>
+              </div>
+              <div class="config-method-card__content">
+                <h2 class="config-method-card__title">{{ option.label }}</h2>
+                <p class="config-method-card__description">{{ option.description }}</p>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     }
 
     <!-- 5. Negocio -->
     @if (activeSection() === 'negocio') {
-      <header class="config-content__header">
-        <div>
-          <h1 class="config-content__title">Negocio</h1>
-          <p class="config-content__description">Nombre, marca y reembolsos</p>
-        </div>
-      </header>
-
-      <form class="config-form" [formGroup]="negocioForm" (ngSubmit)="saveNegocio()">
-        <div class="config-form__section">
-          <label class="config-color-picker__label">Logo del negocio</label>
-          <p class="config-content__description">Se muestra en tu web de turnos. JPG, PNG, WebP o GIF. Se optimiza automáticamente.</p>
-          <div class="config-logo-upload">
-            <input type="file" #fileInput hidden accept="image/*" (change)="onLogoSelected($event)">
-            <button type="button" class="config-logo-upload__dropzone" (click)="fileInput.click()">
-              @if (negocioForm.controls.logoUrl.value) {
-                <img [src]="negocioForm.controls.logoUrl.value" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-              } @else {
-                <span class="config-logo-upload__icon">+</span>
-              }
-            </button>
-            <app-button type="button" variant="secondary" shape="pill" (click)="fileInput.click()">
-              Subir logo
-            </app-button>
-          </div>
-        </div>
-
-        <div class="config-form__row">
-          <app-text-field
-            label="Nombre del negocio"
-            formControlName="name"
-            [error]="negocioForm.controls.name.touched && negocioForm.controls.name.invalid ? 'El nombre es obligatorio' : ''"
-          />
-
-          <app-text-field
-            label="Link público"
-            placeholder="mi-negocio"
-            formControlName="slug"
-          />
-        </div>
-
-        <div class="config-form__row">
+      <div class="config-section-card">
+        <header class="config-content__header">
           <div>
-            <app-text-field
-              label="WhatsApp"
-              placeholder="Ej: +5491122334455"
-              formControlName="whatsapp"
-              [error]="negocioForm.controls.whatsapp.touched && negocioForm.controls.whatsapp.invalid ? 'WhatsApp es obligatorio' : ''"
-            />
-            <div class="config-form__checkbox-group">
-              <label class="config-checkbox">
-                <input type="checkbox" formControlName="showWhatsappToClients" />
-                <div class="config-checkbox__text">
-                  <span class="config-checkbox__label">Mostrar a mis clientes</span>
-                  <span class="config-checkbox__hint">En la pantalla de confirmación del turno, después de reservar.<br>También se usa en tu página link para que te contacten.</span>
-                </div>
-              </label>
+            <h1 class="config-content__title">Negocio</h1>
+            <p class="config-content__description">Nombre, marca y reembolsos</p>
+          </div>
+        </header>
+
+        <form class="config-form" [formGroup]="negocioForm" (ngSubmit)="saveNegocio()">
+          <!-- Row 1: Logo -->
+          <div class="config-row">
+            <div class="config-row__info">
+              <label class="config-row__label">Logo del negocio</label>
+              <p class="config-row__description">Se muestra en tu web de turnos. JPG, PNG, WebP o GIF. Se optimiza automáticamente.</p>
+            </div>
+            <div class="config-row__control">
+              <div class="config-logo-upload">
+                <input type="file" #fileInput hidden accept="image/*" (change)="onLogoSelected($event)">
+                <button type="button" class="config-logo-upload__dropzone" (click)="fileInput.click()">
+                  @if (negocioForm.controls.logoUrl.value) {
+                    <img [src]="negocioForm.controls.logoUrl.value" alt="Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  } @else {
+                    <span class="config-logo-upload__icon">+</span>
+                  }
+                </button>
+                <app-button type="button" variant="secondary" (click)="fileInput.click()">
+                  Subir logo
+                </app-button>
+              </div>
             </div>
           </div>
 
-          <app-text-field
-            label="Instagram"
-            placeholder="@usuario"
-            hint="Tu cuenta de Instagram del negocio."
-            formControlName="instagram"
-          />
-        </div>
-
-        <div class="config-color-picker">
-          <label class="config-color-picker__label">Color de marca</label>
-          <div class="config-color-picker__list">
-            @for (color of brandColors; track color.value) {
-              <button
-                type="button"
-                class="config-color-picker__circle"
-                [style.background]="color.value"
-                [class.is-selected]="negocioForm.controls.brandColor.value === color.value"
-                [attr.aria-label]="color.label"
-                (click)="selectColor(color.value)"
-              ></button>
-            }
+          <!-- Row 2: Nombre del negocio -->
+          <div class="config-row">
+            <div class="config-row__info">
+              <label class="config-row__label">Nombre del negocio</label>
+              <p class="config-row__description">El nombre comercial que verán tus clientes.</p>
+            </div>
+            <div class="config-row__control">
+              <app-text-field
+                label=""
+                formControlName="name"
+                [error]="negocioForm.controls.name.touched && negocioForm.controls.name.invalid ? 'El nombre es obligatorio' : ''"
+              />
+            </div>
           </div>
-        </div>
 
-        <div class="config-form__actions">
-          <app-button
-            type="submit"
-            variant="primary"
-            shape="pill"
-            [disabled]="loading() || negocioForm.pristine || negocioForm.invalid"
-          >
-            Guardar cambios
-          </app-button>
-        </div>
-      </form>
+          <!-- Row 3: Link de reserva -->
+          <div class="config-row">
+            <div class="config-row__info">
+              <label class="config-row__label">Link público</label>
+              <p class="config-row__description">La dirección web personalizada para que tus clientes reserven.</p>
+            </div>
+            <div class="config-row__control">
+              <app-text-field
+                label=""
+                placeholder="mi-negocio"
+                formControlName="slug"
+              />
+            </div>
+          </div>
+
+          <!-- Row 4: WhatsApp -->
+          <div class="config-row">
+            <div class="config-row__info">
+              <label class="config-row__label">WhatsApp</label>
+              <div class="config-form__checkbox-group" style="margin-top: 8px;">
+                <label class="config-checkbox">
+                  <input type="checkbox" formControlName="showWhatsappToClients" />
+                  <div class="config-checkbox__text">
+                    <span class="config-checkbox__label">Mostrar a mis clientes</span>
+                    <span class="config-checkbox__hint">En la pantalla de confirmación del turno, después de reservar.<br>También se usa en tu página link para que te contacten.</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+            <div class="config-row__control">
+              <app-text-field
+                label=""
+                placeholder="Ej: +5491122334455"
+                formControlName="whatsapp"
+                [error]="negocioForm.controls.whatsapp.touched && negocioForm.controls.whatsapp.invalid ? 'WhatsApp es obligatorio' : ''"
+              />
+            </div>
+          </div>
+
+          <!-- Row 5: Instagram -->
+          <div class="config-row">
+            <div class="config-row__info">
+              <label class="config-row__label">Instagram</label>
+              <p class="config-row__description">Tu cuenta de Instagram del negocio.</p>
+            </div>
+            <div class="config-row__control">
+              <app-text-field
+                label=""
+                placeholder="@usuario"
+                formControlName="instagram"
+              />
+            </div>
+          </div>
+
+          <!-- Row 6: Color de marca -->
+          <div class="config-row">
+            <div class="config-row__info">
+              <label class="config-row__label">Color de marca</label>
+              <p class="config-row__description">Color principal de tu marca en la agenda.</p>
+            </div>
+            <div class="config-row__control">
+              <div class="config-color-picker">
+                <div class="config-color-picker__list">
+                  @for (color of brandColors; track color.value) {
+                    <button
+                      type="button"
+                      class="config-color-picker__circle"
+                      [style.background]="color.value"
+                      [class.is-selected]="negocioForm.controls.brandColor.value === color.value"
+                      [attr.aria-label]="color.label"
+                      (click)="selectColor(color.value)"
+                    ></button>
+                  }
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 7: Actions -->
+          <div class="config-row config-row--actions">
+            <app-button
+              type="submit"
+              variant="primary"
+              [disabled]="loading() || negocioForm.pristine || negocioForm.invalid"
+            >
+              Guardar cambios
+            </app-button>
+          </div>
+        </form>
+      </div>
     }
 
     <!-- 6. Recordatorios -->
     @if (activeSection() === 'recordatorios') {
-      <header class="config-content__header">
-        <div>
-          <h1 class="config-content__title">Recordatorios</h1>
-          <p class="config-content__description">Mensaje de WhatsApp para clientes</p>
-        </div>
-      </header>
-
-      <form class="config-form" [formGroup]="recordatoriosForm" (ngSubmit)="saveRecordatorios()">
-        <p class="config-content__description">Personalizá el mensaje que se abre al tocar <strong>Enviar recordatorio por WhatsApp</strong> en el detalle de un turno. Podés usar las variables de abajo; se reemplazan automáticamente con los datos del turno.</p>
-        
-        <div class="config-form__section">
-          <label class="config-color-picker__label">Mensaje de recordatorio</label>
-          <textarea 
-            class="config-textarea" 
-            rows="5"
-            formControlName="reminderTemplate"
-            placeholder="Hola! Recorda tu turno en &#123;negocio&#125; el &#123;fecha&#125; a las &#123;hora&#125; con &#123;profesional&#125;. Te esperamos!"
-          ></textarea>
-          <div class="config-textarea__hint">
-            {{ (recordatoriosForm.controls.reminderTemplate.value.length || 0) }}/500 caracteres
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div>
+            <h1 class="config-content__title">Recordatorios</h1>
+            <p class="config-content__description">Mensaje de WhatsApp para clientes</p>
           </div>
-        </div>
+        </header>
 
-        <div class="config-variables-panel">
-          <p class="config-variables-panel__title">Variables disponibles</p>
-          <div class="config-variables-panel__list">
-            <span class="config-variable-badge"><code>&#123;negocio&#125;</code> Nombre del negocio</span>
-            <span class="config-variable-badge"><code>&#123;cliente&#125;</code> Nombre del cliente</span>
-            <span class="config-variable-badge"><code>&#123;fecha&#125;</code> Fecha del turno</span>
-            <span class="config-variable-badge"><code>&#123;hora&#125;</code> Hora del turno</span>
-            <span class="config-variable-badge"><code>&#123;profesional&#125;</code> Profesional</span>
-            <span class="config-variable-badge"><code>&#123;servicio&#125;</code> Servicio</span>
+        <form class="config-form" [formGroup]="recordatoriosForm" (ngSubmit)="saveRecordatorios()">
+          <div class="config-form__body">
+            <p class="config-content__description">Personalizá el mensaje que se abre al tocar <strong>Enviar recordatorio por WhatsApp</strong> en el detalle de un turno. Podés usar las variables de abajo; se reemplazan automáticamente con los datos del turno.</p>
+            
+            <div class="config-variables-panel">
+              <p class="config-variables-panel__title">Variables disponibles</p>
+              <div class="config-variables-panel__list">
+                <span class="config-variable-badge"><code>&#123;negocio&#125;</code> Nombre del negocio</span>
+                <span class="config-variable-badge"><code>&#123;cliente&#125;</code> Nombre del cliente</span>
+                <span class="config-variable-badge"><code>&#123;fecha&#125;</code> Fecha del turno</span>
+                <span class="config-variable-badge"><code>&#123;hora&#125;</code> Hora del turno</span>
+                <span class="config-variable-badge"><code>&#123;profesional&#125;</code> Profesional</span>
+                <span class="config-variable-badge"><code>&#123;servicio&#125;</code> Servicio</span>
+              </div>
+            </div>
+
+            <div class="config-form__section">
+              <label class="config-color-picker__label">Mensaje de recordatorio</label>
+              <textarea 
+                class="config-textarea" 
+                rows="5"
+                formControlName="reminderTemplate"
+                placeholder="Hola! Recorda tu turno en &#123;negocio&#125; el &#123;fecha&#125; a las &#123;hora&#125; con &#123;profesional&#125;. Te esperamos!"
+              ></textarea>
+              <div class="config-textarea__hint">
+                {{ (recordatoriosForm.controls.reminderTemplate.value.length || 0) }} / 500 caracteres
+              </div>
+            </div>
+
+            <div class="config-preview-panel">
+              <p class="config-preview-panel__title">Vista previa</p>
+              <p class="config-preview-panel__text">
+                {{ recordatoriosForm.controls.reminderTemplate.value || 'Hola! Recorda tu turno en Tu negocio el sábado 4 de julio a las 15:00 con Ana. Te esperamos!' }}
+              </p>
+            </div>
+
+            <div class="config-form__actions">
+              <app-button
+                type="submit"
+                variant="primary"
+                [disabled]="loading() || recordatoriosForm.pristine || recordatoriosForm.invalid"
+              >
+                Guardar cambios
+              </app-button>
+              <app-button type="button" variant="secondary">
+                Restaurar predeterminado
+              </app-button>
+            </div>
           </div>
-        </div>
-
-        <div class="config-preview-panel">
-          <p class="config-preview-panel__title">Vista previa</p>
-          <p class="config-preview-panel__text">
-            {{ recordatoriosForm.controls.reminderTemplate.value || 'Hola! Recorda tu turno en Tu negocio el sábado 4 de julio a las 15:00 con Ana. Te esperamos!' }}
-          </p>
-        </div>
-
-        <div class="config-form__actions">
-          <app-button
-            type="submit"
-            variant="primary"
-            shape="pill"
-            [disabled]="loading() || recordatoriosForm.pristine || recordatoriosForm.invalid"
-          >
-            Guardar cambios
-          </app-button>
-          <app-button type="button" variant="secondary" shape="pill">
-            Restaurar predeterminado
-          </app-button>
-        </div>
-      </form>
+        </form>
+      </div>
     }
 
     <!-- 7. Link Instagram -->
     @if (activeSection() === 'link_instagram') {
-      <header class="config-content__header">
-        <div>
-          <h1 class="config-content__title">Link Instagram</h1>
-          <p class="config-content__description">Página estilo Linktree para tu bio</p>
-        </div>
-      </header>
-
-      <form class="config-form" [formGroup]="linkInstagramForm" (ngSubmit)="saveLinkInstagram()">
-        <p class="config-content__description">Tu link estilo Instagram con el color de tu agenda. Compartilo en la bio para que reserven turno, vean tu ubicación y te escriban por WhatsApp.</p>
-        
-        <div class="config-link-card">
-          <p class="config-link-card__title">TU LINK PÚBLICO</p>
-          <p class="config-link-card__url">{{ getFullUrl('instagram') }}</p>
-          <div class="config-link-card__actions">
-            <app-button type="button" variant="secondary" shape="pill" (click)="copyLink('instagram')">Copiar link</app-button>
-            <a [href]="'/' + negocioForm.controls.slug.value + '/link'" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver página</a>
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div>
+            <h1 class="config-content__title">Link Instagram</h1>
+            <p class="config-content__description">Página estilo Linktree para tu bio</p>
           </div>
+        </header>
 
-        </div>
+        <form class="config-form" [formGroup]="linkInstagramForm" (ngSubmit)="saveLinkInstagram()">
+          <div class="config-form__body">
+            <p class="config-content__description">Tu link estilo Instagram con el color de tu agenda. Compartilo en la bio para que reserven turno, vean tu ubicación y te escriban por WhatsApp.</p>
+            
+            <div class="config-link-card">
+              <p class="config-link-card__title">TU LINK PÚBLICO</p>
+              <p class="config-link-card__url">{{ getFullUrl('instagram') }}</p>
+              <div class="config-link-card__actions">
+                <app-button type="button" variant="secondary" (click)="copyLink('instagram')">Copiar link</app-button>
+                <a [href]="'/' + negocioForm.controls.slug.value + '/link'" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver página</a>
+              </div>
+            </div>
 
-        <div class="config-form__section">
-          <label class="config-color-picker__label">Texto de presentación</label>
-          <textarea 
-            class="config-textarea" 
-            rows="3"
-            formControlName="bioLinkText"
-          ></textarea>
-          <div class="config-textarea__hint">
-            {{ (linkInstagramForm.controls.bioLinkText.value.length || 0) }}/280 · Enter para saltos de línea
+            <div class="config-form__section">
+              <label class="config-color-picker__label">Texto de presentación</label>
+              <textarea 
+                class="config-textarea" 
+                rows="3"
+                formControlName="bioLinkText"
+              ></textarea>
+              <div class="config-textarea__hint">
+                {{ (linkInstagramForm.controls.bioLinkText.value.length || 0) }} / 280 · Enter para saltos de línea
+              </div>
+            </div>
+
+            <div class="config-panel">
+              <p class="config-panel__title">Botones incluidos</p>
+              
+              <label class="config-checkbox">
+                <input type="checkbox" formControlName="bioShowBooking" />
+                <div class="config-checkbox__text">
+                  <span class="config-checkbox__label">Reservar turno</span>
+                  <span class="config-checkbox__hint">Siempre visible · Lleva a tu web de turnos</span>
+                </div>
+              </label>
+
+              <label class="config-checkbox">
+                <input type="checkbox" formControlName="bioShowLocation" />
+                <div class="config-checkbox__text">
+                  <span class="config-checkbox__label">Ver ubicación</span>
+                  <span class="config-checkbox__hint">Abre Google Maps con tu sucursal</span>
+                </div>
+              </label>
+
+              <label class="config-checkbox">
+                <input type="checkbox" formControlName="bioShowWhatsapp" />
+                <div class="config-checkbox__text">
+                  <span class="config-checkbox__label">Contacto WhatsApp</span>
+                  <span class="config-checkbox__hint">Usa el WhatsApp de Configuración → Negocio</span>
+                </div>
+              </label>
+            </div>
+
+            <div class="config-form__actions">
+              <app-button
+                type="submit"
+                variant="primary"
+                [disabled]="loading() || linkInstagramForm.pristine || linkInstagramForm.invalid"
+              >
+                Guardar cambios
+              </app-button>
+            </div>
           </div>
-        </div>
-
-        <div class="config-panel">
-          <p class="config-panel__title">Botones incluidos</p>
-          
-          <label class="config-checkbox">
-            <input type="checkbox" formControlName="bioShowBooking" />
-            <div class="config-checkbox__text">
-              <span class="config-checkbox__label">Reservar turno</span>
-              <span class="config-checkbox__hint">Siempre visible · Lleva a tu web de turnos</span>
-            </div>
-          </label>
-
-          <label class="config-checkbox">
-            <input type="checkbox" formControlName="bioShowLocation" />
-            <div class="config-checkbox__text">
-              <span class="config-checkbox__label">Ver ubicación</span>
-              <span class="config-checkbox__hint">Abre Google Maps con tu sucursal</span>
-            </div>
-          </label>
-
-          <label class="config-checkbox">
-            <input type="checkbox" formControlName="bioShowWhatsapp" />
-            <div class="config-checkbox__text">
-              <span class="config-checkbox__label">Contacto WhatsApp</span>
-              <span class="config-checkbox__hint">Usa el WhatsApp de Configuración → Negocio</span>
-            </div>
-          </label>
-        </div>
-
-        <div class="config-form__actions">
-          <app-button
-            type="submit"
-            variant="primary"
-            shape="pill"
-            [disabled]="loading() || linkInstagramForm.pristine || linkInstagramForm.invalid"
-          >
-            Guardar cambios
-          </app-button>
-        </div>
-      </form>
+        </form>
+      </div>
     }
 
     <!-- 8. Link de turnos -->
     @if (activeSection() === 'link_turnos') {
-      <header class="config-content__header">
-        <div>
-          <h1 class="config-content__title">Link de turnos</h1>
-          <p class="config-content__description">Web pública para reservar online</p>
-        </div>
-      </header>
-
-      <div class="config-form">
-        <p class="config-content__description" style="margin-bottom: var(--space-6);">
-          Este es el link directo a tu web de reservas. Compartilo por WhatsApp, Instagram o donde quieras para que tus clientes elijan servicio, día y horario sin escribirte.
-        </p>
-        
-        <div class="config-link-card">
-          <p class="config-link-card__title">TU WEB DE TURNOS</p>
-          <p class="config-link-card__url" style="color: var(--color-primary);">{{ getFullUrl('booking') }}</p>
-          <div class="config-link-card__actions">
-            <app-button type="button" variant="secondary" shape="pill" (click)="copyLink('booking')">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-              </svg>
-              Copiar link
-            </app-button>
-            <a [href]="'/' + negocioForm.controls.slug.value" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver web de turnos</a>
+      <div class="config-section-card">
+        <header class="config-content__header">
+          <div>
+            <h1 class="config-content__title">Link de turnos</h1>
+            <p class="config-content__description">Web pública para reservar online</p>
           </div>
+        </header>
 
-        </div>
+        <div class="config-form">
+          <div class="config-form__body">
+            <p class="config-content__description">
+              Este es el link directo a tu web de reservas. Compartilo por WhatsApp, Instagram o donde quieras para que tus clientes elijan servicio, día y horario sin escribirte.
+            </p>
+            
+            <div class="config-link-card">
+              <p class="config-link-card__title">TU WEB DE TURNOS</p>
+              <p class="config-link-card__url" style="color: var(--color-primary);">{{ getFullUrl('booking') }}</p>
+              <div class="config-link-card__actions">
+                <app-button type="button" variant="secondary" (click)="copyLink('booking')">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                  </svg>
+                  Copiar link
+                </app-button>
+                <a [href]="'/' + negocioForm.controls.slug.value" target="_blank" rel="noopener noreferrer" class="config-link-card__text-link">Ver web de turnos</a>
+              </div>
+            </div>
 
-        <div class="config-panel">
-          <p class="config-panel__title">{{ negocioForm.controls.name.value || 'Mi Negocio' }}</p>
-          <p class="config-content__description">
-            Tus clientes verán tus servicios, profesionales y horarios disponibles en esta página. El link de Instagram (en Link Instagram) también puede llevar acá con el botón "Reservar turno".
-          </p>
+            <div class="config-panel">
+              <p class="config-panel__title">{{ negocioForm.controls.name.value || 'Mi Negocio' }}</p>
+              <p class="config-content__description">
+                Tus clientes verán tus servicios, profesionales y horarios disponibles en esta página. El link de Instagram (en Link Instagram) también puede llevar acá con el botón "Reservar turno".
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     }
@@ -647,7 +704,7 @@
         [error]="branchForm.controls.address.touched && branchForm.controls.address.invalid ? 'La dirección es obligatoria' : ''"
       />
       <div modal-actions class="config-modal-form__actions">
-        <app-button type="submit" variant="primary" shape="pill" [disabled]="loading()">
+        <app-button type="submit" variant="primary" [disabled]="loading()">
           {{ editingBranch() ? 'Guardar cambios' : 'Agregar sucursal' }}
         </app-button>
       </div>
@@ -723,7 +780,7 @@
       </div>
 
       <div modal-actions class="config-modal-form__actions">
-        <app-button type="submit" variant="primary" shape="pill" [disabled]="loading()">
+        <app-button type="submit" variant="primary" [disabled]="loading()">
           {{ editingPro() ? 'Guardar cambios' : 'Agregar profesional' }}
         </app-button>
       </div>
@@ -777,7 +834,7 @@
       </div>
 
       <div modal-actions class="config-modal-form__actions">
-        <app-button type="submit" variant="primary" shape="pill" [disabled]="loading()">
+        <app-button type="submit" variant="primary" [disabled]="loading()">
           {{ editingService() ? 'Guardar cambios' : 'Agregar servicio' }}
         </app-button>
       </div>

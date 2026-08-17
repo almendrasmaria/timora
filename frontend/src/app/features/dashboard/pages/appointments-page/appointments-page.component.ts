@@ -190,6 +190,84 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   showRegisterPaymentModal = signal<boolean>(false);
   registerPaymentAmount = 0;
 
+  // Tab details state
+  readonly activeTab = signal<'reserva' | 'pagos'>('reserva');
+
+  // Options Menu dropdown signal
+  readonly optionsMenuOpen = signal<boolean>(false);
+  readonly activeRowMenuId = signal<number | null>(null);
+
+  toggleOptionsMenu(event: Event): void {
+    event.stopPropagation();
+    this.optionsMenuOpen.update(v => !v);
+  }
+
+  toggleRowMenu(id: number, event: Event): void {
+    event.stopPropagation();
+    if (this.activeRowMenuId() === id) {
+      this.activeRowMenuId.set(null);
+    } else {
+      this.activeRowMenuId.set(id);
+    }
+  }
+
+
+
+  formatCreatedAt(createdAtStr: string): string {
+    if (!createdAtStr) return '';
+    const d = new Date(createdAtStr);
+    const day = d.getDate();
+    const monthsSp = [
+      'ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO',
+      'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'
+    ];
+    const month = monthsSp[d.getMonth()];
+    const year = d.getFullYear();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `Agendada el ${day} ${month} ${year} - ${hours}:${minutes}HS`;
+  }
+
+  formatDateTimeMock(startsAtStr: string): string {
+    if (!startsAtStr) return '';
+    const d = new Date(startsAtStr);
+    const day = d.getDate();
+    const monthsSp = ['ENE', 'FEB', 'MAR', 'ABR', 'MAY', 'JUN', 'JUL', 'AGO', 'SEP', 'OCT', 'NOV', 'DIC'];
+    const month = monthsSp[d.getMonth()];
+    const year = d.getFullYear();
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const hours = pad(d.getHours());
+    const minutes = pad(d.getMinutes());
+    return `${day} ${month}. ${year} • ${hours}:${minutes}`;
+  }
+
+  editAppointment(): void {
+    this.isEditing.set(true);
+    this.optionsMenuOpen.set(false);
+  }
+
+  triggerCancel(): void {
+    this.optionsMenuOpen.set(false);
+    this.cancelAppointment();
+  }
+
+  setAttendance(appt: Appointment, status: AppointmentStatus): void {
+    this.optionsMenuOpen.set(false);
+    if (status === 'NO_SHOW') {
+      this.markNoShow(appt);
+      return;
+    }
+    this.appointmentsService.update(appt.id, { status: 'COMPLETED' }).subscribe({
+      next: (updated) => {
+        this.selectedAppointment.set(updated);
+        this.appointments.update(list => list.map(item => item.id === updated.id ? updated : item));
+      }
+    });
+  }
+
+
+
   // DatePicker popover trigger
   readonly showDatePicker = signal<boolean>(false);
 
@@ -201,6 +279,8 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   @HostListener('document:click')
   onDocumentClick(): void {
     this.showDatePicker.set(false);
+    this.optionsMenuOpen.set(false);
+    this.activeRowMenuId.set(null);
   }
 
   readonly isFiltersModalOpen = signal<boolean>(false);
@@ -709,6 +789,9 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     this.editTime.set(`${hours}:${minutes}`);
+
+    // Load active tab
+    this.activeTab.set('reserva');
   }
 
   closeDetail(): void                { this.selectedAppointment.set(null); }

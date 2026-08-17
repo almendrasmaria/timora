@@ -169,20 +169,49 @@
                         <span class="timora-list__client-name">{{ appt.clientFirstName }} {{ appt.clientLastName }}</span>
                         <span class="timora-list__client-email">{{ appt.clientEmail || 'Sin email' }}</span>
                       </div>
-                      <div class="timora-list__col timora-list__col--status">
+                      <div class="timora-list__col timora-list__col--status" style="position: relative;">
                         <span class="timora-list__badge" [class]="'timora-list__badge--' + appt.status.toLowerCase()">
                           <svg *ngIf="appt.status === 'CONFIRMED' || appt.status === 'COMPLETED'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
                           <svg *ngIf="appt.status === 'CANCELLED' || appt.status === 'NO_SHOW'" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
                           {{ statusLabel(appt) }}
                         </span>
                         
-                        <button type="button" class="timora-list__menu-btn" (click)="$event.stopPropagation();">
+                        <button type="button" class="timora-list__menu-btn" (click)="toggleRowMenu(appt.id, $event)">
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="12" cy="12" r="1"></circle>
                             <circle cx="12" cy="5" r="1"></circle>
                             <circle cx="12" cy="19" r="1"></circle>
                           </svg>
                         </button>
+
+                        <!-- Row Actions Dropdown Menu -->
+                        @if (activeRowMenuId() === appt.id) {
+                          <div class="row-actions-dropdown" (click)="$event.stopPropagation()">
+                            <div class="row-actions-dropdown__header">Acciones</div>
+                            
+                            <button type="button" class="row-actions-dropdown__item" (click)="openDetail(appt); activeRowMenuId.set(null);">
+                              Ver detalles
+                            </button>
+                            
+                            <button type="button" class="row-actions-dropdown__item" (click)="setAttendance(appt, 'COMPLETED'); activeRowMenuId.set(null);">
+                              Marcar presente
+                            </button>
+                            
+                            <button type="button" class="row-actions-dropdown__item text-danger" (click)="setAttendance(appt, 'NO_SHOW'); activeRowMenuId.set(null);">
+                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                                <line x1="18" y1="6" x2="6" y2="18"></line>
+                                <line x1="6" y1="6" x2="18" y2="18"></line>
+                              </svg>
+                              Ausente
+                            </button>
+
+                            @if (whatsappReminderUrl(appt)) {
+                              <a [href]="whatsappReminderUrl(appt)" target="_blank" class="row-actions-dropdown__item row-actions-dropdown__link" (click)="activeRowMenuId.set(null);">
+                                Enviar mensaje
+                              </a>
+                            }
+                          </div>
+                        }
                       </div>
                     </div>
                   }
@@ -466,301 +495,401 @@
 
 </div>
 
-  <!-- ── MODAL DE DETALLE ───────────────────────────────────────── -->
-  @if (selectedAppointment(); as appt) {
-    <app-modal title="Detalle del turno" (closed)="closeDetail()">
-
-      <!-- ── BODY DEL MODAL ──────────────────────────────────────── -->
-      <div class="detail">
-        <!-- Cliente -->
-        <div class="detail__client">
-          <span
-            class="detail__avatar"
-            [class.is-completed]="appt.status === 'COMPLETED'"
-            [class.is-noshow]="appt.status === 'NO_SHOW'"
-            [class.is-cancelled]="appt.status === 'CANCELLED'"
-          >{{ initials(appt) }}</span>
-          <div>
-            <p class="detail__name">{{ name(appt) }}</p>
-            <span
-              class="detail__badge"
-              [class.is-completed]="appt.status === 'COMPLETED'"
-              [class.is-noshow]="appt.status === 'NO_SHOW'"
-              [class.is-cancelled]="appt.status === 'CANCELLED'"
-            >{{ statusLabel(appt) }}</span>
-          </div>
-        </div>
+  <!-- ── DRAWER DE DETALLE (DERECHA A IZQUIERDA) ─────────────────── -->
+  <div class="scheduler-drawer-overlay" [class.is-open]="selectedAppointment()" (click)="closeDetail()"></div>
+  <div class="scheduler-drawer" [class.is-open]="selectedAppointment()">
+    @if (selectedAppointment(); as appt) {
+      <!-- Drawer Header -->
+      <div class="scheduler-drawer__header" style="position: relative;">
+        <button type="button" class="scheduler-drawer__close" (click)="closeDetail()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          Cerrar detalle
+        </button>
 
         @if (!isEditing()) {
-          <!-- MODO LECTURA (VISTA POR DEFECTO - MATCHING SCREENSHOTS) -->
-          <!-- Tarjeta Fecha y Hora -->
-          <div style="background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4) var(--space-5); display: flex; align-items: center; gap: var(--space-4); margin-bottom: var(--space-2);">
-            <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); width: 2.75rem; height: 2.75rem; display: grid; place-items: center; flex-shrink: 0; box-shadow: var(--shadow-xs);">
-              <svg width="20" height="20" viewBox="0 0 15 15" fill="none" style="color: var(--color-text-secondary);">
-                <rect x="1.5" y="2.5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.3"/>
-                <path d="M4.5 1v2M10.5 1v2M1.5 6.5h12" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          <div style="position: relative;">
+            <button type="button" class="options-btn" (click)="toggleOptionsMenu($event)">
+              Opciones
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
               </svg>
-            </div>
-            <div>
-              <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em;">Fecha y Hora</p>
-              <p style="margin: 2px 0 0; font-size: var(--text-base); font-weight: 700; color: var(--color-text); letter-spacing: -0.02em;">{{ dateLabel(appt) }}</p>
-              <p style="margin: 2px 0 0; font-size: var(--text-sm); font-weight: 600; color: var(--color-text-secondary); display: flex; align-items: center; gap: 4px;">
-                <svg width="12" height="12" viewBox="0 0 15 15" fill="none" style="opacity: 0.75;">
-                  <circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.25"/>
-                  <path d="M7.5 4v3.5l2.5 1.5" stroke="currentColor" stroke-width="1.25" stroke-linecap="round"/>
-                </svg>
-                {{ timeRange(appt) }}
-              </p>
-            </div>
-          </div>
+            </button>
 
-          <!-- Filas con Iconos de Servicio, Profesional, Sucursal -->
-          <div style="display: flex; flex-direction: column; gap: var(--space-4); padding: var(--space-2) var(--space-1) var(--space-4);">
-            <div style="display: flex; align-items: center; gap: var(--space-4);">
-              <div style="background: var(--color-surface-muted); border-radius: var(--radius-full); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex-shrink: 0; color: var(--color-text-secondary);">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                  <path d="M7.5 1.5l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5 1.5-3z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Servicio</p>
-                <p style="margin: 1px 0 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">{{ appt.serviceName }}</p>
-              </div>
-            </div>
-
-            <div style="display: flex; align-items: center; gap: var(--space-4);">
-              <div style="background: var(--color-surface-muted); border-radius: var(--radius-full); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex-shrink: 0; color: var(--color-text-secondary);">
-                <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                  <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" stroke-width="1.3"/>
-                  <path d="M3 13c0-2.5 2-4.5 4.5-4.5S12 10.5 12 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                </svg>
-              </div>
-              <div>
-                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Profesional</p>
-                <p style="margin: 1px 0 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">{{ appt.professionalName }}</p>
-              </div>
-            </div>
-
-            @if (appt.branchName) {
-              <div style="display: flex; align-items: center; gap: var(--space-4);">
-                <div style="background: var(--color-surface-muted); border-radius: var(--radius-full); width: 2.25rem; height: 2.25rem; display: grid; place-items: center; flex-shrink: 0; color: var(--color-text-secondary);">
-                  <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
-                    <path d="M7.5 1C5.3 1 3.5 2.8 3.5 5c0 3 4 9 4 9s4-6 4-9c0-2.2-1.8-4-4-4Z" stroke="currentColor" stroke-width="1.3"/>
-                    <circle cx="7.5" cy="5" r="1.5" stroke="currentColor" stroke-width="1.3"/>
-                  </svg>
-                </div>
-                <div>
-                  <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Sucursal</p>
-                  <p style="margin: 1px 0 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">{{ appt.branchName }}</p>
-                </div>
-              </div>
-            }
-          </div>
-
-          <!-- Divider -->
-          <div style="height: 1px; background: var(--color-border); margin: 0 auto; width: 100%;"></div>
-
-          <!-- Sección: Pago -->
-          <div class="detail__section" style="padding-top: var(--space-2);">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px; position: relative;">
-              <div style="display: flex; align-items: center; gap: 8px;">
-                <svg width="16" height="16" viewBox="0 0 15 15" fill="none" style="color: var(--color-text-secondary);">
-                  <rect x="1" y="3" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
-                  <path d="M1 6h13M4 9h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
-                </svg>
-                <p style="margin: 0; font-size: var(--text-sm); font-weight: 700; color: var(--color-text);">Pago</p>
-              </div>
-
-              <!-- Menú de tres puntos -->
-              <div>
-                <button type="button" (click)="togglePaymentMenu()" style="background: none; border: none; padding: 4px; cursor: pointer; color: var(--color-text-secondary); display: grid; place-items: center; border-radius: var(--radius-md);">
-                  <svg width="16" height="16" viewBox="0 0 15 15" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <circle cx="7.5" cy="3" r="0.75" fill="currentColor"/>
-                    <circle cx="7.5" cy="7.5" r="0.75" fill="currentColor"/>
-                    <circle cx="7.5" cy="12" r="0.75" fill="currentColor"/>
-                  </svg>
-                </button>
-
-                <!-- Menú Dropdown: Registrar Pago -->
-                @if (showPaymentMenu()) {
-                  <div style="position: absolute; right: 0; top: 1.75rem; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-md); z-index: 10; padding: 4px; min-width: 120px;">
-                    <button type="button" (click)="openRegisterPayment(appt)" style="width: 100%; text-align: left; background: none; border: none; padding: 8px 12px; font-family: inherit; font-size: var(--text-sm); font-weight: 600; color: var(--color-text); cursor: pointer; border-radius: var(--radius-sm); transition: background var(--duration-fast);" onmouseover="this.style.background='var(--color-surface-muted)'" onmouseout="this.style.background='none'">
-                      Registrar pago
-                    </button>
-                  </div>
-                }
-              </div>
-            </div>
-
-            <!-- Estado de confirmación (Abajo a la izquierda) -->
-            <div style="display: flex; align-items: center; gap: 6px; margin: 2px 0 var(--space-3);">
-              <span style="display: inline-block; width: 6px; height: 6px; border-radius: var(--radius-full);" [style.background]="accent(appt.status)"></span>
-              <span style="font-size: 0.72rem; font-weight: 700;" [style.color]="accent(appt.status)">{{ statusLabel(appt) }}</span>
-            </div>
-
-            <!-- Forma y Tipo de cobro -->
-            <div style="display: flex; gap: var(--space-4); margin: var(--space-2) 0;">
-              <div style="flex: 1;">
-                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Forma de cobro</p>
-                <p style="margin: 2px 0 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text);">Registro manual</p>
-              </div>
-              <div style="flex: 1;">
-                <p style="margin: 0; font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted);">Tipo de cobro</p>
-                <p style="margin: 2px 0 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text);">
-                  {{ paymentType(appt) }}
-                </p>
-              </div>
-            </div>
-
-            <!-- Precio del turno e inline editor -->
-            @if (isEditingPrice()) {
-              <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin: var(--space-3) 0; box-shadow: var(--shadow-sm);">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary); display: block; margin-bottom: var(--space-2);">Precio del turno (ARS)</label>
-                <input type="number" [(ngModel)]="inlinePrice" style="width: 100%; height: 2.5rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-2); background: var(--color-surface); color: var(--color-text);" placeholder="Ej. 15000">
-                <p style="font-size: 0.72rem; color: var(--color-text-muted); margin: 0 0 var(--space-3); line-height: 1.4;">Este valor no modifica el servicio. Se usa en las estadísticas y el pendiente de este turno.</p>
-                <div style="display: flex; gap: var(--space-2);">
-                  <button type="button" (click)="saveInlinePrice(appt)" style="background: var(--color-primary); color: white; border: none; padding: 0.5rem var(--space-4); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Guardar</button>
-                  <button type="button" (click)="cancelInlinePrice()" style="background: transparent; color: var(--color-text); border: 1px solid var(--color-border); padding: 0.5rem var(--space-4); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer;">Cancelar</button>
-                </div>
-              </div>
-            } @else {
-              <p style="margin: var(--space-2) 0; font-size: 0.8rem; font-weight: 600; color: var(--color-text-secondary);">
-                Precio del turno: 
-                <strong style="color: var(--color-text); font-weight: 700; font-size: 0.9rem;">{{ price(appt) || 'Sin precio' }}</strong>
-                <button type="button" style="background: none; border: none; color: var(--color-primary); font-family: inherit; font-size: 0.8rem; font-weight: 700; margin-left: 8px; cursor: pointer; text-decoration: underline;" (click)="editPriceInline(appt)">Modificar</button>
-              </p>
-            }
-
-            <!-- Cards Recibido / Pendiente -->
-            <div style="display: flex; gap: var(--space-3); margin-top: var(--space-2);">
-              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Recibido</span>
-                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-success);">{{ formatValue(receivedAmount(appt)) }}</p>
-              </div>
-              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pendiente</span>
-                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-text);">{{ formatValue(pendingAmount(appt)) }}</p>
-              </div>
-            </div>
-
-            <!-- Notas del cliente -->
-            @if (appt.notes) {
-              <div class="detail__notes" style="width: 100%; margin-top: var(--space-3);">
-                <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true" style="color: var(--color-text-muted);">
-                  <path d="M2 3h9M2 6.5h9M2 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
-                </svg>
-                <span>{{ appt.notes }}</span>
-              </div>
-            }
-          </div>
-
-        } @else {
-          <!-- MODO EDICIÓN (FORMULARIOS DE MODIFICACIÓN) -->
-          <!-- Cobros / Finanzas -->
-          <div class="detail__section">
-            <p class="detail__section-label">Cobros / Finanzas</p>
-            <div style="display: flex; gap: var(--space-3); align-items: flex-start;">
-              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Precio del turno (ARS)</label>
-                <input type="number" [(ngModel)]="editPrice" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;" placeholder="Ej. 15000">
-              </div>
-              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Seña recibida</label>
-                <input type="number" [(ngModel)]="editDepositAmount" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;" placeholder="Ej. 5000">
-              </div>
-            </div>
-
-            <!-- Cards Recibido / Pendiente -->
-            <div style="display: flex; gap: var(--space-3); margin-top: var(--space-2);">
-              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Recibido</span>
-                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-success);">{{ formatValue(editReceived) }}</p>
-              </div>
-              <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
-                <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pendiente</span>
-                <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-text);">{{ formatValue(editPending) }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Asignación Profesional / Servicio -->
-          <div class="detail__section" style="border-top: 1px solid var(--color-border); padding-top: var(--space-4);">
-            <p class="detail__section-label">Profesional / Servicio</p>
-            
-            <div style="display: flex; flex-direction: column; gap: var(--space-3);">
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Servicio</label>
-                <select [(ngModel)]="editServiceId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface);">
-                  @for (srv of services(); track srv.id) {
-                    <option [value]="srv.id">{{ srv.name }} ({{ duration(srv) }})</option>
+            @if (optionsMenuOpen()) {
+              <div class="options-dropdown" (click)="$event.stopPropagation()">
+                <div class="options-dropdown__section">
+                  <div class="options-dropdown__section-title">RESERVA</div>
+                  <button type="button" class="options-dropdown__item" (click)="editAppointment()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                    Editar turno
+                  </button>
+                  @if (whatsappReminderUrl(appt)) {
+                    <a [href]="whatsappReminderUrl(appt)" target="_blank" class="options-dropdown__item options-dropdown__link" (click)="optionsMenuOpen.set(false)">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                      </svg>
+                      Enviar recordatorio
+                    </a>
                   }
-                </select>
-              </div>
+                  <button type="button" class="options-dropdown__item text-danger" (click)="triggerCancel()">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="9" y1="9" x2="15" y2="15"></line>
+                      <line x1="15" y1="9" x2="9" y2="15"></line>
+                    </svg>
+                    Cancelar reserva
+                  </button>
+                </div>
 
-              <div style="display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Profesional</label>
-                <select [(ngModel)]="editProfessionalId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface);">
-                  @for (pro of professionals(); track pro.id) {
-                    <option [value]="pro.id">{{ proDisplayName(pro) }}</option>
-                  }
-                </select>
-              </div>
-            </div>
-          </div>
+                <div class="options-dropdown__separator"></div>
 
-          <!-- Reprogramar Horario -->
-          <div class="detail__section" style="border-top: 1px solid var(--color-border); padding-top: var(--space-4); margin-bottom: var(--space-4);">
-            <p class="detail__section-label">Reprogramar Horario</p>
-            
-            <div style="display: flex; gap: var(--space-3);">
-              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Fecha</label>
-                <input type="date" [(ngModel)]="editDate" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;">
+                <div class="options-dropdown__section">
+                  <div class="options-dropdown__section-title">ASISTENCIA</div>
+                  <button type="button" class="options-dropdown__item text-success" [class.is-active]="appt.status === 'COMPLETED'" (click)="setAttendance(appt, 'COMPLETED')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <polyline points="17 11 19 13 23 9"></polyline>
+                    </svg>
+                    Asistió
+                  </button>
+                  <button type="button" class="options-dropdown__item text-dark" [class.is-active]="appt.status === 'NO_SHOW'" (click)="setAttendance(appt, 'NO_SHOW')">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="8.5" cy="7" r="4"></circle>
+                      <line x1="18" y1="8" x2="22" y2="12"></line>
+                      <line x1="22" y1="8" x2="18" y2="12"></line>
+                    </svg>
+                    Ausente
+                  </button>
+                </div>
               </div>
-              <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
-                <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Hora de inicio</label>
-                <input type="time" [(ngModel)]="editTime" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;">
-              </div>
-            </div>
+            }
           </div>
         }
       </div>
 
-      <!-- ── ACCIONES DEL MODAL (PROYECTADAS EN EL FOOTER DEL MODAL) ── -->
-      <div modal-actions style="width: 100%;">
-        @if (!isEditing()) {
-          <div style="display: flex; flex-direction: column; gap: var(--space-2); width: 100%;">
-            <!-- Enviar recordatorio (WhatsApp, Verde sutil) -->
-            @if (whatsappReminderUrl(appt); as url) {
-              <a [href]="url" target="_blank" rel="noopener noreferrer" class="detail__wa-btn" style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 2.5rem; background: var(--color-success-subtle); color: var(--color-success); border: 1px solid transparent; box-shadow: none; font-size: 0.85rem; font-weight: 700; box-sizing: border-box; text-decoration: none; border-radius: var(--radius-md);">
-                <svg width="14" height="14" viewBox="0 0 15 15" fill="none" aria-hidden="true">
-                  <path d="M7.5 1A6.5 6.5 0 0 0 2 7.5c0 1.1.27 2.2.8 3.1L1.5 14l3.5-1.2A6.5 6.5 0 1 0 7.5 1Z"
-                    fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.1"/>
-                  <path d="M5.5 6c.1.5.5 1.1 1 1.7.5.5 1.2 1 1.7 1.1.2.1.4 0 .6-.2l.5-.5c.2-.2.5-.2.6 0l1 1c.2.2.2.5 0 .6-.5.5-1.1.8-1.7.8C6.7 10.5 4.5 8.3 4.5 5.7c0-.6.3-1.2.7-1.7.2-.2.5-.2.6 0l1 1c.2.2.2.4 0 .6l-.5.5c-.2.2-.3.4-.3.7Z"
-                    fill="currentColor"/>
-                </svg>
-                Enviar recordatorio por WhatsApp
-              </a>
-            }
+      <!-- Drawer Content -->
+      <div class="scheduler-drawer__content">
+        <div class="detail">
+          @if (!isEditing()) {
+            <!-- MODO LECTURA -->
+            <div class="detail__header-info">
+               <div class="detail__header-profile">
+                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 2px;">
+                   <span style="font-size: 13px; font-weight: 700; color: var(--color-text-secondary); letter-spacing: 0.05em; text-transform: uppercase;">
+                     Reserva #{{ appt.id }}
+                   </span>
+                   <div style="display: flex; gap: 6px;">
+                     <span class="badge-status"
+                           [class.badge-confirmed]="appt.status === 'CONFIRMED'"
+                           [class.badge-completed]="appt.status === 'COMPLETED'"
+                           [class.badge-noshow]="appt.status === 'NO_SHOW'"
+                           [class.badge-cancelled]="appt.status === 'CANCELLED'"
+                           style="margin: 0; font-size: 11px; padding: 1px 6px;">
+                       {{ statusLabel(appt) | uppercase }}
+                     </span>
+                     @if (appt.status === 'COMPLETED') {
+                       <span class="badge-status badge-completed" style="margin: 0; font-size: 11px; padding: 1px 6px;">ASISTIÓ</span>
+                     } @else if (appt.status === 'NO_SHOW') {
+                       <span class="badge-status badge-noshow" style="margin: 0; font-size: 11px; padding: 1px 6px;">AUSENTE</span>
+                     }
+                   </div>
+                 </div>
 
-            <!-- Editar turno (Primary) -->
-            <button type="button" class="detail__primary-btn" (click)="isEditing.set(true)">
-              Editar turno
-            </button>
+                 <h2 class="detail__header-name">{{ name(appt) }}</h2>
 
-            <!-- Marcar no-show (Si aplica) -->
-            @if (canNoShow(appt)) {
-              <button type="button" class="detail__noshow-btn" style="width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--radius-md); padding: 0;" (click)="markNoShow(appt)">
-                Marcar no-show
-              </button>
-            }
+                 <div class="detail__header-meta">
+                   @if (appt.clientEmail) {
+                     <span class="detail__header-meta-item">
+                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                         <polyline points="22,6 12,13 2,6"></polyline>
+                       </svg>
+                       {{ appt.clientEmail }}
+                     </span>
+                   }
+                   @if (appt.clientEmail && appt.clientPhone) {
+                     <span class="detail__header-meta-separator">·</span>
+                   }
+                   @if (appt.clientPhone) {
+                     <span class="detail__header-meta-item">
+                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                       </svg>
+                       {{ appt.clientPhone }}
+                     </span>
+                   }
+                 </div>
 
-            <!-- Cancelar turno -->
-            <button type="button" class="detail__noshow-btn" style="border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text-secondary); width: 100%; height: 2.5rem; display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; border-radius: var(--radius-md); padding: 0;" (click)="cancelAppointment()">
-              Cancelar turno
-            </button>
-          </div>
-        } @else {
+                 <div class="detail__tag-presencial">
+                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;">
+                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                     <circle cx="12" cy="10" r="3"></circle>
+                   </svg>
+                   PRESENCIAL
+                 </div>
+               </div>
+
+               <!-- Tabs: Reserva / Pagos -->
+               <div class="detail__tabs">
+                 <button type="button" class="detail__tab-btn" [class.is-active]="activeTab() === 'reserva'" (click)="activeTab.set('reserva')">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                     <line x1="16" y1="2" x2="16" y2="6"></line>
+                     <line x1="8" y1="2" x2="8" y2="6"></line>
+                     <line x1="3" y1="10" x2="21" y2="10"></line>
+                   </svg>
+                   Reserva
+                 </button>
+                 <button type="button" class="detail__tab-btn" [class.is-active]="activeTab() === 'pagos'" (click)="activeTab.set('pagos')">
+                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                     <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+                     <line x1="2" y1="10" x2="22" y2="10"></line>
+                   </svg>
+                   Pagos
+                 </button>
+               </div>
+             </div>
+
+            <div class="detail__body-info">
+              
+              <!-- TAB 1: RESERVA -->
+              @if (activeTab() === 'reserva') {
+                  <!-- FECHA Y HORA -->
+                  <div class="detail__info-group">
+                    <div class="detail__info-label">Fecha y Hora</div>
+                    <div class="detail__info-value">
+                      {{ formatDateTimeMock(appt.startsAt) }}
+                    </div>
+                  </div>
+
+                  <!-- SERVICIO -->
+                  <div class="detail__info-group">
+                    <div class="detail__info-label">Servicio</div>
+                    <div class="detail__info-value">
+                      {{ appt.serviceName }}
+                    </div>
+                  </div>
+
+                  <!-- PROFESIONAL -->
+                  <div class="detail__info-group">
+                    <div class="detail__info-label">Profesional</div>
+                    <div class="detail__info-value">
+                      {{ appt.professionalName }}
+                    </div>
+                  </div>
+
+                  <!-- SUCURSAL -->
+                  @if (appt.branchName) {
+                    <div class="detail__info-group">
+                      <div class="detail__info-label">Sucursal</div>
+                      <div class="detail__info-value">
+                        {{ appt.branchName }}
+                      </div>
+                    </div>
+                  }
+
+                  <!-- LUGARES -->
+                  <div class="detail__info-group">
+                    <div class="detail__info-label">Lugares</div>
+                    <div class="detail__info-value">
+                      1
+                    </div>
+                  </div>
+
+                  <!-- Notas de la reserva -->
+                  @if (appt.notes) {
+                    <div class="detail__info-group">
+                      <div class="detail__info-label">Notas de la reserva</div>
+                      <div class="detail__notes" style="width: 100%; margin-top: 4px;">
+                        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true" style="color: var(--color-text-muted);">
+                          <path d="M2 3h9M2 6.5h9M2 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                        </svg>
+                        <span>{{ appt.notes }}</span>
+                      </div>
+                    </div>
+                  }
+              }
+
+              <!-- TAB 2: PAGOS -->
+              @if (activeTab() === 'pagos') {
+                <div class="detail__section-pago">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); position: relative;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <svg width="16" height="16" viewBox="0 0 15 15" fill="none" style="color: var(--color-text-secondary);">
+                        <rect x="1" y="3" width="13" height="9" rx="1.5" stroke="currentColor" stroke-width="1.3"/>
+                        <path d="M1 6h13M4 9h2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                      </svg>
+                      <p style="margin: 0; font-size: 16px; font-weight: 700; color: var(--color-text);">Pago</p>
+                    </div>
+
+                    <!-- Registrar Pago Button directly visible -->
+                    <button type="button" (click)="openRegisterPayment(appt)" style="background: none; border: 1px solid var(--color-primary); color: var(--color-primary); border-radius: var(--radius-full); padding: 4px 12px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='var(--color-primary-subtle)'" onmouseout="this.style.background='none'">
+                      Registrar pago
+                    </button>
+                  </div>
+
+                  <!-- Estado de confirmación pago -->
+                  <div style="display: flex; align-items: center; gap: 6px; margin: 2px 0 var(--space-3);">
+                    <span style="display: inline-block; width: 6px; height: 6px; border-radius: var(--radius-full);" [style.background]="accent(appt.status)"></span>
+                    <span style="font-size: 13px; font-weight: 700;" [style.color]="accent(appt.status)">{{ statusLabel(appt) }}</span>
+                  </div>
+
+                  <!-- Forma y Tipo de cobro -->
+                  <div style="display: flex; gap: var(--space-4); margin: var(--space-3) 0;">
+                    <div style="flex: 1;">
+                      <p style="margin: 0; font-size: 12px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Forma de cobro</p>
+                      <p style="margin: 4px 0 0; font-size: 16px; font-weight: 700; color: var(--color-text);">Registro manual</p>
+                    </div>
+                    <div style="flex: 1;">
+                      <p style="margin: 0; font-size: 12px; font-weight: 700; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.05em;">Tipo de cobro</p>
+                      <p style="margin: 4px 0 0; font-size: 16px; font-weight: 700; color: var(--color-text);">
+                        {{ paymentType(appt) }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Precio del turno e inline editor as an info group -->
+                  <div class="detail__info-group" style="margin-bottom: var(--space-4);">
+                    <div class="detail__info-label">Precio del turno</div>
+                    @if (isEditingPrice()) {
+                      <div style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); padding: var(--space-4); margin-top: var(--space-2); box-shadow: var(--shadow-sm);">
+                        <input type="number" [(ngModel)]="inlinePrice" style="width: 100%; height: 2.5rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; margin-bottom: var(--space-2); background: var(--color-surface); color: var(--color-text);" placeholder="Ej. 15000">
+                        <div style="display: flex; gap: var(--space-2);">
+                          <button type="button" (click)="saveInlinePrice(appt)" style="background: var(--color-primary); color: white; border: none; padding: 0.5rem var(--space-4); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">Guardar</button>
+                          <button type="button" (click)="cancelInlinePrice()" style="background: transparent; color: var(--color-text); border: 1px solid var(--color-border); padding: 0.5rem var(--space-4); border-radius: var(--radius-full); font-size: 0.8rem; font-weight: 600; cursor: pointer;">Cancelar</button>
+                        </div>
+                      </div>
+                    } @else {
+                      <div class="detail__info-value" style="display: flex; align-items: center; gap: 8px;">
+                        {{ price(appt) || 'Sin precio' }}
+                        <button type="button" style="background: none; border: none; color: var(--color-primary); font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; text-decoration: underline;" (click)="editPriceInline(appt)">Modificar</button>
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Cards Recibido / Pendiente styled like clients stats -->
+                  <div class="detail__stats-grid">
+                    <div class="detail__stat-card">
+                      <div class="detail__stat-inner">
+                        <span class="detail__stat-title">Recibido</span>
+                        <p class="detail__stat-val text-success">{{ formatValue(receivedAmount(appt)) }}</p>
+                        <span class="detail__stat-sub">Cobrado</span>
+                      </div>
+                    </div>
+                    <div class="detail__stat-card">
+                      <div class="detail__stat-inner">
+                        <span class="detail__stat-title">Pendiente</span>
+                        <p class="detail__stat-val">{{ formatValue(pendingAmount(appt)) }}</p>
+                        <span class="detail__stat-sub">A cobrar</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+
+          } @else {
+            <!-- MODO EDICIÓN (FORMULARIOS DE MODIFICACIÓN) -->
+            <div class="detail__client">
+              <span
+                class="detail__avatar"
+                [class.is-completed]="appt.status === 'COMPLETED'"
+                [class.is-noshow]="appt.status === 'NO_SHOW'"
+                [class.is-cancelled]="appt.status === 'CANCELLED'"
+              >{{ initials(appt) }}</span>
+              <div>
+                <p class="detail__name">{{ name(appt) }}</p>
+                <span
+                  class="detail__badge"
+                  [class.is-completed]="appt.status === 'COMPLETED'"
+                  [class.is-noshow]="appt.status === 'NO_SHOW'"
+                  [class.is-cancelled]="appt.status === 'CANCELLED'"
+                >{{ statusLabel(appt) }}</span>
+              </div>
+            </div>
+
+            <!-- Cobros / Finanzas -->
+            <div class="detail__section">
+              <p class="detail__section-label">Cobros / Finanzas</p>
+              <div style="display: flex; gap: var(--space-3); align-items: flex-start;">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Precio del turno (ARS)</label>
+                  <input type="number" [(ngModel)]="editPrice" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;" placeholder="Ej. 15000">
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Seña recibida</label>
+                  <input type="number" [(ngModel)]="editDepositAmount" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;" placeholder="Ej. 5000">
+                </div>
+              </div>
+
+              <!-- Cards Recibido / Pendiente -->
+              <div style="display: flex; gap: var(--space-3); margin-top: var(--space-2);">
+                <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                  <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Recibido</span>
+                  <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-success);">{{ formatValue(editReceived) }}</p>
+                </div>
+                <div style="flex: 1; background: var(--color-surface-muted); padding: var(--space-3) var(--space-4); border-radius: var(--radius-md); border: 1px solid var(--color-border);">
+                  <span style="font-size: 0.68rem; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Pendiente</span>
+                  <p style="margin: var(--space-1) 0 0; font-size: var(--text-base); font-weight: 800; color: var(--color-text);">{{ formatValue(editPending) }}</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Asignación Profesional / Servicio -->
+            <div class="detail__section" style="border-top: 1px solid var(--color-border); padding-top: var(--space-4);">
+              <p class="detail__section-label">Profesional / Servicio</p>
+              
+              <div style="display: flex; flex-direction: column; gap: var(--space-3);">
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Servicio</label>
+                  <select [(ngModel)]="editServiceId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface);">
+                    @for (srv of services(); track srv.id) {
+                      <option [value]="srv.id">{{ srv.name }} ({{ duration(srv) }})</option>
+                    }
+                  </select>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Profesional</label>
+                  <select [(ngModel)]="editProfessionalId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600; background: var(--color-surface);">
+                    @for (pro of professionals(); track pro.id) {
+                      <option [value]="pro.id">{{ proDisplayName(pro) }}</option>
+                    }
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reprogramar Horario -->
+            <div class="detail__section" style="border-top: 1px solid var(--color-border); padding-top: var(--space-4); margin-bottom: var(--space-4);">
+              <p class="detail__section-label">Reprogramar Horario</p>
+              
+              <div style="display: flex; gap: var(--space-3);">
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Fecha</label>
+                  <input type="date" [(ngModel)]="editDate" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;">
+                </div>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                  <label style="font-size: var(--text-xs); font-weight: 600; color: var(--color-text-secondary);">Hora de inicio</label>
+                  <input type="time" [(ngModel)]="editTime" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-sm); font-weight: 600;">
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Drawer Footer -->
+      @if (isEditing()) {
+        <div class="scheduler-drawer__footer">
           <div style="display: flex; flex-direction: column; gap: var(--space-2); width: 100%;">
             <button type="button" class="detail__primary-btn" (click)="saveChanges()">
               Guardar cambios
@@ -769,8 +898,8 @@
               Volver
             </button>
           </div>
-        }
-      </div>
+        </div>
+      }
 
       <!-- ── MODAL SECUNDARIO: REGISTRAR PAGO (MATCHING SCREENSHOT) ── -->
       @if (showRegisterPaymentModal()) {
@@ -800,9 +929,8 @@
           </div>
         </div>
       }
-
-    </app-modal>
-  }
+    }
+  </div>
 
   <!-- Modal de Filtros -->
   @if (isFiltersModalOpen()) {

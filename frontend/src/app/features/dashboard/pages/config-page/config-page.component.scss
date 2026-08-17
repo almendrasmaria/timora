@@ -310,7 +310,7 @@
 
 .config-content__title {
   font-size: 18px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
   margin: 0;
 }
@@ -878,28 +878,22 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  height: 2.75rem;
-  padding: 0 var(--space-6);
-  font-size: var(--text-base);
+  height: 39px;
+  padding: 0 var(--space-5);
+  font-size: 15px;
   font-weight: 600;
-  color: var(--color-text-inverse);
-  background: var(--gradient-accent);
+  color: #ffffff;
+  background: var(--color-primary);
   border: none;
-  border-radius: 12px;
+  border-radius: 8px;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: all var(--duration-fast) var(--ease-out);
-  box-shadow: var(--shadow-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast);
 
   &:hover {
     filter: brightness(1.1);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-primary), 0 4px 12px rgba(0,0,0,0.15);
-  }
-
-  &:active {
-    transform: translateY(0);
   }
 
   @media (max-width: 768px) {

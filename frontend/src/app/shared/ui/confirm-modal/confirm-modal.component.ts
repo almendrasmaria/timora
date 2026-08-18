@@ -38,7 +38,19 @@ import { ButtonComponent } from '../button/button.component';
       display: flex;
       gap: 12px;
       justify-content: flex-end;
+      flex-wrap: wrap;
       width: 100%;
+    }
+    @media (max-width: 576px) {
+      .confirm-actions {
+        flex-direction: column-reverse;
+      }
+      .confirm-actions app-button {
+        width: 100%;
+      }
+      .confirm-actions app-button ::ng-deep .btn {
+        width: 100%;
+      }
     }
   `]
 })

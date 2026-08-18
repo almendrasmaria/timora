@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 @keyframes onboarding-card-enter {
   from {
     opacity: 0;
@@ -617,7 +619,7 @@
 
   &__form-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     gap: var(--space-4);
   }
 
@@ -670,7 +672,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@include bp.tablet {
   .onboarding-card {
     padding: var(--space-6);
 
@@ -685,7 +687,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include bp.mobile {
   .onboarding-card {
     padding: var(--space-5);
     border-radius: var(--radius-xl);
@@ -752,7 +754,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include bp.mobile {
   .modal-actions {
     flex-direction: column-reverse;
 

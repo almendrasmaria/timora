@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 // ═══ VARIABLES ═══════════════════════════════════════════════
 $sidebar-w:           223px;
 $sidebar-w-sm:         80px; // Igual que Turnito (79-80px)
@@ -457,7 +459,7 @@ $sidebar-easing:       cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 // ═══ MOBILE (max 768px) ══════════════════════════════════════
-@media (max-width: 768px) {
+@include bp.tablet {
   .shell {
     &__sidebar { display: none; }
     &__right   { 

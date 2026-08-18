@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .auth-form-card {
   width: 100%;
   max-width: var(--auth-card-width);
@@ -89,7 +91,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include bp.mobile {
   .auth-form-card {
     padding: var(--space-6);
     border-radius: var(--radius-lg);
@@ -97,5 +99,11 @@
     &__title { font-size: var(--text-xl); margin-bottom: var(--space-5); }
     &__form { gap: var(--space-4); }
     &__footer { margin-top: var(--space-5); padding-top: var(--space-5); }
+  }
+}
+
+@include bp.mobile-sm {
+  .auth-form-card {
+    padding: var(--space-5) var(--space-4);
   }
 }

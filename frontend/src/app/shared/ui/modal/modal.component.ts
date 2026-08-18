@@ -18,6 +18,8 @@ import {
 export class ModalComponent implements OnInit, OnDestroy {
   @Input() title = '';
   @Input() closeOnBackdrop = true;
+  /** 'lg' para formularios con muchos campos (ej. crear turno): más ancho en desktop para que las filas de 2 columnas respiren y haya menos scroll. */
+  @Input() size: 'md' | 'lg' = 'md';
   @Output() closed = new EventEmitter<void>();
 
   readonly titleId = `modal-title-${Math.random().toString(36).slice(2, 9)}`;

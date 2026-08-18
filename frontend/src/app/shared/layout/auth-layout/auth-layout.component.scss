@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .auth-layout {
   --auth-layout-px: clamp(1.5rem, 5vw, 4rem);
   min-height: 100vh;
@@ -187,14 +189,14 @@
   }
 }
 
-@media (max-width: 1440px) and (min-width: 1025px) {
+@include bp.between(bp.$laptop + 1, bp.$desktop) {
   .auth-layout {
     &__hero { padding-inline: clamp(2rem, 4vw, 3.5rem); }
     &__form { padding-inline: clamp(2rem, 4vw, 3rem); }
   }
 }
 
-@media (max-width: 1024px) {
+@include bp.laptop {
   .auth-layout {
     &__header-inner {
       padding-inline: var(--auth-layout-px);
@@ -217,7 +219,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include bp.mobile {
   .auth-layout {
     &__header-inner {
       height: 4rem;
@@ -226,7 +228,7 @@
   }
 }
 
-@media (max-width: 380px) {
+@include bp.mobile-sm {
   .auth-layout {
     &__header-inner,
     &__form { padding-inline: var(--space-4); }

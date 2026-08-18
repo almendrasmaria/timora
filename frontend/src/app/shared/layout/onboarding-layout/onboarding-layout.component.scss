@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .onboarding-layout {
   position: relative;
   min-height: 100vh;
@@ -341,7 +343,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@include bp.tablet {
   .onboarding-layout__header-inner {
     display: flex;
     align-items: center;
@@ -369,5 +371,20 @@
 
   .onboarding-layout__sidebar {
     display: none;
+  }
+}
+
+@include bp.mobile {
+  .onboarding-layout__header-inner {
+    padding-inline: var(--space-4);
+  }
+
+  .onboarding-layout__body {
+    padding-top: var(--space-4);
+    padding-bottom: var(--space-10);
+  }
+
+  .onboarding-layout__panel {
+    padding: var(--space-4);
   }
 }

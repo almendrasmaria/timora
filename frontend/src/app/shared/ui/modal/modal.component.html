@@ -1,6 +1,7 @@
 <div class="modal-backdrop" (click)="onBackdropClick()">
   <div
     class="modal"
+    [class.modal--lg]="size === 'lg'"
     role="dialog"
     aria-modal="true"
     [attr.aria-labelledby]="titleId"

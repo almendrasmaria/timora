@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 .schedule {
   display: flex;
   flex-direction: column;
@@ -149,7 +151,7 @@
   }
 }
 
-@media (max-width: 520px) {
+@include bp.mobile {
   .schedule__head {
     flex-direction: column;
     align-items: stretch;
@@ -174,5 +176,19 @@
   .schedule__closed {
     margin-left: auto;
     align-self: center;
+  }
+}
+
+@include bp.mobile-sm {
+  .schedule__toggle {
+    min-width: 0;
+  }
+
+  .schedule__times {
+    margin-left: calc(0.75rem + var(--space-2));
+  }
+
+  .schedule__time {
+    width: 5rem;
   }
 }

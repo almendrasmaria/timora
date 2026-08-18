@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
   min-height: 100vh;
@@ -1093,7 +1095,8 @@
 }
 
 // ── Desktop ──────────────────────────────────────────────────────
-@media (min-width: 769px) {
+// 769px matches bp.$tablet + 1 exactly, so this maps 1:1 onto bp.tablet-up.
+@include bp.tablet-up {
   .booking {
     display: flex;
     align-items: center;
@@ -1314,8 +1317,12 @@
   }
 }
 
-// Pantallas desktop un poco más grandes: escala moderada sin perder proporciones
-@media (min-width: 1100px) {
+// Pantallas desktop un poco más grandes: escala moderada sin perder proporciones.
+// 1100px was a one-off literal with no structural purpose (the two-column
+// layout is already active since bp.tablet-up) — it only nudges sizing, so
+// it's safe to snap to the canonical bp.laptop-up (1025px) instead of adding
+// a custom bp.between() breakpoint.
+@include bp.laptop-up {
   .booking {
     &__layout {
       grid-template-columns: minmax(18rem, 21rem) minmax(0, 1fr);

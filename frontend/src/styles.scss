@@ -1,4 +1,5 @@
 @use 'styles/tokens';
+@use 'styles/breakpoints' as bp;
 @use 'app/shared/styles/onboarding-card';
 
 *,
@@ -10,6 +11,14 @@
 html {
   height: 100%;
   -webkit-text-size-adjust: 100%;
+}
+
+// Red de seguridad: ningún elemento individual con un ancho rígido
+// debería poder generar scroll horizontal a nivel de página.
+html,
+body {
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -24,6 +33,13 @@ body {
   background: var(--color-background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 h1,
@@ -53,6 +69,19 @@ input,
 textarea,
 select {
   font-family: inherit;
+}
+
+// En mobile, todo input/select/textarea necesita al menos 16px o Safari/iOS
+// hace zoom automático al enfocarlo. !important porque debe ganarle a
+// cualquier font-size más específico definido por cada componente; se
+// aplica global para no repetirlo componente por componente. En desktop
+// el tamaño definido por cada componente queda intacto.
+@include bp.mobile {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
 }
 
 ::selection {

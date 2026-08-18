@@ -166,9 +166,9 @@
         </div>
 
         <div class="clients__form-actions">
-          <button type="submit" class="clients__btn-submit">
+          <app-button type="submit" variant="primary">
             Guardar cambios
-          </button>
+          </app-button>
         </div>
       </form>
     </app-modal>
@@ -388,9 +388,9 @@
                 [(ngModel)]="clientNotes"
               ></textarea>
               <div class="clients__notes-actions">
-                <button type="button" class="clients__btn-save-notes" (click)="saveClientNotes()">
+                <app-button variant="primary" (click)="saveClientNotes()">
                   Guardar notas
-                </button>
+                </app-button>
               </div>
             </div>
           </div>

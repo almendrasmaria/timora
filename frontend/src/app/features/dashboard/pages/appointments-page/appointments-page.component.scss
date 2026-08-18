@@ -1,3 +1,5 @@
+@use 'breakpoints' as bp;
+
 :host {
   display: block;
   width: 100%;
@@ -240,8 +242,8 @@
     font-weight: 600;
     color: var(--color-text);
     cursor: pointer;
-    padding: var(--space-2) var(--space-4);
-    height: 44px;
+    padding: 0 var(--space-4);
+    height: 39px;
     box-sizing: border-box;
     border-radius: var(--radius-md);
     transition: all var(--duration-fast);
@@ -279,8 +281,8 @@
     background: var(--color-primary);
     border: none;
     border-radius: var(--radius-md);
-    padding: var(--space-2) var(--space-4);
-    height: 44px;
+    padding: 0 var(--space-4);
+    height: 39px;
     box-sizing: border-box;
     font-size: 16px;
     font-weight: 600;
@@ -347,8 +349,8 @@
     padding: 0 12px 0 40px;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
-    border-radius: 8px;
-    font-size: 15px;
+    border-radius: var(--radius-md);
+    font-size: 16px;
     color: var(--color-text);
     outline: none;
     transition: border-color var(--duration-fast);
@@ -1041,24 +1043,6 @@
     gap: var(--space-3);
   }
 
-  &__noshow-btn {
-    padding: 0.5rem var(--space-4);
-    border: 1px solid rgba(248, 113, 113, 0.3);
-    border-radius: var(--radius-full);
-    background: var(--color-error-subtle);
-    color: var(--color-error);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    font-weight: 600;
-    cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out);
-    &:hover { background: rgba(248, 113, 113, 0.15); }
-  }
-
-  &__noshow-btn.detail__noshow-btn {
-    // also used for cancel modal button
-  }
-
   &__wa-btn {
     display: inline-flex;
     align-items: center;
@@ -1083,29 +1067,9 @@
     }
   }
 
-  &__primary-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 2.5rem;
-    background: var(--gradient-accent);
-    color: #fff;
-    border: none;
-    box-sizing: border-box;
-    border-radius: var(--radius-md);
-    font-family: inherit;
-    font-size: var(--text-sm);
-    font-weight: 700;
-    cursor: pointer;
-    box-shadow: var(--shadow-primary);
-    transition: filter var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
-    &:hover { filter: brightness(1.10); transform: translateY(-1px); }
-    &:disabled { opacity: 0.55; cursor: not-allowed; transform: none; filter: none; }
-  }
 }
 
-@media (max-width: 900px) {
+@include bp.tablet {
   .scheduler-header {
     flex-direction: column;
     align-items: stretch;
@@ -1137,7 +1101,7 @@
   }
 }
 
-@media (max-width: 640px) {
+@include bp.mobile {
   .scheduler-container {
     padding: var(--space-2) !important;
   }
@@ -1468,7 +1432,7 @@
   }
 }
 
-@media (max-width: 768px) {
+@include bp.tablet {
   // ── Toolbar responsiva ──────────────────────────────────────
   .timora-toolbar {
     flex-direction: column;
@@ -1771,7 +1735,7 @@
   display: flex;
   flex-direction: column;
 
-  @media (min-width: 1200px) {
+  @include bp.desktop-up {
     width: 751px;
   }
 
@@ -2113,55 +2077,171 @@
   &__section-pago {
     display: flex;
     flex-direction: column;
-  }
-
-  &__stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
     gap: var(--space-4);
-    margin-top: var(--space-3);
   }
 
-  &__stat-card {
-    background: #f5f5f7;
-    border-radius: 12px;
-    padding: 8px;
+  // ── Header: título + badge de estado ─────────────────────────
+  &__pago-header {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
   }
 
-  &__stat-inner {
-    background: #ffffff;
+  &__pago-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--color-text-secondary);
+  }
+
+  &__pago-title {
+    margin: 0;
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--color-text);
+  }
+
+  &__pago-status {
+    --status-color: var(--color-text-muted);
+    padding: 3px 10px;
+    border-radius: var(--radius-full);
+    background: color-mix(in srgb, var(--status-color) 14%, white);
+    color: var(--status-color);
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  // ── Resumen: Total / Recibido / Pendiente, mismo peso visual ──
+  &__pago-summary {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+    padding: var(--space-4);
     border: 1px solid var(--color-border);
-    border-radius: 10px;
-    padding: 12px 14px;
+    border-radius: var(--radius-lg);
+    background: var(--color-surface-muted);
+  }
+
+  &__pago-amount {
     display: flex;
     flex-direction: column;
     gap: 4px;
+    min-width: 0;
   }
 
-  &__stat-title {
-    font-size: 15px;
-    color: var(--color-text-secondary);
-    font-weight: 500;
+  &__pago-amount-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
   }
 
-  &__stat-val {
-    font-size: 28px;
+  &__pago-amount-val {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: clamp(1.125rem, 1rem + 1vw, 1.5rem);
     font-weight: 700;
-    color: #000000;
-    margin: 0;
+    color: var(--color-text);
+    overflow-wrap: anywhere;
 
     &.text-success {
       color: var(--color-success);
     }
   }
 
-  &__stat-sub {
+  &__pago-edit-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out);
+
+    &:hover {
+      background: var(--color-surface-muted);
+      color: var(--color-primary);
+    }
+  }
+
+  // ── Editor inline de precio ───────────────────────────────────
+  &__pago-price-edit {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  &__pago-price-input {
+    width: 100%;
+    height: 2.5rem;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-family: inherit;
+    font-size: var(--text-base);
+    font-weight: 600;
+    background: var(--color-surface);
+    color: var(--color-text);
+  }
+
+  &__pago-price-actions {
+    display: flex;
+    gap: var(--space-2);
+
+    @include bp.mobile-sm {
+      flex-direction: column;
+    }
+  }
+
+  &__pago-price-save,
+  &__pago-price-cancel {
+    height: 2.25rem;
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-full);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity var(--duration-fast) var(--ease-out), background var(--duration-fast) var(--ease-out);
+  }
+
+  &__pago-price-save {
+    border: none;
+    background: var(--color-primary);
+    color: #fff;
+
+    &:hover { opacity: 0.9; }
+  }
+
+  &__pago-price-cancel {
+    border: 1px solid var(--color-border);
+    background: transparent;
+    color: var(--color-text);
+
+    &:hover { background: var(--color-surface-muted); }
+  }
+
+  // ── Método de cobro: detalle secundario, ya no compite con los montos ──
+  &__pago-meta {
+    margin: 0;
     font-size: 13px;
     color: var(--color-text-muted);
   }
+
 
   &__notes-form {
     display: flex;
@@ -2272,7 +2352,100 @@
   }
 }
 
-@media (max-width: 576px) {
+// ── Modal "Registrar pago" (dialogo propio, no usa <app-modal>) ──
+// Reusa las clases .modal-backdrop / .modal por convención, pero al
+// vivir en este componente (encapsulation Emulated) no hereda nada
+// de shared/ui/modal/modal.component.scss: necesita su propia
+// estructura para posicionarse como overlay y no desbordar en mobile.
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  // Debe superar el floating bottom nav del shell (z-index: 1000) y
+  // alinearse con el modal compartido (shared/ui/modal, z-index: 2000).
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-5);
+  background: rgba(17, 17, 24, 0.55);
+  backdrop-filter: blur(6px);
+
+  // Centrado siempre, también en mobile (no bottom-sheet).
+  @include bp.mobile {
+    padding: var(--space-4);
+  }
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  max-height: min(85vh, 38rem);
+  overflow-y: auto;
+  border-radius: var(--radius-xl);
+  box-sizing: border-box;
+
+  @include bp.mobile {
+    max-height: 88vh;
+  }
+}
+
+// ── Filas de formulario de 2 columnas: colapsan en mobile ────────
+// Usadas por el modal "Nuevo Turno" (grid) y por los formularios de
+// edición del drawer (flex, con flex:1 ya declarado en los hijos).
+.appt-form-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--space-3);
+
+  @include bp.mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.appt-form-row {
+  @include bp.mobile {
+    flex-direction: column;
+  }
+}
+
+// Footer de acciones del modal "Nuevo Turno": primario ocupa el espacio
+// disponible, secundario queda a su tamaño natural; en mobile ambos
+// pasan a ancho completo, apilados con el primario arriba.
+.appt-modal-actions {
+  display: flex;
+  gap: var(--space-2);
+  width: 100%;
+
+  > app-button:first-child {
+    flex: 1;
+  }
+
+  @include bp.mobile {
+    flex-direction: column-reverse;
+
+    > app-button {
+      width: 100%;
+
+      ::ng-deep .btn {
+        width: 100%;
+      }
+    }
+  }
+}
+
+// Formularios de modales/drawer: en mobile las etiquetas bajan un
+// escalón (el texto de inputs no puede bajar de 16px sin disparar el
+// zoom automático de iOS, así que el ajuste de densidad se hace acá).
+@include bp.mobile {
+  .appt-modal-body label,
+  .modal label,
+  .appt-form-row label,
+  .appt-form-grid label {
+    font-size: 12px !important;
+  }
+}
+
+@include bp.mobile {
   .scheduler-drawer__header {
     padding: var(--space-3) var(--space-4) !important;
   }
@@ -2329,12 +2502,12 @@
     &__info-value {
       font-size: 16px !important;
     }
-    &__stats-grid {
+    &__pago-summary {
       grid-template-columns: 1fr !important;
       gap: 12px !important;
     }
-    &__stat-val {
-      font-size: 24px !important;
+    &__pago-amount-val {
+      font-size: 1.25rem !important;
     }
   }
 }

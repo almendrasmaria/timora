@@ -20,7 +20,7 @@
         </svg>
       </div>
 
-      <app-button type="button" variant="primary">+ Nuevo turno</app-button>
+      <app-button type="button" variant="primary" (click)="goToNewAppointment()">+ Nuevo turno</app-button>
     </div>
   </div>
 
@@ -94,11 +94,11 @@
       <!-- Recent activity table -->
       <div class="home__table">
         <div class="home__table-head">
-          <span>Agenda</span>
-          <span>Nombre</span>
-          <span>Email</span>
-          <span>Fecha</span>
-          <span></span>
+          <span class="home__table-cell--agenda">Agenda</span>
+          <span class="home__table-cell--name">Nombre</span>
+          <span class="home__table-cell--email">Email</span>
+          <span class="home__table-cell--date">Fecha</span>
+          <span class="home__table-cell--arrow"></span>
         </div>
         @for (appointment of displayedAppointments(); track appointment.id) {
           <div class="home__table-row">

@@ -15,7 +15,7 @@ import {
 import { Appointment } from '../../../../core/appointments/appointments.models';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { trigger, transition, style, animate } from '@angular/animations';
 
@@ -37,6 +37,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 export class DashboardHomeComponent implements OnInit {
   private readonly onboarding = inject(OnboardingService);
   private readonly appointmentsService = inject(AppointmentsService);
+  private readonly router = inject(Router);
 
   readonly periodOptions = STATS_PERIOD_OPTIONS;
 
@@ -192,6 +193,10 @@ export class DashboardHomeComponent implements OnInit {
 
   setAgendaView(view: AgendaView): void {
     this.agendaView.set(view);
+  }
+
+  goToNewAppointment(): void {
+    this.router.navigate(['/dashboard/turnos'], { queryParams: { new: '1' } });
   }
 
   async copyBookingLink(): Promise<void> {

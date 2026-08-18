@@ -10,6 +10,7 @@ import {
 import { Appointment, AppointmentStatus, AppointmentsView } from '../../../../core/appointments/appointments.models';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
+import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { CommonModule } from '@angular/common';
@@ -17,6 +18,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
 import { publicBookingUrl } from '../../../../core/dashboard/dashboard.config';
 import { ClientsService, Client } from '../../../../core/clients/clients.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 export interface AppointmentGroup {
   dateKey: string;
@@ -34,7 +36,7 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
 @Component({
   selector: 'app-appointments-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, ButtonComponent],
   templateUrl: './appointments-page.component.html',
   styleUrl: './appointments-page.component.scss',
   animations: [
@@ -49,6 +51,8 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
 export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private readonly appointmentsService = inject(AppointmentsService);
   private readonly onboardingService = inject(OnboardingService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly confirmService = inject(ConfirmService);
   private readonly clientsService = inject(ClientsService);
 
@@ -533,6 +537,18 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
         );
         if (state.business?.slug) {
           this.bookingUrl.set(publicBookingUrl(state.business.slug));
+        }
+
+        // Llegó desde "+ Nuevo turno" en Inicio: abrir el modal directamente
+        // una vez que ya están cargados los servicios/profesionales/sucursales
+        // que el formulario necesita para sus valores por defecto.
+        if (this.route.snapshot.queryParamMap.has('new')) {
+          this.openCreateModal();
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true,
+          });
         }
       },
     });

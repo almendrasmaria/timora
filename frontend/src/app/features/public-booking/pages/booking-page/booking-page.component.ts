@@ -13,6 +13,7 @@ import {
   BOOKING_STEPS,
   buildWhatsappLink,
   confirmButtonLabel,
+  formatPrice,
   resolveBookingPayment,
   serviceMeta,
   servicePaymentLabel,
@@ -27,11 +28,24 @@ import {
 import { PublicBookingService } from '../../../../core/public-booking/public-booking.service';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
+import { LogoComponent } from '../../../../shared/ui/logo/logo.component';
+
+function splitFullName(fullName: string): { firstName: string; lastName: string } {
+  const trimmed = fullName.trim().replace(/\s+/g, ' ');
+  const spaceIndex = trimmed.indexOf(' ');
+  if (spaceIndex === -1) {
+    return { firstName: trimmed, lastName: '' };
+  }
+  return {
+    firstName: trimmed.slice(0, spaceIndex),
+    lastName: trimmed.slice(spaceIndex + 1),
+  };
+}
 
 @Component({
   selector: 'app-booking-page',
   standalone: true,
-  imports: [RouterLink, ReactiveFormsModule, TextFieldComponent],
+  imports: [RouterLink, ReactiveFormsModule, TextFieldComponent, LogoComponent],
   templateUrl: './booking-page.component.html',
   styleUrl: './booking-page.component.scss',
 })
@@ -42,8 +56,7 @@ export class BookingPageComponent implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
 
   readonly confirmForm = this.formBuilder.nonNullable.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
+    fullName: ['', Validators.required],
     phone: ['', Validators.required],
     email: [''],
     notes: [''],
@@ -64,6 +77,11 @@ export class BookingPageComponent implements OnInit {
   readonly bookingConfirmed = signal(false);
   readonly confirmedClientName = signal('');
   readonly submitting = signal(false);
+  readonly summaryExpanded = signal(false);
+
+  toggleSummary(): void {
+    this.summaryExpanded.set(!this.summaryExpanded());
+  }
 
   get steps(): { step: BookingStep; label: string }[] {
     const hasBranches = (this.business?.branches?.length ?? 0) >= 2;
@@ -195,6 +213,10 @@ export class BookingPageComponent implements OnInit {
     return this.business?.professionals.find((professional) => professional.id === id) ?? null;
   }
 
+  get selectedServicePriceLabel(): string | null {
+    return formatPrice(this.selectedService?.price);
+  }
+
   get hasMultipleProfessionals(): boolean {
     return (this.filteredProfessionals.length ?? 0) > 1;
   }
@@ -299,7 +321,7 @@ export class BookingPageComponent implements OnInit {
     return this.confirmForm.valid && this.canContinueFromSchedule;
   }
 
-  fieldError(controlName: 'firstName' | 'lastName' | 'phone' | 'email'): string {
+  fieldError(controlName: 'fullName' | 'phone' | 'email'): string {
     const control = this.confirmForm.controls[controlName];
 
     if (!control.touched && !this.confirmSubmitAttempted) {
@@ -345,6 +367,10 @@ export class BookingPageComponent implements OnInit {
 
   selectTimeSlot(slot: string): void {
     this.selectedTimeSlot.set(slot);
+  }
+
+  goToFechaStep(): void {
+    this.goToStep(this.fechaStepNum as BookingStep);
   }
 
   goToStep(step: BookingStep): void {
@@ -431,6 +457,7 @@ export class BookingPageComponent implements OnInit {
     }
 
     const form = this.confirmForm.getRawValue();
+    const { firstName, lastName } = splitFullName(form.fullName);
     this.submitting.set(true);
 
     this.appointmentsService
@@ -440,15 +467,15 @@ export class BookingPageComponent implements OnInit {
         branchId: this.selectedBranch?.id ?? null,
         date: dateKey,
         time,
-        firstName: form.firstName,
-        lastName: form.lastName,
+        firstName,
+        lastName,
         phone: form.phone,
         email: form.email || undefined,
         notes: form.notes || undefined,
       })
       .subscribe({
         next: () => {
-          this.confirmedClientName.set(`${form.firstName} ${form.lastName}`.trim());
+          this.confirmedClientName.set(form.fullName.trim());
           this.bookingConfirmed.set(true);
           this.submitting.set(false);
         },

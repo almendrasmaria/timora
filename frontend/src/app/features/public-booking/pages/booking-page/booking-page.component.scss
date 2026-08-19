@@ -43,6 +43,8 @@
 
   min-height: 100vh;
   min-height: 100dvh;
+  position: relative;
+  overflow: hidden;
   background: var(--color-background);
   font-family: var(--font-family);
   color: var(--color-text);
@@ -85,9 +87,9 @@
   &__hero {
     position: relative;
     overflow: hidden;
-    padding: calc(env(safe-area-inset-top, 0px) + var(--space-10)) var(--space-5) var(--space-16);
-    background: var(--booking-gradient, linear-gradient(155deg, var(--booking-accent) 0%, color-mix(in srgb, var(--booking-accent) 82%, #1a1028) 100%));
-    color: var(--booking-hero-text);
+    padding: calc(env(safe-area-inset-top, 0px) + var(--space-10)) var(--space-5) var(--space-12);
+    background: transparent;
+    color: var(--color-text-inverse);
   }
 
   &__hero-glow {
@@ -134,9 +136,9 @@
       width: 5.25rem;
       height: 5.25rem;
       font-size: var(--text-3xl);
-      background: rgba(255, 255, 255, 0.96);
-      border: 2px solid rgba(255, 255, 255, 0.55);
-      box-shadow: 0 8px 24px rgba(17, 17, 24, 0.12);
+      background: #fff;
+      border: 2px solid rgba(17, 17, 24, 0.06);
+      box-shadow: 0 8px 24px rgba(17, 17, 24, 0.08);
       margin-bottom: var(--space-1);
     }
   }
@@ -144,14 +146,13 @@
   &__business-name {
     margin: 0;
     font-size: var(--text-xl);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.2;
 
     &--hero {
       font-size: clamp(1.5rem, 6vw, 1.875rem);
-      color: #ffffff;
-      text-shadow: 0 1px 12px rgba(17, 17, 24, 0.12);
+      color: var(--color-text-inverse);
     }
   }
 
@@ -162,7 +163,7 @@
 
     &--hero {
       margin: 0;
-      color: rgba(255, 255, 255, 0.82);
+      color: rgba(255, 255, 255, 0.85);
       font-size: var(--text-sm);
       font-weight: 500;
     }
@@ -170,51 +171,68 @@
 
   &__progress {
     width: 100%;
-    max-width: 18rem;
-    margin-top: var(--space-5);
+    margin-top: var(--space-6);
 
     &--aside {
       display: none;
-      max-width: none;
       margin-top: 0;
     }
   }
 
-  &__progress-track {
-    height: 4px;
+  &__progress-segments {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  &__progress-segment {
+    flex: 1;
+    height: 7px;
     border-radius: var(--radius-full);
     background: rgba(255, 255, 255, 0.28);
-    overflow: hidden;
-  }
+    transition: background 320ms var(--ease-out);
 
-  &__progress-fill {
-    height: 100%;
-    border-radius: inherit;
-    background: #ffffff;
-    transition: width 320ms var(--ease-out);
-  }
-
-  &__progress-label {
-    margin: var(--space-2) 0 0;
-    font-size: var(--text-xs);
-    color: rgba(255, 255, 255, 0.78);
-    letter-spacing: 0.01em;
-
-    strong {
-      color: #ffffff;
-      font-weight: 700;
+    &.is-done {
+      background: #fff;
     }
+  }
+
+  &__progress-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    margin-top: var(--space-3);
+  }
+
+  &__progress-step-label {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text-inverse);
+  }
+
+  &__progress-count {
+    font-size: var(--text-xs);
+    color: rgba(255, 255, 255, 0.75);
   }
 
   // ── Layout ───────────────────────────────────────────────────
   &__layout {
     display: flex;
     flex-direction: column;
+    width: 100%;
+    margin: 0 auto;
     min-height: 100vh;
     min-height: 100dvh;
+    position: relative;
+    z-index: 1;
+    background: var(--booking-gradient, var(--booking-accent));
   }
 
   &__aside {
+    display: none;
+  }
+
+  &__shell-ring {
     display: none;
   }
 
@@ -226,14 +244,16 @@
     position: relative;
     z-index: 2;
     min-height: 0;
+    padding: 0;
   }
 
   &__sheet {
     flex: 1;
     padding: var(--space-6) var(--space-5) var(--space-4);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    border-radius: 24px 24px 0 0;
     background: var(--color-surface);
     box-shadow: 0 -8px 32px rgba(17, 17, 24, 0.08);
+    overflow: hidden;
   }
 
   &__panel-head {
@@ -243,7 +263,7 @@
   &__panel-title {
     margin: 0;
     font-size: var(--text-xl);
-    font-weight: 700;
+    font-weight: 600;
     letter-spacing: -0.02em;
   }
 
@@ -294,10 +314,8 @@
     }
 
     &.is-selected {
-      background: color-mix(in srgb, var(--booking-accent) 6%, white);
-      box-shadow:
-        inset 4px 0 0 var(--booking-accent),
-        inset 0 0 0 1.5px color-mix(in srgb, var(--booking-accent) 40%, var(--color-border));
+      background: color-mix(in srgb, var(--booking-accent) 8%, white);
+      box-shadow: inset 0 0 0 1.5px var(--booking-accent);
     }
   }
 
@@ -310,7 +328,7 @@
 
   &__service-name {
     font-size: var(--text-base);
-    font-weight: 700;
+    font-weight: 600;
     color: var(--color-text);
   }
 
@@ -326,7 +344,7 @@
     padding: 2px var(--space-2);
     border-radius: var(--radius-sm);
     font-size: 0.6875rem;
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     color: var(--booking-accent-text);
@@ -380,10 +398,8 @@
     }
 
     &.is-selected {
-      background: color-mix(in srgb, var(--booking-accent) 6%, white);
-      box-shadow:
-        inset 4px 0 0 var(--booking-accent),
-        inset 0 0 0 1.5px color-mix(in srgb, var(--booking-accent) 40%, var(--color-border));
+      background: color-mix(in srgb, var(--booking-accent) 8%, white);
+      box-shadow: inset 0 0 0 1.5px var(--booking-accent);
     }
   }
 
@@ -609,43 +625,96 @@
   &__summary {
     display: flex;
     flex-direction: column;
-    gap: var(--space-3);
-    margin-top: var(--space-2);
-    padding: var(--space-5);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface-muted);
-    border: 1px solid var(--color-border);
+    margin-bottom: var(--space-4);
+    padding-bottom: var(--space-4);
+    border-bottom: 1px solid var(--color-border);
   }
 
-  &__summary-title {
-    margin: 0 0 var(--space-1);
-    font-size: var(--text-xs);
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
+  &__summary-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-text);
+  }
+
+  &__summary-icon {
+    flex-shrink: 0;
+    color: var(--booking-accent);
+  }
+
+  &__summary-count {
+    font-size: var(--text-sm);
+    font-weight: 600;
+    color: var(--color-text);
+  }
+
+  &__summary-chevron {
+    flex-shrink: 0;
+    margin-left: auto;
     color: var(--color-text-muted);
+    transition: transform var(--duration-fast) var(--ease-out);
+
+    &.is-open {
+      transform: rotate(180deg);
+    }
+  }
+
+  &__summary-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    margin-top: var(--space-4);
   }
 
   &__summary-row {
     display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: var(--space-4);
+    align-items: center;
+    justify-content: flex-start;
+    gap: var(--space-2);
+    width: 100%;
+    padding: 0;
+    border: none;
+    background: transparent;
+    text-align: left;
+    font-family: inherit;
+
+    &--link {
+      cursor: pointer;
+    }
+
+    &--link:hover &-text {
+      text-decoration-color: currentColor;
+    }
   }
 
-  &__summary-label {
-    font-size: var(--text-sm);
-    color: var(--color-text-muted);
+  &__summary-row-icon {
+    flex-shrink: 0;
+    color: var(--color-text-secondary);
   }
 
-  &__summary-value {
+  &__summary-row-text {
     font-size: var(--text-sm);
-    font-weight: 700;
-    color: var(--color-text);
-    text-align: right;
+    color: var(--color-text-secondary);
 
-    &--accent {
+    &--strong {
+      font-weight: 700;
+      color: var(--color-text);
+    }
+
+    &--price {
+      font-weight: 600;
       color: var(--booking-accent-text);
+    }
+
+    &--link {
+      color: var(--booking-accent);
+      text-decoration: underline;
+      text-decoration-color: color-mix(in srgb, var(--booking-accent) 45%, transparent);
     }
   }
 
@@ -662,6 +731,17 @@
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
+
+    ::ng-deep .field__input {
+      border-color: transparent;
+      background: var(--color-surface-muted);
+      box-shadow: none;
+
+      &:focus {
+        border-color: var(--booking-accent);
+        background: var(--color-surface);
+      }
+    }
   }
 
   &__submit-error {
@@ -678,6 +758,10 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--space-4);
+
+    @include bp.tablet-up {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    }
   }
 
   &__notes {
@@ -696,9 +780,9 @@
     width: 100%;
     min-height: 5.5rem;
     padding: var(--space-3) var(--space-4);
-    border: 1px solid var(--color-border);
+    border: 1px solid transparent;
     border-radius: var(--radius-md);
-    background: var(--color-surface);
+    background: var(--color-surface-muted);
     color: var(--color-text);
     font-family: inherit;
     font-size: var(--text-sm);
@@ -867,11 +951,7 @@
     justify-content: stretch;
     gap: var(--space-3);
     padding: var(--space-4) var(--space-5) calc(env(safe-area-inset-bottom, 0px) + var(--space-4));
-    background: linear-gradient(
-      to top,
-      var(--color-surface) 72%,
-      color-mix(in srgb, var(--color-surface) 88%, transparent) 100%
-    );
+    background: var(--color-surface);
     border-top: 1px solid var(--color-border);
 
     &--split {
@@ -909,7 +989,8 @@
     }
 
     &:disabled {
-      opacity: 0.4;
+      background: var(--color-surface-muted);
+      color: var(--color-text-muted);
       box-shadow: none;
       cursor: not-allowed;
     }
@@ -991,12 +1072,13 @@
   }
 
   &__powered-link {
-    color: var(--color-text);
-    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
     text-decoration: none;
 
-    &:hover {
-      color: var(--booking-accent);
+    ::ng-deep .logo {
+      font-size: 0.95rem;
+      line-height: 1;
     }
   }
 
@@ -1095,268 +1177,53 @@
 }
 
 // ── Desktop ──────────────────────────────────────────────────────
-// 769px matches bp.$tablet + 1 exactly, so this maps 1:1 onto bp.tablet-up.
 @include bp.tablet-up {
   .booking {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: var(--space-8) var(--space-6);
-    background:
-      radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--booking-accent) 10%, transparent) 0%, transparent 42%),
-      radial-gradient(circle at 88% 82%, color-mix(in srgb, var(--booking-accent) 8%, transparent) 0%, transparent 38%),
-      var(--color-background);
-
-    &__hero {
-      display: none;
-    }
+    justify-content: flex-end;
+    padding: var(--space-10) var(--space-6) 0;
 
     &__layout {
-      display: grid;
-      grid-template-columns: minmax(16rem, 19rem) minmax(0, 1fr);
-      width: 100%;
-      max-width: 56rem;
-      min-height: min(40rem, calc(100vh - var(--space-16)));
-      margin: 0 auto;
-      padding: 0;
-      gap: 0;
-      border-radius: var(--radius-xl);
-      background: var(--color-surface);
-      border: 1px solid var(--color-border);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-    }
-
-    &__aside {
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 0;
-      border-radius: 0;
-      border: none;
-      background: var(--booking-gradient, linear-gradient(165deg, var(--booking-accent) 0%, color-mix(in srgb, var(--booking-accent) 84%, #1a1028) 100%));
-    }
-
-    &__aside-glow {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 88% 12%, rgba(255, 255, 255, 0.2) 0%, transparent 44%),
-        radial-gradient(circle at 8% 92%, rgba(255, 255, 255, 0.08) 0%, transparent 40%);
-    }
-
-    &__aside-inner {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-6);
-      height: 100%;
-      padding: var(--space-8) var(--space-6);
-    }
-
-    &__progress--aside {
-      display: block;
-    }
-
-    &__steps {
-      gap: var(--space-1);
-    }
-
-    &__step {
-      color: rgba(255, 255, 255, 0.62);
-      padding: var(--space-2) var(--space-3);
-
-      &.is-active {
-        background: rgba(255, 255, 255, 0.14);
-        color: #ffffff;
-        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18);
-        backdrop-filter: blur(8px);
-      }
-
-      &.is-done {
-        color: rgba(255, 255, 255, 0.92);
-      }
-    }
-
-    &__step-index {
-      background: rgba(255, 255, 255, 0.16);
-      color: #ffffff;
-
-      .is-active & {
-        background: #ffffff;
-        color: var(--booking-accent-text);
-      }
-
-      .is-done & {
-        background: rgba(255, 255, 255, 0.28);
-        color: #ffffff;
-      }
-    }
-
-    &__powered {
-      margin-top: auto;
-      color: rgba(255, 255, 255, 0.62);
-    }
-
-    &__powered-link {
-      color: #ffffff;
-
-      &:hover {
-        color: rgba(255, 255, 255, 0.85);
-      }
-    }
-
-    &__main {
-      display: flex;
-      flex-direction: column;
-      margin-top: 0;
-      padding: var(--space-8) var(--space-8) var(--space-6);
-      border-radius: 0;
-      background: var(--color-surface);
-      border: none;
-      border-left: 1px solid var(--color-border);
-      box-shadow: none;
+      width: min(100%, 640px);
+      height: min(94vh, 1250px);
       min-height: 0;
+      border-radius: 36px 36px 0 0;
+      box-shadow: var(--shadow-lg);
     }
 
-    &__sheet {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 0;
-      border-radius: 0;
-      background: transparent;
-      box-shadow: none;
-    }
-
-    &__panel-head {
-      margin-bottom: var(--space-6);
+    &__hero {
+      border-radius: 36px 36px 0 0;
     }
 
     &__panel-title {
       font-size: var(--text-2xl);
     }
 
-    &__panel-subtitle--chip {
-      display: inline-block;
-      margin-top: var(--space-3);
-      padding: var(--space-1) var(--space-3);
-      border-radius: var(--radius-full);
-      background: var(--booking-accent-soft);
-      color: var(--booking-accent-text);
-      font-size: var(--text-xs);
-      font-weight: 600;
-    }
-
-    &__service-list {
-      flex: 1;
-    }
-
-    &__date-row {
-      margin: 0;
-      padding-left: 0;
-      padding-right: 0;
-      scroll-padding-inline: 0;
-    }
-
-    &__time-grid {
-      grid-template-columns: repeat(auto-fill, minmax(5.5rem, 1fr));
-    }
-
-    &__service-card {
-      padding: var(--space-4) var(--space-5);
-      background: var(--color-surface-muted);
-
-      &:hover {
-        box-shadow:
-          inset 4px 0 0 color-mix(in srgb, var(--booking-accent) 50%, transparent),
-          inset 0 0 0 1.5px color-mix(in srgb, var(--booking-accent) 35%, var(--color-border));
-      }
-
-      &.is-selected {
-        background: color-mix(in srgb, var(--booking-accent) 6%, white);
-        box-shadow:
-          inset 4px 0 0 var(--booking-accent),
-          inset 0 0 0 1.5px color-mix(in srgb, var(--booking-accent) 40%, var(--color-border));
-      }
-    }
-
-    &__actions {
-      position: static;
-      justify-content: flex-end;
-      margin-top: auto;
-      padding: var(--space-6) 0 0;
-      background: transparent;
-      border-top: 1px solid var(--color-border);
-
-      &--split {
-        justify-content: space-between;
-      }
-    }
-
     &__continue {
-      flex: 0 1 auto;
-      min-width: 10rem;
       min-height: 2.75rem;
       padding: 0.8rem 1.75rem;
-      font-size: var(--text-sm);
-      box-shadow: 0 4px 16px color-mix(in srgb, var(--booking-accent) 28%, transparent);
     }
 
     &__back {
       min-height: 2.75rem;
       padding: 0.8rem 1.25rem;
     }
-
-    &__powered--mobile {
-      display: none;
-    }
   }
-}
 
-// Pantallas desktop un poco más grandes: escala moderada sin perder proporciones.
-// 1100px was a one-off literal with no structural purpose (the two-column
-// layout is already active since bp.tablet-up) — it only nudges sizing, so
-// it's safe to snap to the canonical bp.laptop-up (1025px) instead of adding
-// a custom bp.between() breakpoint.
-@include bp.laptop-up {
-  .booking {
-    &__layout {
-      grid-template-columns: minmax(18rem, 21rem) minmax(0, 1fr);
-      max-width: 62rem;
-      min-height: min(42rem, calc(100vh - var(--space-16)));
-    }
-
-    &__aside-inner {
-      padding: var(--space-8) var(--space-7);
-    }
-
-    &__main {
-      padding: var(--space-8) var(--space-8) var(--space-7);
-    }
-
-    &__panel-title {
-      font-size: 1.625rem;
-    }
-
-    &__date-chip {
-      min-width: 4.875rem;
-      padding: var(--space-3) var(--space-4);
-    }
-
-    &__time-grid {
-      grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr));
-    }
-
-    &__form-grid {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    &__time-chip {
-      min-height: 2.875rem;
-    }
+  .booking__shell-ring {
+    display: block;
+    position: absolute;
+    top: -220px;
+    right: -220px;
+    width: 520px;
+    height: 520px;
+    border-radius: 50%;
+    background: var(--booking-gradient, var(--booking-accent));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 56px), #fff calc(100% - 56px));
+    mask: radial-gradient(farthest-side, transparent calc(100% - 56px), #fff calc(100% - 56px));
+    pointer-events: none;
+    z-index: 0;
   }
 }

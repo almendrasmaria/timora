@@ -21,6 +21,7 @@ export class TextFieldComponent implements ControlValueAccessor {
   @Input() autocomplete = '';
   @Input() hint = '';
   @Input() error = '';
+  @Input() required = false;
 
   value = '';
   disabled = false;

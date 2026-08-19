@@ -10,6 +10,8 @@
       <a routerLink="/auth/login" class="booking__state-link">Ir a Timora</a>
     </div>
   } @else {
+    <div class="booking__shell-ring" aria-hidden="true"></div>
+
     <div class="booking__layout">
       <header class="booking__hero">
         <div class="booking__hero-glow" aria-hidden="true"></div>
@@ -24,13 +26,16 @@
           <h1 class="booking__business-name booking__business-name--hero">{{ business.name }}</h1>
           <p class="booking__tagline booking__tagline--hero">Reservá tu turno online</p>
 
-          <div class="booking__progress" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" aria-valuemax="3">
-            <div class="booking__progress-track">
-              <div class="booking__progress-fill" [style.width.%]="progressPercent"></div>
+          <div class="booking__progress" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" [attr.aria-valuemax]="steps.length">
+            <div class="booking__progress-segments">
+              @for (item of steps; track item.step) {
+                <span class="booking__progress-segment" [class.is-done]="item.step <= currentStep()"></span>
+              }
             </div>
-            <p class="booking__progress-label">
-              Paso {{ currentStep() }} de 3 · <strong>{{ currentStepLabel }}</strong>
-            </p>
+            <div class="booking__progress-meta">
+              <span class="booking__progress-step-label">{{ currentStepLabel }}</span>
+              <span class="booking__progress-count">Paso {{ currentStep() }} de {{ steps.length }}</span>
+            </div>
           </div>
         </div>
       </header>
@@ -80,7 +85,7 @@
 
           <p class="booking__powered">
             Reservas con
-            <a routerLink="/auth/login" class="booking__powered-link">timora.</a>
+            <a routerLink="/auth/login" class="booking__powered-link"><app-logo size="sm" /></a>
           </p>
         </div>
       </aside>
@@ -168,9 +173,6 @@
             @if (currentStep() === 1) {
               <header class="booking__panel-head">
                 <h2 class="booking__panel-title">Elegí un servicio</h2>
-                <p class="booking__panel-subtitle">
-                  Seleccioná el tratamiento o servicio que querés reservar.
-                </p>
               </header>
 
               @if (business.services.length === 0) {
@@ -208,9 +210,6 @@
             @if (hasBranchesStep && currentStep() === 2) {
               <header class="booking__panel-head">
                 <h2 class="booking__panel-title">Elegí sucursal</h2>
-                <p class="booking__panel-subtitle">
-                  Tocá la sucursal donde querés atenderte para continuar.
-                </p>
               </header>
 
               <div class="booking__branch-list">
@@ -316,41 +315,106 @@
 
             @if (currentStep() === confirmarStepNum) {
               <header class="booking__panel-head">
-                <h2 class="booking__panel-title">Confirmá tu turno</h2>
-                <p class="booking__panel-subtitle">Completá tus datos para confirmar la reserva.</p>
+                <h2 class="booking__panel-title">Tus datos</h2>
               </header>
 
+              @if (selectedService) {
+                <section class="booking__summary">
+                  <button type="button" class="booking__summary-toggle" (click)="toggleSummary()">
+                    <svg class="booking__summary-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>
+                    </svg>
+                    <span class="booking__summary-count">1 servicio</span>
+                    <svg class="booking__summary-chevron" [class.is-open]="summaryExpanded()" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+
+                  @if (summaryExpanded()) {
+                    <div class="booking__summary-body">
+                      <div class="booking__summary-row">
+                        <svg class="booking__summary-row-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                          <circle cx="12" cy="12" r="10" fill="currentColor" stroke="none"/><path d="m8 12.5 2.5 2.5L16 9.5" stroke="#fff"/>
+                        </svg>
+                        <span class="booking__summary-row-text booking__summary-row-text--strong">{{ selectedService.name }}</span>
+                      </div>
+
+                      @if (selectedServicePriceLabel) {
+                        <div class="booking__summary-row">
+                          <svg class="booking__summary-row-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9"/><path d="M12 7v10M9.5 9.5a2.5 2.5 0 0 1 2.5-1h.3a2 2 0 0 1 0 4h-.6a2 2 0 0 0 0 4h.3a2.5 2.5 0 0 0 2.5-1"/>
+                          </svg>
+                          <span class="booking__summary-row-text booking__summary-row-text--price">{{ selectedServicePriceLabel }}</span>
+                        </div>
+                      }
+
+                      @if (selectedScheduleLabel) {
+                        <button type="button" class="booking__summary-row booking__summary-row--link" (click)="goToFechaStep()">
+                          <svg class="booking__summary-row-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
+                          <span class="booking__summary-row-text booking__summary-row-text--link">{{ selectedScheduleLabel }}</span>
+                        </button>
+                      }
+
+                      @if (selectedProfessional) {
+                        <div class="booking__summary-row">
+                          <svg class="booking__summary-row-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                          </svg>
+                          <span class="booking__summary-row-text">{{ selectedProfessional.name }}</span>
+                        </div>
+                      }
+
+                      @if (branchLabel) {
+                        <div class="booking__summary-row">
+                          <svg class="booking__summary-row-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                          </svg>
+                          <span class="booking__summary-row-text">{{ branchLabel }}</span>
+                        </div>
+                      }
+
+                      @if (bookingPayment) {
+                        <div class="booking__summary-row">
+                          <span class="booking__summary-row-text">{{ bookingPayment.methodLabel }}</span>
+                          @if (bookingPayment.amountLabel) {
+                            <span class="booking__summary-row-text booking__summary-row-text--price">{{ bookingPayment.amountLabel }}</span>
+                          }
+                        </div>
+                        <p class="booking__summary-note">{{ bookingPayment.note }}</p>
+                      }
+                    </div>
+                  }
+                </section>
+              }
+
               <form class="booking__form" [formGroup]="confirmForm" (ngSubmit)="submitBooking()">
+                <app-text-field
+                  label="Nombre y Apellido"
+                  formControlName="fullName"
+                  autocomplete="name"
+                  [required]="true"
+                  [error]="fieldError('fullName')"
+                />
+
                 <div class="booking__form-grid">
                   <app-text-field
-                    label="Nombre"
-                    formControlName="firstName"
-                    autocomplete="given-name"
-                    [error]="fieldError('firstName')"
+                    label="Email"
+                    type="email"
+                    formControlName="email"
+                    autocomplete="email"
+                    [error]="fieldError('email')"
                   />
                   <app-text-field
-                    label="Apellido"
-                    formControlName="lastName"
-                    autocomplete="family-name"
-                    [error]="fieldError('lastName')"
+                    label="Teléfono"
+                    type="tel"
+                    formControlName="phone"
+                    autocomplete="tel"
+                    [required]="true"
+                    [error]="fieldError('phone')"
                   />
                 </div>
-
-                <app-text-field
-                  label="Teléfono / WhatsApp"
-                  type="tel"
-                  formControlName="phone"
-                  autocomplete="tel"
-                  [error]="fieldError('phone')"
-                />
-
-                <app-text-field
-                  label="Email"
-                  type="email"
-                  formControlName="email"
-                  autocomplete="email"
-                  [error]="fieldError('email')"
-                />
 
                 <label class="booking__notes">
                   <span class="booking__notes-label">Nota (opcional)</span>
@@ -361,50 +425,6 @@
                     placeholder="Algún detalle que quieras aclarar"
                   ></textarea>
                 </label>
-
-                <section class="booking__summary">
-                  <h3 class="booking__summary-title">Resumen del turno</h3>
-
-                  @if (selectedService) {
-                    <div class="booking__summary-row">
-                      <span class="booking__summary-label">Servicio</span>
-                      <span class="booking__summary-value">{{ selectedService.name }}</span>
-                    </div>
-                  }
-                  @if (selectedScheduleLabel) {
-                    <div class="booking__summary-row">
-                      <span class="booking__summary-label">Fecha</span>
-                      <span class="booking__summary-value">{{ selectedScheduleLabel }}</span>
-                    </div>
-                  }
-                  @if (selectedProfessional) {
-                    <div class="booking__summary-row">
-                      <span class="booking__summary-label">Profesional</span>
-                      <span class="booking__summary-value">{{ selectedProfessional.name }}</span>
-                    </div>
-                  }
-                  @if (branchLabel) {
-                    <div class="booking__summary-row">
-                      <span class="booking__summary-label">Sucursal</span>
-                      <span class="booking__summary-value">{{ branchLabel }}</span>
-                    </div>
-                  }
-                  @if (bookingPayment) {
-                    <div class="booking__summary-row">
-                      <span class="booking__summary-label">Forma de pago</span>
-                      <span class="booking__summary-value">{{ bookingPayment.methodLabel }}</span>
-                    </div>
-                    @if (bookingPayment.amountLabel) {
-                      <div class="booking__summary-row">
-                        <span class="booking__summary-label">Monto a pagar</span>
-                        <span class="booking__summary-value booking__summary-value--accent">
-                          {{ bookingPayment.amountLabel }}
-                        </span>
-                      </div>
-                    }
-                    <p class="booking__summary-note">{{ bookingPayment.note }}</p>
-                  }
-                </section>
               </form>
             }
           }

@@ -2,11 +2,12 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { PublicBookingService } from '../../../../core/public-booking/public-booking.service';
+import { LogoComponent } from '../../../../shared/ui/logo/logo.component';
 
 @Component({
   selector: 'app-instagram-link-page',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, LogoComponent],
   templateUrl: './instagram-link-page.component.html',
   styleUrl: './instagram-link-page.component.scss'
 })
@@ -16,6 +17,7 @@ export class InstagramLinkPageComponent implements OnInit {
 
   readonly business = signal<any>(null);
   readonly error = signal<string>('');
+  readonly shareLabel = signal<string>('Compartir');
 
   ngOnInit(): void {
     const slug = this.route.parent?.snapshot.paramMap.get('slug');
@@ -24,6 +26,30 @@ export class InstagramLinkPageComponent implements OnInit {
         next: (data) => this.business.set(data),
         error: () => this.error.set('Negocio no encontrado')
       });
+    }
+  }
+
+  private getPageUrl(): string {
+    if (typeof window === 'undefined') return '';
+    return window.location.href;
+  }
+
+  async share(): Promise<void> {
+    const url = this.getPageUrl();
+    if (!url) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: this.business()?.name, url });
+        return;
+      } catch {
+      }
+    }
+
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(url);
+      this.shareLabel.set('¡Copiado!');
+      window.setTimeout(() => this.shareLabel.set('Compartir'), 2000);
     }
   }
 

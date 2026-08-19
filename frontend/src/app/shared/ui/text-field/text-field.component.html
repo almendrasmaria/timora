@@ -1,6 +1,11 @@
 <div class="field" [class.field--error]="!!error">
   @if (label) {
-    <label class="field__label">{{ label }}</label>
+    <div class="field__label-row">
+      <label class="field__label">{{ label }}</label>
+      @if (required) {
+        <span class="field__required">Requerido</span>
+      }
+    </div>
   }
 
   <input

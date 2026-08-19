@@ -209,7 +209,14 @@
 
             @if (hasBranchesStep && currentStep() === 2) {
               <header class="booking__panel-head">
-                <h2 class="booking__panel-title">Elegí sucursal</h2>
+                <div class="booking__panel-head-row">
+                  <button type="button" class="booking__back-top" (click)="goToStep(backStep)" aria-label="Volver">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                  </button>
+                  <h2 class="booking__panel-title">Elegí sucursal</h2>
+                </div>
               </header>
 
               <div class="booking__branch-list">
@@ -237,12 +244,14 @@
 
             @if (currentStep() === fechaStepNum) {
               <header class="booking__panel-head">
-                <h2 class="booking__panel-title">Elegí día y horario</h2>
-                @if (selectedService) {
-                  <p class="booking__panel-subtitle booking__panel-subtitle--chip">
-                    {{ selectedService.name }}
-                  </p>
-                }
+                <div class="booking__panel-head-row">
+                  <button type="button" class="booking__back-top" (click)="goToStep(backStep)" aria-label="Volver">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                  </button>
+                  <h2 class="booking__panel-title">Elegí día y horario</h2>
+                </div>
               </header>
 
               @if (filteredProfessionals.length === 0) {
@@ -315,7 +324,14 @@
 
             @if (currentStep() === confirmarStepNum) {
               <header class="booking__panel-head">
-                <h2 class="booking__panel-title">Tus datos</h2>
+                <div class="booking__panel-head-row">
+                  <button type="button" class="booking__back-top" (click)="goToStep(backStep)" aria-label="Volver">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+                    </svg>
+                  </button>
+                  <h2 class="booking__panel-title">Tus datos</h2>
+                </div>
               </header>
 
               @if (selectedService) {
@@ -431,11 +447,7 @@
         </div>
 
         @if (showActions) {
-          <footer class="booking__actions" [class.booking__actions--split]="currentStep() > 1">
-            @if (currentStep() > 1) {
-              <button type="button" class="booking__back" (click)="goToStep(backStep)">Volver</button>
-            }
-
+          <footer class="booking__actions">
             @if (currentStep() === 1 && business.services.length > 0) {
               <button
                 type="button"

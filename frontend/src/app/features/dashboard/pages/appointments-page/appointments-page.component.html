@@ -1136,14 +1136,9 @@
       </div>
 
       <!-- Acciones en el Footer del modal -->
-      <div modal-actions class="appt-modal-actions">
-        <app-button variant="primary" [fullWidth]="true" [disabled]="submittingCreate()" (click)="submitCreate()">
-          {{ submittingCreate() ? 'Agendando...' : 'Agendar turno' }}
-        </app-button>
-        <app-button variant="secondary" (click)="closeCreateModal()">
-          Cancelar
-        </app-button>
-      </div>
+      <app-button modal-actions variant="primary" [fullWidth]="true" [disabled]="submittingCreate()" (click)="submitCreate()">
+        {{ submittingCreate() ? 'Agendando...' : 'Agendar turno' }}
+      </app-button>
     </app-modal>
   }
 

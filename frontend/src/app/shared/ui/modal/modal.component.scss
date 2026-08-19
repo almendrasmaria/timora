@@ -103,9 +103,23 @@
     justify-content: flex-end;
     flex-wrap: wrap;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-6) var(--space-5);
+    padding: var(--space-5) var(--space-6);
     border-top: 1px solid var(--color-border);
     background: var(--color-surface);
+
+    // app-button es un elemento custom sin display propio (inline por
+    // defecto). Como contenido proyectado desde el componente padre,
+    // ::ng-deep es necesario para alcanzarlo. Forzamos display:block para
+    // que no arrastre el hueco de línea (line-height) típico de los
+    // elementos inline, que lo descentraba verticalmente en el footer.
+    ::ng-deep [modal-actions] {
+      display: block;
+      width: 100%;
+
+      .btn {
+        width: 100%;
+      }
+    }
   }
 
   /* Mobile: floating card with rounded corners on all sides */
@@ -128,7 +142,7 @@
 
     &__footer {
       flex-direction: column-reverse;
-      padding: var(--space-3) var(--space-5) var(--space-4);
+      padding: var(--space-4) var(--space-5);
 
       > * {
         width: 100%;

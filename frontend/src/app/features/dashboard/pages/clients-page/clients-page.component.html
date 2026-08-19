@@ -165,12 +165,11 @@
           }
         </div>
 
-        <div class="clients__form-actions">
-          <app-button type="submit" variant="primary">
-            Guardar cambios
-          </app-button>
-        </div>
       </form>
+
+      <app-button modal-actions type="button" variant="primary" [fullWidth]="true" (click)="saveClient()">
+        Guardar cambios
+      </app-button>
     </app-modal>
   }
 

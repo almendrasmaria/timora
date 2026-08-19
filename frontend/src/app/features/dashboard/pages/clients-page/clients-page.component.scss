@@ -460,22 +460,6 @@
     margin-top: -2px;
   }
 
-  &__form-actions {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: var(--space-3);
-
-    @include bp.mobile {
-      app-button {
-        width: 100%;
-
-        ::ng-deep .btn {
-          width: 100%;
-        }
-      }
-    }
-  }
-
   &__profile-header {
     margin-bottom: var(--space-4);
   }

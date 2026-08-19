@@ -703,12 +703,11 @@
         formControlName="address"
         [error]="branchForm.controls.address.touched && branchForm.controls.address.invalid ? 'La dirección es obligatoria' : ''"
       />
-      <div modal-actions class="config-modal-form__actions">
-        <app-button type="submit" variant="primary" [disabled]="loading()">
-          {{ editingBranch() ? 'Guardar cambios' : 'Agregar sucursal' }}
-        </app-button>
-      </div>
     </form>
+
+    <app-button modal-actions type="button" variant="primary" [fullWidth]="true" [disabled]="loading()" (click)="saveBranch()">
+      {{ editingBranch() ? 'Guardar cambios' : 'Agregar sucursal' }}
+    </app-button>
   </app-modal>
 }
 
@@ -778,13 +777,11 @@
           </p>
         }
       </div>
-
-      <div modal-actions class="config-modal-form__actions">
-        <app-button type="submit" variant="primary" [disabled]="loading()">
-          {{ editingPro() ? 'Guardar cambios' : 'Agregar profesional' }}
-        </app-button>
-      </div>
     </form>
+
+    <app-button modal-actions type="button" variant="primary" [fullWidth]="true" [disabled]="loading()" (click)="savePro()">
+      {{ editingPro() ? 'Guardar cambios' : 'Agregar profesional' }}
+    </app-button>
   </app-modal>
 }
 
@@ -833,11 +830,10 @@
         />
       </div>
 
-      <div modal-actions class="config-modal-form__actions">
-        <app-button type="submit" variant="primary" [disabled]="loading()">
-          {{ editingService() ? 'Guardar cambios' : 'Agregar servicio' }}
-        </app-button>
-      </div>
     </form>
+
+    <app-button modal-actions type="button" variant="primary" [fullWidth]="true" [disabled]="loading()" (click)="saveService()">
+      {{ editingService() ? 'Guardar cambios' : 'Agregar servicio' }}
+    </app-button>
   </app-modal>
 }

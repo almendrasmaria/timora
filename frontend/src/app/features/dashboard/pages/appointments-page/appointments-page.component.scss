@@ -2408,31 +2408,6 @@
   }
 }
 
-// Footer de acciones del modal "Nuevo Turno": primario ocupa el espacio
-// disponible, secundario queda a su tamaño natural; en mobile ambos
-// pasan a ancho completo, apilados con el primario arriba.
-.appt-modal-actions {
-  display: flex;
-  gap: var(--space-2);
-  width: 100%;
-
-  > app-button:first-child {
-    flex: 1;
-  }
-
-  @include bp.mobile {
-    flex-direction: column-reverse;
-
-    > app-button {
-      width: 100%;
-
-      ::ng-deep .btn {
-        width: 100%;
-      }
-    }
-  }
-}
-
 // Formularios de modales/drawer: en mobile las etiquetas bajan un
 // escalón (el texto de inputs no puede bajar de 16px sin disparar el
 // zoom automático de iOS, así que el ajuste de densidad se hace acá).

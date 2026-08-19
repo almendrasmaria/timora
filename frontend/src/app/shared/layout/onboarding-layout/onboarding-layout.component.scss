@@ -16,6 +16,26 @@
     z-index: 0;
   }
 
+  &__decorative-circle {
+    position: fixed;
+    top: -10rem;
+    right: -10rem;
+    width: 25rem;
+    height: 25rem;
+    border: 3.5rem solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+
+    @include bp.mobile {
+      top: -6rem;
+      right: -6rem;
+      width: 15rem;
+      height: 15rem;
+      border-width: 2rem;
+    }
+  }
+
   &__glow {
     position: absolute;
     border-radius: 50%;
@@ -40,19 +60,19 @@
   }
 
   &__header {
-    position: sticky;
-    top: 0;
+    position: relative;
     z-index: 20;
-    border-bottom: 1px solid rgba(232, 232, 237, 0.85);
-    background: rgba(255, 255, 255, 0.78);
-    backdrop-filter: blur(16px) saturate(1.4);
+    background: transparent;
+    border-bottom: none;
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-3);
   }
 
   &__header-inner {
-    display: grid;
-    grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
-    gap: var(--space-8);
+    display: flex;
     align-items: center;
+    justify-content: center;
+    position: relative;
     max-width: 72rem;
     width: 100%;
     min-height: var(--header-height);
@@ -61,10 +81,9 @@
   }
 
   &__logo {
-    grid-column: 1;
     display: inline-flex;
     align-items: center;
-    align-self: center;
+    justify-content: center;
     height: var(--header-height);
     text-decoration: none;
     transition: opacity var(--duration-fast) var(--ease-out);
@@ -76,8 +95,8 @@
   }
 
   &__help {
-    grid-column: 2;
-    justify-self: end;
+    position: absolute;
+    right: clamp(1.25rem, 4vw, var(--layout-padding-x));
     align-self: center;
     display: inline-flex;
     align-items: center;
@@ -115,18 +134,17 @@
     position: relative;
     z-index: 1;
     flex: 1;
-    display: grid;
-    grid-template-columns: minmax(17rem, 22rem) minmax(0, 1fr);
-    gap: var(--space-10);
-    align-items: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     max-width: 72rem;
     width: 100%;
     margin: 0 auto;
-    padding: var(--space-10) clamp(1.25rem, 4vw, var(--layout-padding-x)) var(--space-16);
+    padding: 0 clamp(1.25rem, 4vw, var(--layout-padding-x));
   }
 
   &__sidebar {
-    align-self: start;
+    display: none;
   }
 
   &__panel {
@@ -339,52 +357,24 @@
 
   &__main {
     min-width: 0;
-    align-self: start;
+    width: 100%;
+    max-width: 44rem; /* Parecido a mobile pero más ancho */
+    align-self: center;
   }
 }
 
 @include bp.tablet {
   .onboarding-layout__header-inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
     min-height: 4rem;
   }
 
   .onboarding-layout__logo {
-    grid-column: auto;
     height: 4rem;
-  }
-
-  .onboarding-layout__help {
-    grid-column: auto;
-    justify-self: auto;
-    padding-inline: var(--space-3);
-  }
-
-  .onboarding-layout__body {
-    grid-template-columns: 1fr;
-    gap: var(--space-6);
-    padding-top: var(--space-6);
-    padding-bottom: var(--space-12);
-  }
-
-  .onboarding-layout__sidebar {
-    display: none;
   }
 }
 
 @include bp.mobile {
   .onboarding-layout__header-inner {
     padding-inline: var(--space-4);
-  }
-
-  .onboarding-layout__body {
-    padding-top: var(--space-4);
-    padding-bottom: var(--space-10);
-  }
-
-  .onboarding-layout__panel {
-    padding: var(--space-4);
   }
 }

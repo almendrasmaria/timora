@@ -19,7 +19,7 @@
   box-shadow: var(--shadow-card);
 
   &__progress {
-    display: none;
+    display: block;
     margin-bottom: var(--space-6);
   }
 
@@ -28,15 +28,12 @@
     grid-template-columns: repeat(7, 1fr);
     gap: var(--space-2);
     margin-bottom: var(--space-3);
-    padding: var(--space-1);
-    border-radius: var(--radius-full);
-    background: var(--color-surface-muted);
   }
 
   &__progress-segment {
-    height: 4px;
+    height: 7px;
     border-radius: var(--radius-full);
-    background: transparent;
+    background: var(--color-surface-muted);
     transition: background var(--duration-normal) var(--ease-out);
 
     &.is-filled {
@@ -675,10 +672,6 @@
 @include bp.tablet {
   .onboarding-card {
     padding: var(--space-6);
-
-    &__progress {
-      display: block;
-    }
 
     &__subtitle {
       margin-bottom: var(--space-6);

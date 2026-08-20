@@ -98,9 +98,16 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   readonly bookingUrl = signal<string>('');
 
   // Scheduler and DatePicker state
-  readonly selectedDate = signal<Date>(new Date(2026, 6, 8)); // Default to July 8, 2026 to match the user mockup
-  readonly currentPickerMonth = signal<number>(6); // July
-  readonly currentPickerYear = signal<number>(2026);
+  readonly selectedDate = signal<Date>(new Date());
+  readonly currentPickerMonth = signal<number>(new Date().getMonth());
+  readonly currentPickerYear = signal<number>(new Date().getFullYear());
+
+  readonly rangeStart = signal<Date>(new Date());
+  readonly rangeEnd = signal<Date>((() => {
+    const end = new Date();
+    end.setDate(end.getDate() + 60);
+    return end;
+  })());
   readonly selectedProfessionalIds = signal<number[]>([]);
   readonly selectedBranchId = signal<number | null>(null);
   readonly selectedServiceId = signal<number | null>(null);
@@ -463,9 +470,8 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   }
 
   get dateRangeLabel(): string {
-    const start = new Date(this.selectedDate());
-    const end = new Date(start);
-    end.setDate(start.getDate() + 60);
+    const start = this.rangeStart();
+    const end = this.rangeEnd();
 
     const formatMonth = (d: Date) => {
       const monthNames = [
@@ -475,21 +481,46 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
       return monthNames[d.getMonth()];
     };
 
+    if (this.isSameDate(start, end)) {
+      return `${start.getDate()} ${formatMonth(start)}`;
+    }
+
     return `${start.getDate()} ${formatMonth(start)} - ${end.getDate()} ${formatMonth(end)}`;
   }
 
   isDateInRange(date: Date): boolean {
-    const start = new Date(this.selectedDate());
+    const start = new Date(this.rangeStart());
     start.setHours(0, 0, 0, 0);
 
-    const end = new Date(start);
-    end.setDate(start.getDate() + 60);
+    const end = new Date(this.rangeEnd());
     end.setHours(23, 59, 59, 999);
 
     const d = new Date(date);
     d.setHours(12, 0, 0, 0);
 
     return d.getTime() >= start.getTime() && d.getTime() <= end.getTime();
+  }
+
+  pickRangeDate(d: Date): void {
+    const start = this.rangeStart();
+    const end = this.rangeEnd();
+    const pendingSingleDay = this.isSameDate(start, end);
+
+    if (pendingSingleDay && !this.isSameDate(d, start)) {
+      if (d.getTime() < start.getTime()) {
+        this.rangeStart.set(d);
+      } else {
+        this.rangeEnd.set(d);
+      }
+      this.showDatePicker.set(false);
+    } else {
+      this.rangeStart.set(d);
+      this.rangeEnd.set(d);
+    }
+
+    this.currentPickerMonth.set(d.getMonth());
+    this.currentPickerYear.set(d.getFullYear());
+    this.loadByRange();
   }
 
   get currentTimePosition(): string | null {
@@ -512,7 +543,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    this.load();
+    this.loadByRange();
     this.onboardingService.getState().subscribe({
       next: (state) => {
         const srvs = state.services || [];
@@ -544,6 +575,22 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
         // que el formulario necesita para sus valores por defecto.
         if (this.route.snapshot.queryParamMap.has('new')) {
           this.openCreateModal();
+          this.router.navigate([], {
+            relativeTo: this.route,
+            queryParams: {},
+            replaceUrl: true,
+          });
+        }
+
+        const appointmentId = this.route.snapshot.queryParamMap.get('appointmentId');
+        if (appointmentId) {
+          this.appointmentsService.getById(Number(appointmentId)).subscribe({
+            next: (appt) => this.openDetail(appt),
+            error: (err) => {
+              console.error('No se pudo abrir el detalle del turno', err);
+              alert('No se pudo abrir el detalle del turno.');
+            },
+          });
           this.router.navigate([], {
             relativeTo: this.route,
             queryParams: {},
@@ -781,7 +828,12 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
            d1.getDate() === d2.getDate();
   }
 
-  setMainView(v: 'list' | 'calendar'): void { this.mainView.set(v); }
+  setMainView(v: 'list' | 'calendar'): void {
+    this.mainView.set(v);
+    if (v === 'list') {
+      this.loadByRange();
+    }
+  }
 
   setView(v: AppointmentsView): void { this.view.set(v); this.load(); }
 
@@ -1129,7 +1181,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
       next: () => {
         this.submittingCreate.set(false);
         this.showCreateModal.set(false);
-        this.load();
+        this.loadByRange();
       },
       error: (err) => {
         this.submittingCreate.set(false);
@@ -1152,6 +1204,16 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     this.loading.set(true);
     const dateStr = this.formatToISODate(this.selectedDate());
     this.appointmentsService.list(this.view(), dateStr).subscribe({
+      next: items => { this.appointments.set(items); this.loading.set(false); },
+      error: ()   => this.loading.set(false),
+    });
+  }
+
+  private loadByRange(): void {
+    this.loading.set(true);
+    const fromStr = this.formatToISODate(this.rangeStart());
+    const toStr = this.formatToISODate(this.rangeEnd());
+    this.appointmentsService.listByRange(fromStr, toStr).subscribe({
       next: items => { this.appointments.set(items); this.loading.set(false); },
       error: ()   => this.loading.set(false),
     });

@@ -51,9 +51,9 @@
                       class="datepicker__day"
                       [class.is-outside]="date.getMonth() !== currentPickerMonth()"
                       [class.is-today]="isSameDate(date, todayDate)"
-                      [class.is-selected]="isSameDate(date, selectedDate())"
+                      [class.is-selected]="isSameDate(date, rangeStart()) || isSameDate(date, rangeEnd())"
                       [class.is-in-range]="isDateInRange(date)"
-                      (click)="selectDate(date)"
+                      (click)="pickRangeDate(date)"
                     >
                       {{ date.getDate() }}
                     </button>
@@ -220,7 +220,7 @@
             }
             @if (groupedAppointments().length === 0) {
               <div class="timora-list__empty">
-                <p>No hay reservas para mostrar</p>
+                <p>No hay reservas en las fechas seleccionadas.</p>
               </div>
             }
           </div>

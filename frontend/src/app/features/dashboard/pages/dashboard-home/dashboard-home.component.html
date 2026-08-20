@@ -94,7 +94,7 @@
           <span class="home__table-cell--arrow"></span>
         </div>
         @for (appointment of displayedAppointments(); track appointment.id) {
-          <div class="home__table-row">
+          <div class="home__table-row" (click)="openAppointment(appointment.id)">
             <span class="home__table-cell home__table-cell--name">{{ appointment.clientName }}</span>
             <span class="home__table-cell home__table-cell--email">{{ appointment.clientEmail }}</span>
             <span class="home__table-cell home__table-cell--date">{{ appointment.dateLabel }}</span>

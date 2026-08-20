@@ -413,6 +413,7 @@
   &__header {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: var(--space-3) var(--space-4);
     border-bottom: 1px solid var(--color-border);
     background: #ffffff;
@@ -424,17 +425,27 @@
     color: var(--color-text-primary);
     text-transform: uppercase;
 
-    &--time { width: 140px; }
-    &--service { flex: 1.5; }
-    &--client { flex: 2; }
+    &--time { width: 100px; flex: none; }
+    &--service { width: 160px; flex: none; }
+    &--client { width: 380px; flex: none; }
     &--status { width: 220px; display: flex; align-items: center; justify-content: space-between; }
+  }
+
+  &__empty {
+    padding: var(--space-6) var(--space-4);
+    background: var(--color-primary-subtle);
+
+    p {
+      margin: 0;
+      font-size: var(--text-sm);
+      font-weight: 500;
+      color: var(--color-primary);
+    }
   }
 
   &__body {
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
-    max-height: calc(100vh - 280px);
   }
 
   &__group {
@@ -487,6 +498,7 @@
   &__item {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 8px var(--space-4);
     border-bottom: none;
     background: #ffffff;
@@ -526,6 +538,7 @@
   &__client-email {
     display: block;
     font-size: 14px;
+    font-weight: 400;
     color: var(--color-text-secondary);
     text-transform: uppercase;
     margin-top: 2px;
@@ -1518,8 +1531,6 @@
   }
 
   .timora-list__body {
-    max-height: none !important;
-    overflow-y: visible !important;
     display: flex;
     flex-direction: column;
     gap: var(--space-4);
@@ -1605,6 +1616,7 @@
 
   .timora-list__client-email {
     font-size: 12px;
+    font-weight: 400;
     color: var(--color-text-muted);
   }
 

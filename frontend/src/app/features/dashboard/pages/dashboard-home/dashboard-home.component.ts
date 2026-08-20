@@ -199,6 +199,10 @@ export class DashboardHomeComponent implements OnInit {
     this.router.navigate(['/dashboard/turnos'], { queryParams: { new: '1' } });
   }
 
+  openAppointment(appointmentId: number): void {
+    this.router.navigate(['/dashboard/turnos'], { queryParams: { appointmentId } });
+  }
+
   async copyBookingLink(): Promise<void> {
     if (!this.bookingUrl || !navigator.clipboard) {
       return;

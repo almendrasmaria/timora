@@ -1,6 +1,7 @@
 package com.timora.onboarding.dto;
 
 import com.timora.business.BusinessCategory;
+import com.timora.business.DepositType;
 import com.timora.business.PaymentMethodType;
 
 import java.math.BigDecimal;
@@ -29,7 +30,10 @@ public record OnboardingStateResponse(
             String bioLinkText,
             boolean bioShowBooking,
             boolean bioShowLocation,
-            boolean bioShowWhatsapp
+            boolean bioShowWhatsapp,
+            boolean depositEnabled,
+            DepositType depositType,
+            BigDecimal depositAmount
     ) {
     }
 

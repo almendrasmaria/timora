@@ -11,6 +11,7 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 @Entity
@@ -69,6 +70,16 @@ public class Business {
 
     @Column(name = "bio_show_whatsapp", nullable = false)
     private boolean bioShowWhatsapp = true;
+
+    @Column(name = "deposit_enabled", nullable = false)
+    private boolean depositEnabled = false;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "deposit_type", nullable = false, length = 32)
+    private DepositType depositType = DepositType.FIXED;
+
+    @Column(name = "deposit_amount", precision = 12, scale = 2)
+    private BigDecimal depositAmount;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -218,6 +229,30 @@ public class Business {
 
     public void setBioShowWhatsapp(boolean bioShowWhatsapp) {
         this.bioShowWhatsapp = bioShowWhatsapp;
+    }
+
+    public boolean isDepositEnabled() {
+        return depositEnabled;
+    }
+
+    public void setDepositEnabled(boolean depositEnabled) {
+        this.depositEnabled = depositEnabled;
+    }
+
+    public DepositType getDepositType() {
+        return depositType;
+    }
+
+    public void setDepositType(DepositType depositType) {
+        this.depositType = depositType;
+    }
+
+    public BigDecimal getDepositAmount() {
+        return depositAmount;
+    }
+
+    public void setDepositAmount(BigDecimal depositAmount) {
+        this.depositAmount = depositAmount;
     }
 
     public Instant getCreatedAt() {

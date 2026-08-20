@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { forkJoin, finalize } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { parseApiError } from '../../../../core/auth/api-error';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
@@ -165,6 +166,11 @@ export class ConfigPageComponent implements OnInit {
 
     this.senaForm.controls.tipo.valueChanges.subscribe((tipo) => {
       this.senaTipo.set(tipo === 'PORCENTAJE' ? 'PORCENTAJE' : 'FIJO');
+      this.saveDepositSettings();
+    });
+
+    this.senaForm.controls.monto.valueChanges.pipe(debounceTime(600)).subscribe(() => {
+      this.saveDepositSettings();
     });
   }
 
@@ -211,6 +217,22 @@ export class ConfigPageComponent implements OnInit {
       bioShowLocation: business.bioShowLocation ?? true,
       bioShowWhatsapp: business.bioShowWhatsapp ?? true,
     });
+
+    this.senaEnabled.set(business.depositEnabled ?? false);
+    const tipo = business.depositType === 'PERCENTAGE' ? 'PORCENTAJE' : 'FIJO';
+    this.senaForm.patchValue(
+      {
+        tipo,
+        monto: business.depositAmount != null ? String(business.depositAmount) : '',
+      },
+      { emitEvent: false }
+    );
+    this.senaTipo.set(tipo);
+    if (this.senaEnabled()) {
+      this.senaForm.enable({ emitEvent: false });
+    } else {
+      this.senaForm.disable({ emitEvent: false });
+    }
   }
 
   // Branch operations
@@ -487,18 +509,19 @@ export class ConfigPageComponent implements OnInit {
       return;
     }
 
-    const { name, durationMinutes, price, depositAmount, paymentRequirement } = this.serviceForm.getRawValue();
+    const { name, durationMinutes, price, paymentRequirement } = this.serviceForm.getRawValue();
     const resolvedPrice = paymentRequirement !== 'NO_PAYMENT' && price ? Number(price) : null;
-    const resolvedDeposit = paymentRequirement === 'ONLINE_DEPOSIT' && depositAmount ? Number(depositAmount) : null;
 
     this.loading.set(true);
     this.apiError.set('');
 
+    // La seña ahora se define de forma global en Formas de cobro, no por
+    // servicio; dejamos de guardar un depositAmount por-servicio acá.
     const serviceData = {
       name,
       durationMinutes: Number(durationMinutes),
       price: resolvedPrice,
-      depositAmount: resolvedDeposit,
+      depositAmount: null,
     };
 
     const request$ = this.editingService()
@@ -535,9 +558,6 @@ export class ConfigPageComponent implements OnInit {
     if (service.price != null) {
       parts.push(`$${service.price}`);
     }
-    if (service.depositAmount != null) {
-      parts.push(`Seña $${service.depositAmount}`);
-    }
     return parts.join(' · ');
   }
 
@@ -546,10 +566,6 @@ export class ConfigPageComponent implements OnInit {
     let valid = true;
     if (requirement !== 'NO_PAYMENT' && !this.serviceForm.controls.price.value) {
       this.serviceForm.controls.price.setErrors({ required: true });
-      valid = false;
-    }
-    if (requirement === 'ONLINE_DEPOSIT' && !this.serviceForm.controls.depositAmount.value) {
-      this.serviceForm.controls.depositAmount.setErrors({ required: true });
       valid = false;
     }
     return valid;
@@ -577,7 +593,23 @@ export class ConfigPageComponent implements OnInit {
   toggleSena(): void {
     const next = !this.senaEnabled();
     this.senaEnabled.set(next);
-    next ? this.senaForm.enable() : this.senaForm.disable();
+    next
+      ? this.senaForm.enable({ emitEvent: false })
+      : this.senaForm.disable({ emitEvent: false });
+    this.saveDepositSettings();
+  }
+
+  saveDepositSettings(): void {
+    const raw = this.senaForm.getRawValue();
+    this.configService
+      .updateDepositSettings({
+        depositEnabled: this.senaEnabled(),
+        depositType: raw.tipo === 'PORCENTAJE' ? 'PERCENTAGE' : 'FIXED',
+        depositAmount: raw.monto ? Number(raw.monto) : null,
+      })
+      .subscribe({
+        error: (err) => this.apiError.set(parseApiError(err)),
+      });
   }
 
   // Payment Methods operations

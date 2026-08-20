@@ -33,6 +33,24 @@ export function formatPrice(value: number | null | undefined): string | null {
   }).format(value);
 }
 
+export function computeDepositAmount(
+  business: { depositEnabled: boolean; depositType: 'FIXED' | 'PERCENTAGE'; depositAmount: number | null },
+  servicePrice: number | null
+): number | null {
+  if (!business.depositEnabled || business.depositAmount == null) {
+    return null;
+  }
+
+  if (business.depositType === 'PERCENTAGE') {
+    if (servicePrice == null) {
+      return null;
+    }
+    return Math.round((servicePrice * business.depositAmount) / 100);
+  }
+
+  return business.depositAmount;
+}
+
 export function servicePaymentLabel(
   depositAmount: number | null,
   price: number | null
@@ -58,16 +76,7 @@ export function serviceMeta(service: {
   return price ? `${duration} · ${price}` : duration;
 }
 
-const PAYMENT_METHOD_LABELS: Record<string, string> = {
-  CASH: 'Pagar al momento del turno',
-  TRANSFER: 'Transferencia',
-  ONLINE_DEPOSIT: 'Seña online',
-  ONLINE_FULL: 'Pago total online',
-  FREE: 'Sin pago',
-};
-
 export function resolveBookingPayment(
-  paymentMethods: string[],
   service: { price: number | null; depositAmount: number | null }
 ): { methodLabel: string; amountLabel: string | null; note: string } {
   if (service.depositAmount != null && service.depositAmount > 0) {
@@ -78,47 +87,17 @@ export function resolveBookingPayment(
     };
   }
 
-  if (service.price != null && service.price > 0 && paymentMethods.includes('ONLINE_FULL')) {
-    return {
-      methodLabel: 'Pago total online',
-      amountLabel: formatPrice(service.price),
-      note: 'El cobro online estará disponible pronto. Por ahora tu reserva queda pendiente de confirmación.',
-    };
-  }
-
-  if (paymentMethods.includes('CASH')) {
-    return {
-      methodLabel: PAYMENT_METHOD_LABELS['CASH'],
-      amountLabel: formatPrice(service.price),
-      note: 'El pago se realiza al momento del turno.',
-    };
-  }
-
-  if (paymentMethods.includes('TRANSFER')) {
-    return {
-      methodLabel: PAYMENT_METHOD_LABELS['TRANSFER'],
-      amountLabel: formatPrice(service.price),
-      note: 'El negocio te indicará los datos para transferir.',
-    };
-  }
-
-  const primaryMethod = paymentMethods[0];
   return {
-    methodLabel: primaryMethod ? (PAYMENT_METHOD_LABELS[primaryMethod] ?? 'A coordinar') : 'A coordinar',
+    methodLabel: 'Pago en el turno',
     amountLabel: formatPrice(service.price),
-    note: 'El negocio te contactará para confirmar el pago.',
+    note: 'No se requiere pago para reservar. Pagás directamente al momento del turno.',
   };
 }
 
 export function confirmButtonLabel(
-  paymentMethods: string[],
   service: { price: number | null; depositAmount: number | null }
 ): string {
   if (service.depositAmount != null && service.depositAmount > 0) {
-    return 'Reservar turno';
-  }
-
-  if (paymentMethods.includes('ONLINE_FULL') && service.price != null && service.price > 0) {
     return 'Reservar turno';
   }
 

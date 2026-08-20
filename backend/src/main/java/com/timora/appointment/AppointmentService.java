@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -170,7 +171,7 @@ public class AppointmentService {
         appointment.setStartsAt(startsAt);
         appointment.setEndsAt(endsAt);
         appointment.setPrice(service.getPrice());
-        appointment.setDepositAmount(service.getDepositAmount());
+        appointment.setDepositAmount(computeDeposit(business, service.getPrice()));
         appointment.setStatus(AppointmentStatus.CONFIRMED);
 
         Client client = clientService.getOrCreateClient(
@@ -229,7 +230,7 @@ public class AppointmentService {
         appointment.setStartsAt(startsAt);
         appointment.setEndsAt(endsAt);
         appointment.setPrice(service.getPrice());
-        appointment.setDepositAmount(service.getDepositAmount());
+        appointment.setDepositAmount(computeDeposit(business, service.getPrice()));
         appointment.setStatus(AppointmentStatus.CONFIRMED);
 
         Client client = clientService.getOrCreateClient(
@@ -242,6 +243,23 @@ public class AppointmentService {
         appointment.setClient(client);
 
         return toResponse(appointmentRepository.save(appointment));
+    }
+
+    private BigDecimal computeDeposit(Business business, BigDecimal servicePrice) {
+        if (!business.isDepositEnabled() || business.getDepositAmount() == null) {
+            return null;
+        }
+
+        if (business.getDepositType() == com.timora.business.DepositType.PERCENTAGE) {
+            if (servicePrice == null) {
+                return null;
+            }
+            return servicePrice
+                    .multiply(business.getDepositAmount())
+                    .divide(BigDecimal.valueOf(100), 2, java.math.RoundingMode.HALF_UP);
+        }
+
+        return business.getDepositAmount();
     }
 
     private Branch resolveBranch(Long businessId, Long branchId) {

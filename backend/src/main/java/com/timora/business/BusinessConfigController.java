@@ -21,6 +21,12 @@ public class BusinessConfigController {
         return ResponseEntity.ok(businessConfigService.updateSettings(request));
     }
 
+    @PutMapping("/deposit-settings")
+    public ResponseEntity<Business> updateDepositSettings(
+            @Valid @RequestBody UpdateDepositSettingsRequest request) {
+        return ResponseEntity.ok(businessConfigService.updateDepositSettings(request));
+    }
+
     @PostMapping("/logo")
     public ResponseEntity<Business> uploadLogo(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(businessConfigService.uploadLogo(file));

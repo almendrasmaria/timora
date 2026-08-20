@@ -842,23 +842,14 @@
         [error]="serviceForm.controls.durationMinutes.touched && serviceForm.controls.durationMinutes.invalid ? 'La duración mínima es 5 min' : ''"
       />
 
-      <div class="config-modal-form__grid" *ngIf="servicePaymentRequirement !== 'NO_PAYMENT'">
-        <app-text-field
-          label="Precio total ($)"
-          type="number"
-          placeholder="0"
-          formControlName="price"
-          [error]="serviceForm.controls.price.touched && serviceForm.controls.price.invalid ? 'El precio es obligatorio' : ''"
-        />
-        <app-text-field
-          *ngIf="servicePaymentRequirement === 'ONLINE_DEPOSIT'"
-          label="Monto de Seña ($)"
-          type="number"
-          placeholder="0"
-          formControlName="depositAmount"
-          [error]="serviceForm.controls.depositAmount.touched && serviceForm.controls.depositAmount.invalid ? 'La seña es obligatoria' : ''"
-        />
-      </div>
+      <app-text-field
+        *ngIf="servicePaymentRequirement !== 'NO_PAYMENT'"
+        label="Precio total ($)"
+        type="number"
+        placeholder="0"
+        formControlName="price"
+        [error]="serviceForm.controls.price.touched && serviceForm.controls.price.invalid ? 'El precio es obligatorio' : ''"
+      />
 
     </form>
 

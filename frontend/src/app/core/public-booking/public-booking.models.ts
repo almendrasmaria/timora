@@ -43,6 +43,9 @@ export interface PublicBusiness {
   professionals: PublicProfessional[];
   branches: PublicBranch[];
   paymentMethods: PaymentMethodType[];
+  depositEnabled: boolean;
+  depositType: 'FIXED' | 'PERCENTAGE';
+  depositAmount: number | null;
 }
 
 export type BookingStep = 1 | 2 | 3 | 4;

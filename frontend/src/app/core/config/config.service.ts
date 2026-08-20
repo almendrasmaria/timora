@@ -16,6 +16,12 @@ export interface UpdateSettingsRequest {
   bioShowWhatsapp: boolean;
 }
 
+export interface UpdateDepositSettingsRequest {
+  depositEnabled: boolean;
+  depositType: 'FIXED' | 'PERCENTAGE';
+  depositAmount: number | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -24,6 +30,10 @@ export class ConfigService {
 
   updateSettings(data: UpdateSettingsRequest): Observable<any> {
     return this.http.put(`${environment.apiUrl}/business-config/settings`, data);
+  }
+
+  updateDepositSettings(data: UpdateDepositSettingsRequest): Observable<any> {
+    return this.http.put(`${environment.apiUrl}/business-config/deposit-settings`, data);
   }
 
   uploadLogo(file: File): Observable<any> {

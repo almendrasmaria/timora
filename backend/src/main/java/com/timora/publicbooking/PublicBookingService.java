@@ -104,7 +104,10 @@ public class PublicBookingService {
                 services,
                 professionals,
                 branches,
-                paymentMethods
+                paymentMethods,
+                business.isDepositEnabled(),
+                business.getDepositType(),
+                business.getDepositAmount()
         );
     }
 

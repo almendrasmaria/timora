@@ -47,6 +47,22 @@ public class BusinessConfigService {
     }
 
     @Transactional
+    public Business updateDepositSettings(UpdateDepositSettingsRequest request) {
+        AppUser user = currentUserService.requireCurrentUser();
+        Business business = user.getBusiness();
+
+        if (business == null) {
+            throw new IllegalStateException("User does not have a business");
+        }
+
+        business.setDepositEnabled(request.depositEnabled());
+        business.setDepositType(request.depositType());
+        business.setDepositAmount(request.depositAmount());
+
+        return businessRepository.save(business);
+    }
+
+    @Transactional
     public Business uploadLogo(MultipartFile file) {
         AppUser user = currentUserService.requireCurrentUser();
         Business business = user.getBusiness();

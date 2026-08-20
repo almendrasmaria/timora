@@ -1,0 +1,4 @@
+ALTER TABLE businesses
+ADD COLUMN deposit_enabled BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN deposit_type VARCHAR(32) NOT NULL DEFAULT 'FIXED',
+ADD COLUMN deposit_amount NUMERIC(12, 2);

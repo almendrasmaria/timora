@@ -30,6 +30,9 @@ export interface BusinessState {
   bioShowBooking: boolean;
   bioShowLocation: boolean;
   bioShowWhatsapp: boolean;
+  depositEnabled: boolean;
+  depositType: 'FIXED' | 'PERCENTAGE';
+  depositAmount: number | null;
 }
 
 export interface OnboardingState {

@@ -1,7 +1,9 @@
 package com.timora.publicbooking.dto;
 
+import com.timora.business.DepositType;
 import com.timora.business.PaymentMethodType;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public record PublicBusinessResponse(
@@ -18,6 +20,9 @@ public record PublicBusinessResponse(
         List<PublicServiceResponse> services,
         List<PublicProfessionalResponse> professionals,
         List<PublicBranchResponse> branches,
-        List<PaymentMethodType> paymentMethods
+        List<PaymentMethodType> paymentMethods,
+        boolean depositEnabled,
+        DepositType depositType,
+        BigDecimal depositAmount
 ) {
 }

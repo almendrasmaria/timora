@@ -13,31 +13,33 @@
     <div class="booking__shell-ring" aria-hidden="true"></div>
 
     <div class="booking__layout">
-      <header class="booking__hero">
-        <div class="booking__hero-glow" aria-hidden="true"></div>
-        <div class="booking__hero-inner">
-          <span class="booking__avatar booking__avatar--hero" aria-hidden="true">
-            @if (business.logoUrl) {
-              <img [src]="business.logoUrl" alt="" class="booking__avatar-img">
-            } @else {
-              {{ businessInitial }}
-            }
-          </span>
-          <h1 class="booking__business-name booking__business-name--hero">{{ business.name }}</h1>
-          <p class="booking__tagline booking__tagline--hero">Reservá tu turno online</p>
-
-          <div class="booking__progress" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" [attr.aria-valuemax]="steps.length">
-            <div class="booking__progress-segments">
-              @for (item of steps; track item.step) {
-                <span class="booking__progress-segment" [class.is-done]="item.step <= currentStep()"></span>
+      <header class="booking__hero" [class.is-confirmed]="bookingConfirmed()">
+        @if (!bookingConfirmed()) {
+          <div class="booking__hero-glow" aria-hidden="true"></div>
+          <div class="booking__hero-inner">
+            <span class="booking__avatar booking__avatar--hero" aria-hidden="true">
+              @if (business.logoUrl) {
+                <img [src]="business.logoUrl" alt="" class="booking__avatar-img">
+              } @else {
+                {{ businessInitial }}
               }
-            </div>
-            <div class="booking__progress-meta">
-              <span class="booking__progress-step-label">{{ currentStepLabel }}</span>
-              <span class="booking__progress-count">Paso {{ currentStep() }} de {{ steps.length }}</span>
+            </span>
+            <h1 class="booking__business-name booking__business-name--hero">{{ business.name }}</h1>
+            <p class="booking__tagline booking__tagline--hero">Reservá tu turno online</p>
+
+            <div class="booking__progress" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" [attr.aria-valuemax]="steps.length">
+              <div class="booking__progress-segments">
+                @for (item of steps; track item.step) {
+                  <span class="booking__progress-segment" [class.is-done]="item.step <= currentStep()"></span>
+                }
+              </div>
+              <div class="booking__progress-meta">
+                <span class="booking__progress-step-label">{{ currentStepLabel }}</span>
+                <span class="booking__progress-count">Paso {{ currentStep() }} de {{ steps.length }}</span>
+              </div>
             </div>
           </div>
-        </div>
+        }
       </header>
 
       <aside class="booking__aside">
@@ -90,7 +92,7 @@
         </div>
       </aside>
 
-      <main class="booking__main">
+      <main class="booking__main" [class.is-confirmed]="bookingConfirmed()">
         <div class="booking__sheet">
           @if (bookingConfirmed()) {
             <div class="booking__success">
@@ -192,7 +194,9 @@
                       <div class="booking__service-copy">
                         <span class="booking__service-name">{{ service.name }}</span>
                         <span class="booking__service-meta">{{ serviceMeta(service) }}</span>
-                        <span class="booking__service-payment">{{ servicePaymentLabel(service) }}</span>
+                        @if (servicePaymentLabel(service)) {
+                          <span class="booking__service-payment">{{ servicePaymentLabel(service) }}</span>
+                        }
                       </div>
                       <span class="booking__service-check" aria-hidden="true">
                         @if (isSelected(service.id)) {

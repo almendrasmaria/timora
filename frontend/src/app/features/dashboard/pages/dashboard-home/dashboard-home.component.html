@@ -88,7 +88,6 @@
       <!-- Recent activity table -->
       <div class="home__table">
         <div class="home__table-head">
-          <span class="home__table-cell--agenda">Agenda</span>
           <span class="home__table-cell--name">Nombre</span>
           <span class="home__table-cell--email">Email</span>
           <span class="home__table-cell--date">Fecha</span>
@@ -96,7 +95,6 @@
         </div>
         @for (appointment of displayedAppointments(); track appointment.id) {
           <div class="home__table-row">
-            <span class="home__table-cell home__table-cell--agenda">{{ appointment.businessName }}</span>
             <span class="home__table-cell home__table-cell--name">{{ appointment.clientName }}</span>
             <span class="home__table-cell home__table-cell--email">{{ appointment.clientEmail }}</span>
             <span class="home__table-cell home__table-cell--date">{{ appointment.dateLabel }}</span>

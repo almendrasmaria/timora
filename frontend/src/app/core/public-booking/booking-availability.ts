@@ -92,12 +92,36 @@ export function getBookableDates(
   return dates;
 }
 
+export interface BookedSlot {
+  date: string;
+  start: string;
+  end: string;
+}
+
+function overlapsBookedSlot(
+  dateKey: string,
+  slotStart: number,
+  slotEnd: number,
+  bookedSlots: BookedSlot[]
+): boolean {
+  return bookedSlots.some((booked) => {
+    if (booked.date !== dateKey) {
+      return false;
+    }
+
+    const bookedStart = parseTime(booked.start);
+    const bookedEnd = parseTime(booked.end);
+    return slotStart < bookedEnd && slotEnd > bookedStart;
+  });
+}
+
 export function getTimeSlots(
   availabilityJson: string | null,
   dateKey: string,
   durationMinutes: number,
   branchId?: number | null,
-  now = new Date()
+  now = new Date(),
+  bookedSlots: BookedSlot[] = []
 ): string[] {
   const availability = parseAvailability(availabilityJson, branchId);
   const [year, month, day] = dateKey.split('-').map(Number);
@@ -123,6 +147,10 @@ export function getTimeSlots(
       slotStart += durationMinutes
     ) {
       if (isToday && slotStart <= nowMinutes) {
+        continue;
+      }
+
+      if (overlapsBookedSlot(dateKey, slotStart, slotStart + durationMinutes, bookedSlots)) {
         continue;
       }
 

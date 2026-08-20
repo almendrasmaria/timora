@@ -87,9 +87,15 @@
   &__hero {
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
     padding: calc(env(safe-area-inset-top, 0px) + var(--space-10)) var(--space-5) var(--space-12);
     background: transparent;
     color: var(--color-text-inverse);
+
+    &.is-confirmed {
+      height: 52px;
+      padding: 0;
+    }
   }
 
   &__hero-glow {
@@ -245,6 +251,11 @@
     z-index: 2;
     min-height: 0;
     padding: 0;
+    transition: margin-top 480ms var(--ease-out);
+
+    &.is-confirmed {
+      margin-top: 0;
+    }
   }
 
   &__sheet {

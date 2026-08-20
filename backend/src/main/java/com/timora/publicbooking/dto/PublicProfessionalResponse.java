@@ -6,6 +6,7 @@ public record PublicProfessionalResponse(
         Long id,
         String name,
         String availabilityJson,
-        List<Long> branchIds
+        List<Long> branchIds,
+        List<PublicBookedSlotResponse> bookedSlots
 ) {
 }

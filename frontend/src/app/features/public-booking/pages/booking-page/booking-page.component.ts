@@ -241,7 +241,14 @@ export class BookingPageComponent implements OnInit {
       return [];
     }
 
-    return getTimeSlots(professional.availabilityJson, dateKey, service.durationMinutes, branchId);
+    return getTimeSlots(
+      professional.availabilityJson,
+      dateKey,
+      service.durationMinutes,
+      branchId,
+      new Date(),
+      professional.bookedSlots
+    );
   }
 
   get canContinueFromSchedule(): boolean {
@@ -343,7 +350,7 @@ export class BookingPageComponent implements OnInit {
     return serviceMeta(service);
   }
 
-  servicePaymentLabel(service: PublicService): string {
+  servicePaymentLabel(service: PublicService): string | null {
     return servicePaymentLabel(service.depositAmount, service.price);
   }
 

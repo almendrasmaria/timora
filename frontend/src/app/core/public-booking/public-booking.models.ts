@@ -13,11 +13,18 @@ export interface PublicService {
   depositAmount: number | null;
 }
 
+export interface PublicBookedSlot {
+  date: string;
+  start: string;
+  end: string;
+}
+
 export interface PublicProfessional {
   id: number;
   name: string;
   availabilityJson: string | null;
   branchIds: number[];
+  bookedSlots: PublicBookedSlot[];
 }
 
 export interface PublicBranch {

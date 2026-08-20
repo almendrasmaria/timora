@@ -77,6 +77,19 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("startsAt") Instant startsAt,
             @Param("endsAt") Instant endsAt
     );
+
+    @Query("""
+            SELECT a FROM Appointment a
+            WHERE a.professional.id = :professionalId
+              AND a.startsAt >= :from AND a.startsAt < :to
+              AND a.status <> com.timora.appointment.AppointmentStatus.CANCELLED
+            ORDER BY a.startsAt ASC
+            """)
+    List<Appointment> findActiveByProfessionalInRange(
+            @Param("professionalId") Long professionalId,
+            @Param("from") Instant from,
+            @Param("to") Instant to
+    );
     List<Appointment> findByClientIdOrderByStartsAtDesc(Long clientId);
     long countByClientId(Long clientId);
 }

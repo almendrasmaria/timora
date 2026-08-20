@@ -36,7 +36,7 @@ export function formatPrice(value: number | null | undefined): string | null {
 export function servicePaymentLabel(
   depositAmount: number | null,
   price: number | null
-): string {
+): string | null {
   if (depositAmount != null && depositAmount > 0) {
     return 'Seña online';
   }
@@ -45,7 +45,7 @@ export function servicePaymentLabel(
     return 'Pago total online';
   }
 
-  return 'Reserva sin pago online';
+  return null;
 }
 
 export function serviceMeta(service: {

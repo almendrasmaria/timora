@@ -101,6 +101,14 @@ public class AppointmentService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public AppointmentResponse getById(Long id) {
+        Business business = requireBusiness();
+        Appointment appointment = appointmentRepository.findByIdAndBusinessId(id, business.getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Turno no encontrado"));
+        return toResponse(appointment);
+    }
+
     @Transactional
     public AppointmentResponse markNoShow(Long appointmentId) {
         Business business = requireBusiness();
@@ -368,6 +376,16 @@ public class AppointmentService {
                 );
             }
         };
+    }
+
+    public DateRange resolveExplicitRange(LocalDate from, LocalDate to) {
+        LocalDate start = from.isAfter(to) ? to : from;
+        LocalDate end = from.isAfter(to) ? from : to;
+
+        return new DateRange(
+                start.atStartOfDay(BUSINESS_ZONE).toInstant(),
+                end.plusDays(1).atStartOfDay(BUSINESS_ZONE).toInstant()
+        );
     }
 
     public record DateRange(Instant from, Instant to) {

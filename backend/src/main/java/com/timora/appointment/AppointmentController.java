@@ -47,10 +47,22 @@ public class AppointmentController {
     public List<AppointmentResponse> list(
             @RequestParam(defaultValue = "week") String view,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to,
             @RequestParam(required = false) AppointmentStatus status
     ) {
+        if (from != null && to != null) {
+            var range = appointmentService.resolveExplicitRange(from, to);
+            return appointmentService.listForRange(range.from(), range.to(), status);
+        }
+
         var range = appointmentService.resolveViewRange(view, date);
         return appointmentService.listForRange(range.from(), range.to(), status);
+    }
+
+    @GetMapping("/{id}")
+    public AppointmentResponse getById(@PathVariable Long id) {
+        return appointmentService.getById(id);
     }
 
     @PatchMapping("/{id}/no-show")

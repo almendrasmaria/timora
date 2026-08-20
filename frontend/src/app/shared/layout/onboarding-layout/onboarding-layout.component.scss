@@ -47,7 +47,7 @@
       right: -4rem;
       width: 28rem;
       height: 28rem;
-      background: radial-gradient(circle, rgba(91, 91, 214, 0.18) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(0, 74, 173, 0.18) 0%, transparent 70%);
     }
 
     &--secondary {
@@ -55,7 +55,7 @@
       left: -6rem;
       width: 22rem;
       height: 22rem;
-      background: radial-gradient(circle, rgba(148, 148, 232, 0.14) 0%, transparent 72%);
+      background: radial-gradient(circle, rgba(51, 126, 219, 0.14) 0%, transparent 72%);
     }
   }
 
@@ -240,11 +240,7 @@
       bottom: 1.5rem;
       width: 2px;
       border-radius: var(--radius-full);
-      background: linear-gradient(
-        180deg,
-        var(--color-border) 0%,
-        rgba(232, 232, 237, 0.35) 100%
-      );
+      background: var(--color-border);
     }
   }
 
@@ -279,14 +275,14 @@
     }
 
     &.is-active {
-      border-color: rgba(91, 91, 214, 0.16);
+      border-color: rgba(0, 74, 173, 0.16);
       background: var(--color-surface);
       box-shadow: var(--shadow-sm);
 
       .onboarding-layout__step-marker {
         background: var(--gradient-accent);
         color: var(--color-text-inverse);
-        box-shadow: 0 4px 12px rgba(91, 91, 214, 0.35);
+        box-shadow: 0 4px 12px rgba(0, 74, 173, 0.35);
       }
 
       .onboarding-layout__step-title {

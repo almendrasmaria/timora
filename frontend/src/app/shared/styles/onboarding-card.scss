@@ -38,7 +38,7 @@
 
     &.is-filled {
       background: var(--gradient-accent);
-      box-shadow: 0 1px 4px rgba(91, 91, 214, 0.35);
+      box-shadow: 0 1px 4px rgba(0, 74, 173, 0.35);
     }
   }
 
@@ -378,8 +378,8 @@
       background: var(--color-primary-subtle);
       color: var(--color-primary);
       box-shadow:
-        0 0 0 1px rgba(91, 91, 214, 0.22),
-        0 4px 12px rgba(91, 91, 214, 0.12);
+        0 0 0 1px rgba(0, 74, 173, 0.22),
+        0 4px 12px rgba(0, 74, 173, 0.12);
     }
 
     &:disabled {
@@ -534,8 +534,8 @@
       width: 2.5rem;
       height: 2.5rem;
       border-radius: var(--radius-md);
-      background: linear-gradient(135deg, var(--color-primary-subtle), rgba(255, 255, 255, 0.9));
-      box-shadow: inset 0 0 0 1px rgba(91, 91, 214, 0.1);
+      background: var(--color-primary-subtle);
+      box-shadow: inset 0 0 0 1px rgba(0, 74, 173, 0.1);
     }
 
     &--person::before {
@@ -557,9 +557,9 @@
     width: 2.75rem;
     height: 2.75rem;
     border-radius: var(--radius-full);
-    background: linear-gradient(145deg, var(--color-primary-subtle) 0%, #fff 100%);
+    background: var(--color-primary-subtle);
     box-shadow:
-      inset 0 0 0 1px rgba(91, 91, 214, 0.14),
+      inset 0 0 0 1px rgba(0, 74, 173, 0.14),
       0 1px 2px rgba(17, 17, 24, 0.04);
     font-size: 0.75rem;
     font-weight: 700;

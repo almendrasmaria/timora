@@ -52,7 +52,7 @@ $sidebar-easing:       cubic-bezier(0.4, 0, 0.2, 1);
     &:hover { opacity: 0.75; }
 
     ::ng-deep .logo {
-      font-size: 1.8rem; // Agrandamos un poco el logo en estado normal
+      font-size: 2.15rem; // Agrandamos un poco el logo en estado normal
     }
   }
 
@@ -430,7 +430,7 @@ $sidebar-easing:       cubic-bezier(0.4, 0, 0.2, 1);
     border: none;
     cursor: pointer;
     text-decoration: none;
-    color: #64748b;
+    color: var(--color-text-secondary);
     width: 60px;
     height: 48px;
     transition: color var(--duration-fast) var(--ease-out);

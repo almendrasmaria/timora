@@ -823,7 +823,7 @@
       transition: background var(--duration-fast) var(--ease-out);
     }
     &:hover::before {
-      background: rgba(91, 91, 214, 0.03);
+      background: rgba(0, 74, 173, 0.03);
     }
 
     &:last-child { border-right: none; }
@@ -961,7 +961,7 @@
     font-weight: 800;
     letter-spacing: -0.03em;
     user-select: none;
-    border: 1px solid rgba(91, 91, 214, 0.2);
+    border: 1px solid rgba(0, 74, 173, 0.2);
 
     &.is-completed { background: var(--color-success-subtle); color: var(--color-success); }
     &.is-noshow    { background: var(--color-error-subtle);   color: var(--color-error); }

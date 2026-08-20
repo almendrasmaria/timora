@@ -4,7 +4,7 @@
   font-family: var(--font-logo);
   font-weight: 700;
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.077em;
   user-select: none;
 
   &__text {
@@ -17,24 +17,24 @@
   }
 
   // When inside a collapsed sidebar, show short version
-  .shell--collapsed &--sidebar {
-    .logo__text-full { display: none; }
-    .logo__text-short { display: inline; }
+  .shell--collapsed & {
+    .logo__text-full { display: none !important; }
+    .logo__text-short { display: inline !important; }
   }
 
   &__dot {
-    color: var(--color-primary-light);
+    color: #38b6ff;
   }
 
   &--sm {
-    font-size: var(--text-2xl);
+    font-size: 1.65rem;
   }
 
   &--md {
-    font-size: var(--text-3xl);
+    font-size: 2.0rem;
   }
 
   &--lg {
-    font-size: 2.25rem;
+    font-size: 2.6rem;
   }
 }

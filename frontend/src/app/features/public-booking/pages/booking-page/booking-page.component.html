@@ -25,7 +25,7 @@
               }
             </span>
             <h1 class="booking__business-name booking__business-name--hero">{{ business.name }}</h1>
-            <p class="booking__tagline booking__tagline--hero">Reservá tu turno online</p>
+
 
             <div class="booking__progress" role="progressbar" [attr.aria-valuenow]="currentStep()" aria-valuemin="1" [attr.aria-valuemax]="steps.length">
               <div class="booking__progress-segments">
@@ -54,7 +54,7 @@
               }
             </span>
             <h1 class="booking__business-name booking__business-name--aside">{{ business.name }}</h1>
-            <p class="booking__tagline booking__tagline--aside">Reservá tu turno online</p>
+
           </div>
 
           <div
@@ -86,7 +86,7 @@
           </ol>
 
           <p class="booking__powered">
-            Reservas con
+            Creado por
             <a routerLink="/auth/login" class="booking__powered-link"><app-logo size="sm" /></a>
           </p>
         </div>
@@ -288,7 +288,7 @@
                 }
 
                 <section class="booking__schedule-section">
-                  <h3 class="booking__schedule-label">Día</h3>
+                  <h3 class="booking__schedule-label">Fecha</h3>
                   <div class="booking__date-row">
                     @for (day of bookableDates; track day.key) {
                       <button
@@ -297,8 +297,9 @@
                         [class.is-selected]="selectedDateKey() === day.key"
                         (click)="selectDate(day.key)"
                       >
-                        <span class="booking__date-chip-label">{{ day.label }}</span>
-                        <span class="booking__date-chip-sub">{{ day.sublabel }}</span>
+                        <span class="booking__date-chip-weekday">{{ day.weekday }}</span>
+                        <span class="booking__date-chip-daynum">{{ day.dayNum }}</span>
+                        <span class="booking__date-chip-month">{{ day.month }}</span>
                       </button>
                     }
                   </div>
@@ -502,8 +503,8 @@
         }
 
         <p class="booking__powered booking__powered--mobile">
-          Reservas con
-          <a routerLink="/auth/login" class="booking__powered-link">timora.</a>
+          Creado por
+          <a routerLink="/auth/login" class="booking__powered-link"><app-logo size="sm" /></a>
         </p>
       </main>
     </div>

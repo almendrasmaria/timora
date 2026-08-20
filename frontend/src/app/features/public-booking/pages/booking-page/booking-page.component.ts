@@ -12,6 +12,7 @@ import {
 import {
   BOOKING_STEPS,
   buildWhatsappLink,
+  computeDepositAmount,
   confirmButtonLabel,
   formatPrice,
   resolveBookingPayment,
@@ -133,10 +134,10 @@ export class BookingPageComponent implements OnInit {
   }
 
   get accentColor(): string {
-    const raw = this.business?.brandColor?.trim() || '#5b5bd6';
+    const raw = this.business?.brandColor?.trim() || '#004AAD';
     if (raw.startsWith('linear-gradient')) {
       const match = raw.match(/#[0-9a-fA-F]{3,6}/);
-      return match ? match[0] : '#5b5bd6';
+      return match ? match[0] : '#004AAD';
     }
     return raw;
   }
@@ -144,8 +145,7 @@ export class BookingPageComponent implements OnInit {
   get accentGradient(): string {
     const raw = this.business?.brandColor?.trim() || '';
     if (raw.startsWith('linear-gradient')) return raw;
-    const color = raw || '#5b5bd6';
-    return `linear-gradient(155deg, ${color} 0%, color-mix(in srgb, ${color} 82%, #1a1028) 100%)`;
+    return raw || '#004AAD';
   }
 
   get hasBranchesStep(): boolean {
@@ -300,24 +300,24 @@ export class BookingPageComponent implements OnInit {
 
   get bookingPayment() {
     const service = this.selectedService;
-    const paymentMethods = this.business?.paymentMethods ?? [];
 
-    if (!service) {
+    if (!service || !this.business) {
       return null;
     }
 
-    return resolveBookingPayment(paymentMethods, service);
+    const depositAmount = computeDepositAmount(this.business, service.price);
+    return resolveBookingPayment({ price: service.price, depositAmount });
   }
 
   get confirmLabel(): string {
     const service = this.selectedService;
-    const paymentMethods = this.business?.paymentMethods ?? [];
 
-    if (!service) {
+    if (!service || !this.business) {
       return 'Confirmar reserva';
     }
 
-    return confirmButtonLabel(paymentMethods, service);
+    const depositAmount = computeDepositAmount(this.business, service.price);
+    return confirmButtonLabel({ price: service.price, depositAmount });
   }
 
   get whatsappLink(): string | null {
@@ -351,7 +351,11 @@ export class BookingPageComponent implements OnInit {
   }
 
   servicePaymentLabel(service: PublicService): string | null {
-    return servicePaymentLabel(service.depositAmount, service.price);
+    if (!this.business) {
+      return null;
+    }
+    const depositAmount = computeDepositAmount(this.business, service.price);
+    return servicePaymentLabel(depositAmount, service.price);
   }
 
   selectService(serviceId: number): void {

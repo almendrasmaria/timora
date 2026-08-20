@@ -6,22 +6,22 @@
   width: 100%;
 
   // ── Light Theme Override ──────────────────────────────────────────
-  --color-background:       #f9fafb;
+  --color-background:       #ffffff;
   --color-surface:          #ffffff;
-  --color-surface-muted:    #f4f4f5;
-  --color-surface-subtle:   #fafafb;
+  --color-surface-muted:    #f8fafc;
+  --color-surface-subtle:   #ffffff;
   --color-surface-elevated: #ffffff;
   --color-surface-card:     #ffffff;
 
-  --color-text:           #111118;
-  --color-text-secondary: #4a4670;
-  --color-text-muted:     #787693;
+  --color-text:           #071A35;
+  --color-text-secondary: #627796;
+  --color-text-muted:     #8fa2bc;
   --color-text-inverse:   #ffffff;
-  --color-text-placeholder: #a19fb5;
+  --color-text-placeholder: #b0c2d9;
 
-  --color-border:       #e8e8ed;
-  --color-border-hover: #d1d1dc;
-  --color-border-focus: rgba(91, 91, 214, 0.5);
+  --color-border:       #D9E2ED;
+  --color-border-hover: #c4d1e0;
+  --color-border-focus: rgba(0, 74, 173, 0.5);
 
   --shadow-xs: 0 1px 2px rgba(17, 17, 24, 0.04);
   --shadow-sm: 0 1px 3px rgba(17, 17, 24, 0.06), 0 1px 2px rgba(17, 17, 24, 0.04);
@@ -68,7 +68,7 @@
   width: 520px;
   height: 520px;
   border-radius: 50%;
-  background: var(--brand-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  background: var(--brand-gradient, var(--color-primary, #004AAD));
   -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 56px), #fff calc(100% - 56px));
   mask: radial-gradient(farthest-side, transparent calc(100% - 56px), #fff calc(100% - 56px));
   pointer-events: none;
@@ -85,7 +85,7 @@
   width: 100%;
   min-height: 100dvh;
   border-radius: 0;
-  background: var(--brand-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  background: var(--brand-gradient, var(--color-primary, #004AAD));
   box-shadow: none;
   overflow: hidden;
   display: flex;
@@ -258,14 +258,14 @@
 }
 
 .link-btn--primary {
-  background: var(--brand-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  background: var(--brand-gradient, var(--color-primary, #004AAD));
   color: #fff;
-  box-shadow: 0 8px 20px color-mix(in srgb, var(--brand-color, #667eea) 35%, transparent);
+  box-shadow: 0 8px 20px color-mix(in srgb, var(--brand-color, #004AAD) 35%, transparent);
 
   &:hover {
     transform: translateY(-2px);
     filter: brightness(1.06);
-    box-shadow: 0 12px 26px color-mix(in srgb, var(--brand-color, #667eea) 45%, transparent);
+    box-shadow: 0 12px 26px color-mix(in srgb, var(--brand-color, #004AAD) 45%, transparent);
   }
 }
 

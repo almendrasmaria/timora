@@ -14,6 +14,9 @@ export interface BookableDate {
   key: string;
   label: string;
   sublabel: string;
+  weekday: string;
+  dayNum: string;
+  month: string;
 }
 
 function startOfDay(date: Date): Date {
@@ -82,10 +85,23 @@ export function getBookableDates(
       continue;
     }
 
+    const weekday = new Intl.DateTimeFormat('es-AR', { weekday: 'short' })
+      .format(date)
+      .replace('.', '')
+      .toUpperCase();
+    const dayNum = String(date.getDate());
+    const month = new Intl.DateTimeFormat('es-AR', { month: 'short' })
+      .format(date)
+      .replace('.', '')
+      .toUpperCase();
+
     dates.push({
       key: toDateKey(date),
       label: formatDateLabel(date, today),
       sublabel: formatDateSublabel(date),
+      weekday,
+      dayNum,
+      month,
     });
   }
 

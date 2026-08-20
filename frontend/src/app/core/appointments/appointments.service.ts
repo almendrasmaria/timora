@@ -28,11 +28,23 @@ export class AppointmentsService {
     return this.http.get<Appointment[]>(`${environment.apiUrl}/appointments/recent`);
   }
 
+  getById(id: number): Observable<Appointment> {
+    return this.http.get<Appointment>(`${environment.apiUrl}/appointments/${id}`);
+  }
+
   list(view: AppointmentsView, date?: string, status?: string): Observable<Appointment[]> {
     let params = new HttpParams().set('view', view);
     if (date) {
       params = params.set('date', date);
     }
+    if (status) {
+      params = params.set('status', status);
+    }
+    return this.http.get<Appointment[]>(`${environment.apiUrl}/appointments`, { params });
+  }
+
+  listByRange(from: string, to: string, status?: string): Observable<Appointment[]> {
+    let params = new HttpParams().set('from', from).set('to', to);
     if (status) {
       params = params.set('status', status);
     }

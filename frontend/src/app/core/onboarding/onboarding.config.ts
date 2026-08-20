@@ -142,14 +142,8 @@ export const PAYMENT_METHOD_OPTIONS = [
   {
     value: 'ONLINE_DEPOSIT',
     types: ['ONLINE_DEPOSIT', 'ONLINE_FULL'] as const,
-    label: 'Cobro online',
-    description: 'Seña o pago total al reservar. Después configurás tu medio de cobro.',
-  },
-  {
-    value: 'TRANSFER',
-    types: ['TRANSFER'] as const,
-    label: 'Transferencia bancaria',
-    description: 'El cliente transfiere y sube el comprobante al reservar.',
+    label: 'Mercado Pago',
+    description: 'Cobro con Mercado Pago.',
   },
   {
     value: 'CASH',

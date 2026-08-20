@@ -87,6 +87,20 @@ export class ConfigPageComponent implements OnInit {
     label: opt.label,
   }));
 
+  // Formas de cobro: vista previa visual (todavía sin conectar al backend).
+  readonly senaEnabled = signal(false);
+  readonly senaTipoOptions = [
+    { value: 'FIJO', label: 'Monto fijo' },
+    { value: 'PORCENTAJE', label: 'Porcentaje' },
+  ];
+  readonly senaForm = this.fb.group({
+    tipo: [{ value: 'FIJO', disabled: true }],
+    monto: [{ value: '', disabled: true }],
+  });
+  readonly senaTipo = signal<'FIJO' | 'PORCENTAJE'>('FIJO');
+
+  readonly mpConectado = signal(false);
+
   // Modals state
   readonly showBranchModal = signal<boolean>(false);
   readonly editingBranch = signal<any | null>(null);
@@ -147,6 +161,10 @@ export class ConfigPageComponent implements OnInit {
     // Sync service payment options
     this.serviceForm.controls.paymentRequirement.valueChanges.subscribe((req) => {
       this.syncServicePaymentFields(req);
+    });
+
+    this.senaForm.controls.tipo.valueChanges.subscribe((tipo) => {
+      this.senaTipo.set(tipo === 'PORCENTAJE' ? 'PORCENTAJE' : 'FIJO');
     });
   }
 
@@ -554,6 +572,12 @@ export class ConfigPageComponent implements OnInit {
       price.enable({ emitEvent: false });
       deposit.enable({ emitEvent: false });
     }
+  }
+
+  toggleSena(): void {
+    const next = !this.senaEnabled();
+    this.senaEnabled.set(next);
+    next ? this.senaForm.enable() : this.senaForm.disable();
   }
 
   // Payment Methods operations

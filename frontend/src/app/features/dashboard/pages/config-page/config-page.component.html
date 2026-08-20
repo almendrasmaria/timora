@@ -331,26 +331,68 @@
         <header class="config-content__header">
           <div>
             <h1 class="config-content__title">Formas de cobro</h1>
-            <p class="config-content__description">Activá o desactivá los métodos que aceptás para que tus clientes paguen.</p>
+            <p class="config-content__description">Configurá la seña y los métodos de pago que ve tu cliente al reservar.</p>
           </div>
         </header>
 
-        <div class="config-methods">
-          @for (option of paymentOptions; track option.value) {
-            <div
-              class="config-method-card"
-              [class.is-selected]="isPaymentSelected(option)"
-              (click)="togglePaymentMethod(option)"
-            >
-              <div class="config-method-card__checkbox">
-                <span class="config-method-card__checkbox-indicator" *ngIf="isPaymentSelected(option)">✓</span>
+        <div class="config-cobro">
+          <div class="config-panel">
+            <div class="config-sena-toggle">
+              <div>
+                <p class="config-sena-toggle__title">Cobrar seña al reservar</p>
+                <p class="config-sena-toggle__description">El turno queda pendiente hasta que el cliente completa el pago.</p>
               </div>
-              <div class="config-method-card__content">
-                <h2 class="config-method-card__title">{{ option.label }}</h2>
-                <p class="config-method-card__description">{{ option.description }}</p>
-              </div>
+              <label class="config-toggle">
+                <input type="checkbox" [checked]="senaEnabled()" (change)="toggleSena()" />
+                <span class="config-toggle__track">
+                  <span class="config-toggle__label config-toggle__label--on">SI</span>
+                  <span class="config-toggle__label config-toggle__label--off">NO</span>
+                  <span class="config-toggle__thumb"></span>
+                </span>
+              </label>
             </div>
-          }
+
+            <div class="config-panel__row" [formGroup]="senaForm">
+              <app-select-field
+                label="Tipo de seña"
+                formControlName="tipo"
+                [options]="senaTipoOptions"
+              />
+              <app-text-field
+                [label]="senaTipo() === 'PORCENTAJE' ? 'Porcentaje' : 'Monto'"
+                type="number"
+                [placeholder]="senaTipo() === 'PORCENTAJE' ? '20%' : '$ 5.000'"
+                formControlName="monto"
+              />
+            </div>
+
+            @if (senaEnabled()) {
+              <div class="config-sena-metodos">
+                <p class="config-sena-metodos__label">Métodos de cobro</p>
+
+                <div class="config-mp-row">
+                  <span class="config-mp-row__icon" aria-hidden="true">
+                    <img src="/logos/mercadopago.png" alt="" />
+                  </span>
+                  <div class="config-mp-row__content">
+                    <div class="config-mp-row__title-row">
+                      <h3 class="config-mp-row__title">MercadoPago</h3>
+                      <span class="config-mp-row__flag-badge" aria-hidden="true">
+                        <span></span><span></span><span></span>
+                      </span>
+                    </div>
+                    <p class="config-mp-row__description">Cobro con Mercado Pago.</p>
+                  </div>
+                  <span class="config-mp-row__status" [class.is-connected]="mpConectado()">
+                    {{ mpConectado() ? 'Conectada' : 'Sin conectar' }}
+                  </span>
+                  <svg class="config-mp-row__chevron" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
+                </div>
+              </div>
+            }
+          </div>
         </div>
       </div>
     }
@@ -667,12 +709,6 @@
               </div>
             </div>
 
-            <div class="config-panel">
-              <p class="config-panel__title">{{ negocioForm.controls.name.value || 'Mi Negocio' }}</p>
-              <p class="config-content__description">
-                Tus clientes verán tus servicios, profesionales y horarios disponibles en esta página. El link de Instagram (en Link Instagram) también puede llevar acá con el botón "Reservar turno".
-              </p>
-            </div>
           </div>
         </div>
       </div>
@@ -804,12 +840,6 @@
         type="number"
         formControlName="durationMinutes"
         [error]="serviceForm.controls.durationMinutes.touched && serviceForm.controls.durationMinutes.invalid ? 'La duración mínima es 5 min' : ''"
-      />
-
-      <app-select-field
-        label="Modalidad de cobro"
-        formControlName="paymentRequirement"
-        [options]="servicePaymentOptions"
       />
 
       <div class="config-modal-form__grid" *ngIf="servicePaymentRequirement !== 'NO_PAYMENT'">

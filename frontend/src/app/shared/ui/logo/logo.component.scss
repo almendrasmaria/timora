@@ -18,6 +18,8 @@
 
   // When inside a collapsed sidebar, show short version
   .shell--collapsed & {
+    letter-spacing: -0.041em;
+    line-height: 1.4;
     .logo__text-full { display: none !important; }
     .logo__text-short { display: inline !important; }
   }

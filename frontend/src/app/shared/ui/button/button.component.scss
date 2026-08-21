@@ -36,24 +36,22 @@
   &--primary {
     background: var(--gradient-accent);
     color: var(--color-text-inverse);
-    box-shadow: var(--shadow-primary);
+    box-shadow: none;
 
     &:hover:not(:disabled) {
       filter: brightness(1.03);
-      box-shadow: 0 6px 20px rgba(0, 74, 173, 0.38);
+      box-shadow: none;
       transform: translateY(-1px);
     }
 
     &:active:not(:disabled) {
       transform: translateY(0);
-      box-shadow: var(--shadow-primary);
+      box-shadow: none;
     }
 
     &:focus-visible {
       outline: none;
-      box-shadow:
-        var(--shadow-primary),
-        0 0 0 3px var(--color-focus-ring);
+      box-shadow: 0 0 0 3px var(--color-focus-ring);
     }
   }
 

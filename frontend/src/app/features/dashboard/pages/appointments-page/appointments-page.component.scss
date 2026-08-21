@@ -396,7 +396,7 @@
     &.is-active {
       background: var(--color-surface);
       color: var(--color-text);
-      box-shadow: var(--shadow-sm);
+      box-shadow: none;
     }
   }
 }
@@ -686,7 +686,7 @@
   background: var(--color-surface);
   overflow-y: auto;
   overflow-x: auto;
-  box-shadow: var(--shadow-card);
+  box-shadow: none;
 
   &__headers-row {
     display: flex;
@@ -1706,7 +1706,7 @@
       &.is-active {
         background: var(--color-surface);
         color: var(--color-text);
-        box-shadow: var(--shadow-sm);
+        box-shadow: none;
       }
     }
   }

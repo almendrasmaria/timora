@@ -9,14 +9,12 @@
   background: rgba(20, 19, 31, 0.55);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
 
   :host-context([data-theme="light"]) & {
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(15, 23, 42, 0.08);
-    box-shadow: 
-      0 4px 30px rgba(15, 23, 42, 0.02),
-      0 20px 25px -5px rgba(15, 23, 42, 0.05);
+    background: #ffffff;
+    border: 1px solid var(--color-border);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
   }
 
   &__title {

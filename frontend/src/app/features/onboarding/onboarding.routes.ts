@@ -26,28 +26,6 @@ export const ONBOARDING_ROUTES: Routes = [
         loadComponent: () =>
           import('./pages/brand-step/brand-step.component').then((m) => m.BrandStepComponent),
       },
-      {
-        path: 'sucursales',
-        loadComponent: () =>
-          import('./pages/branches-step/branches-step.component').then((m) => m.BranchesStepComponent),
-      },
-      {
-        path: 'profesionales',
-        loadComponent: () =>
-          import('./pages/professionals-step/professionals-step.component').then(
-            (m) => m.ProfessionalsStepComponent
-          ),
-      },
-      {
-        path: 'servicios',
-        loadComponent: () =>
-          import('./pages/services-step/services-step.component').then((m) => m.ServicesStepComponent),
-      },
-      {
-        path: 'cobros',
-        loadComponent: () =>
-          import('./pages/payments-step/payments-step.component').then((m) => m.PaymentsStepComponent),
-      },
     ],
   },
 ];

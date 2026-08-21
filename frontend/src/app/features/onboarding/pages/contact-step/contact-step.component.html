@@ -1,7 +1,7 @@
 <div class="onboarding-card">
   <div class="onboarding-card__progress">
     <div class="onboarding-card__progress-bar">
-      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+      @for (step of [1, 2, 3]; track step) {
         <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
       }
     </div>
@@ -9,7 +9,7 @@
 
 
   <h1 class="onboarding-card__title">Contacto</h1>
-  <p class="onboarding-card__subtitle">Cómo te encuentran tus clientes</p>
+
 
   <form class="onboarding-card__form" [formGroup]="form" (ngSubmit)="onSubmit()">
     @if (apiError) {

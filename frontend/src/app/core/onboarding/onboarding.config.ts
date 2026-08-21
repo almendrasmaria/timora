@@ -24,30 +24,6 @@ export const ONBOARDING_STEPS: OnboardingStepConfig[] = [
     description: 'Tu link público de reservas',
     step: 3,
   },
-  {
-    path: 'sucursales',
-    title: 'Sucursales',
-    description: 'Dónde opera tu negocio',
-    step: 4,
-  },
-  {
-    path: 'profesionales',
-    title: 'Profesionales',
-    description: 'Quiénes atienden en tu negocio',
-    step: 5,
-  },
-  {
-    path: 'servicios',
-    title: 'Servicios',
-    description: 'Qué servicios ofrecés',
-    step: 6,
-  },
-  {
-    path: 'cobros',
-    title: 'Formas de cobro',
-    description: 'Cómo cobrás tus servicios',
-    step: 7,
-  },
 ];
 
 export const PRIMARY_BUSINESS_CATEGORIES = [

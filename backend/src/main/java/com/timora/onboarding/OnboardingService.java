@@ -102,7 +102,7 @@ public class OnboardingService {
 
         business.setSlug(slug);
         business.setBrandColor(normalizeOptional(request.brandColor()));
-        business.setOnboardingStep(Math.max(business.getOnboardingStep(), 4));
+        business.setOnboardingStep(Math.max(business.getOnboardingStep(), 3));
         return buildState(business);
     }
 
@@ -114,7 +114,6 @@ public class OnboardingService {
         branch.setName(request.name().trim());
         branch.setAddress(request.address().trim());
         branchRepository.save(branch);
-        business.setOnboardingStep(Math.max(business.getOnboardingStep(), 5));
         return buildState(business);
     }
 
@@ -155,7 +154,6 @@ public class OnboardingService {
         professional.setBranches(branches);
 
         professionalRepository.save(professional);
-        business.setOnboardingStep(Math.max(business.getOnboardingStep(), 6));
         return buildState(business);
     }
 
@@ -183,7 +181,6 @@ public class OnboardingService {
         service.setPrice(request.price());
         service.setDepositAmount(request.depositAmount());
         serviceOfferingRepository.save(service);
-        business.setOnboardingStep(Math.max(business.getOnboardingStep(), 7));
         return buildState(business);
     }
 
@@ -305,8 +302,6 @@ public class OnboardingService {
     }
 
     private void validateReadyToFinish(Business business) {
-        Long businessId = business.getId();
-
         if (business.getName() == null || business.getName().isBlank() || business.getCategory() == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Completá los datos de tu negocio");
         }
@@ -316,18 +311,8 @@ public class OnboardingService {
         if (business.getSlug() == null || business.getSlug().startsWith("tmp-")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Configurá tu link público");
         }
-        if (branchRepository.countByBusinessId(businessId) < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Agregá al menos una sucursal");
-        }
-        if (professionalRepository.countByBusinessId(businessId) < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Agregá al menos un profesional");
-        }
-        if (serviceOfferingRepository.countByBusinessId(businessId) < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Agregá al menos un servicio");
-        }
-        if (paymentMethodRepository.countByBusinessId(businessId) < 1) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Agregá al menos una forma de cobro");
-        }
+        // Sucursales, profesionales, servicios y formas de cobro ya no son
+        // parte del onboarding guiado: se completan después desde Configuración.
     }
 
     private Business requireBusiness() {

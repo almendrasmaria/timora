@@ -4,7 +4,7 @@
 
     <div class="onboarding-card__progress-bar">
 
-      @for (step of [1, 2, 3, 4, 5, 6, 7]; track step) {
+      @for (step of [1, 2, 3]; track step) {
 
         <span class="onboarding-card__progress-segment" [class.is-filled]="step <= currentStep"></span>
 
@@ -19,7 +19,7 @@
 
   <h1 class="onboarding-card__title">Marca y link</h1>
 
-  <p class="onboarding-card__subtitle">Logo, color, link público y tu página de reservas.</p>
+
 
 
 
@@ -36,8 +36,6 @@
     <div class="onboarding-card__field">
 
       <p class="onboarding-card__field-label">Logo del negocio (opcional)</p>
-
-      <p class="onboarding-card__field-hint">Se muestra en tu web de reservas. JPG, PNG, WebP o GIF. Máximo 5 MB.</p>
 
       <div class="onboarding-card__logo-upload">
 
@@ -117,35 +115,13 @@
 
 
 
-    <div
-
-      class="onboarding-card__preview"
-
-      [style.--preview-color]="selectedColor"
-
-      [style.--preview-tint]="previewTint"
-
-    >
-
-      <span class="onboarding-card__preview-label">Tu link de reservas</span>
-
-      <span class="onboarding-card__preview-url">
-
-        timora.app/<strong>{{ previewSlug }}</strong>
-
-      </span>
-
-    </div>
-
-
-
     <div class="onboarding-card__footer">
 
       <a class="onboarding-card__back" [routerLink]="['/onboarding', 'contacto']">Atrás</a>
 
       <app-button type="submit" variant="primary" shape="pill" [fullWidth]="true" [disabled]="loading">
 
-        {{ loading ? 'Guardando...' : 'Continuar' }}
+        {{ loading ? 'Finalizando...' : 'Finalizar' }}
 
       </app-button>
 

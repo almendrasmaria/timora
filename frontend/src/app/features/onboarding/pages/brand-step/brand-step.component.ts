@@ -3,7 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { parseApiError } from '../../../../core/auth/api-error';
-import { BRAND_COLORS, onboardingPathForStep } from '../../../../core/onboarding/onboarding.config';
+import { BRAND_COLORS } from '../../../../core/onboarding/onboarding.config';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
@@ -42,18 +42,6 @@ export class BrandStepComponent implements OnInit {
         });
       },
     });
-  }
-
-  get previewSlug(): string {
-    return this.form.controls.slug.value.trim() || 'tu-negocio';
-  }
-
-  get selectedColor(): string {
-    return this.form.controls.brandColor.value;
-  }
-
-  get previewTint(): string {
-    return `${this.selectedColor}1a`;
   }
 
   selectColor(color: string): void {
@@ -95,7 +83,18 @@ export class BrandStepComponent implements OnInit {
       .updateBrand(slug.toLowerCase(), brandColor)
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next: () => void this.router.navigate(['/onboarding', onboardingPathForStep(4)]),
+        next: () => this.finish(),
+        error: (error) => (this.apiError = parseApiError(error)),
+      });
+  }
+
+  private finish(): void {
+    this.loading = true;
+    this.onboarding
+      .finish()
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: () => void this.router.navigate(['/dashboard']),
         error: (error) => (this.apiError = parseApiError(error)),
       });
   }

@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 public record AppointmentSummaryResponse(
         long appointmentsCount,
         BigDecimal incomeTotal,
-        long noShowCount
+        long noShowCount,
+        long attendanceMarkedCount
 ) {
 }

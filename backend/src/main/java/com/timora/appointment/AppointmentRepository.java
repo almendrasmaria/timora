@@ -50,6 +50,21 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
     );
 
     @Query("""
+            SELECT COUNT(a) FROM Appointment a
+            WHERE a.business.id = :businessId
+              AND a.startsAt >= :from AND a.startsAt < :to
+              AND a.status IN (
+                com.timora.appointment.AppointmentStatus.COMPLETED,
+                com.timora.appointment.AppointmentStatus.NO_SHOW
+              )
+            """)
+    long countAttendanceMarkedInRange(
+            @Param("businessId") Long businessId,
+            @Param("from") Instant from,
+            @Param("to") Instant to
+    );
+
+    @Query("""
             SELECT COALESCE(SUM(a.price), 0) FROM Appointment a
             WHERE a.business.id = :businessId
               AND a.startsAt >= :from AND a.startsAt < :to

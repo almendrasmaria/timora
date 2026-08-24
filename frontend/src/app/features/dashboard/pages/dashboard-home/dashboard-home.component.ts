@@ -53,32 +53,62 @@ export class DashboardHomeComponent implements OnInit {
   readonly appointmentsCount = signal(0);
   readonly incomeCount = signal(0);
   readonly noShowCount = signal(0);
+  readonly attendanceMarkedCount = signal(0);
   readonly todayAppointments = signal<Appointment[]>([]);
   readonly recentAppointments = signal<Appointment[]>([]);
+
+  readonly noShowRatePercent = computed(() => {
+    const marked = this.attendanceMarkedCount();
+    if (!marked || marked <= 0) {
+      return 0;
+    }
+    return Math.round((this.noShowCount() / marked) * 100);
+  });
+
+  readonly noShowGaugeArcPath = computed(() => {
+    const percent = Math.min(100, Math.max(0, this.noShowRatePercent()));
+    const angleDeg = 180 - (percent / 100) * 180;
+    const angleRad = (angleDeg * Math.PI) / 180;
+    const cx = 90;
+    const cy = 90;
+    const r = 75;
+    const x = cx + r * Math.cos(angleRad);
+    const y = cy - r * Math.sin(angleRad);
+    return `M15,90 A75,75 0 0,1 ${x.toFixed(2)},${y.toFixed(2)}`;
+  });
 
   readonly filteredRecentAppointments = computed(() => {
     const list = this.recentAppointments();
     const period = this.statsPeriod();
     const now = new Date();
-    
+
     // Calculate start date based on active period
     const startDate = new Date(now);
     if (period === 'today') {
       startDate.setHours(0, 0, 0, 0);
     } else if (period === 'week') {
-      startDate.setDate(now.getDate() - 7);
-      startDate.setHours(0, 0, 0, 0);
+      // "Esta semana": semana calendario (lunes a domingo), igual que el backend.
+      startDate.setTime(this.startOfCalendarWeek(now).getTime());
     } else {
-      // 'month' (last 30 days)
+      // "Últimos 30 días": ventana móvil, igual que el backend.
       startDate.setDate(now.getDate() - 30);
       startDate.setHours(0, 0, 0, 0);
     }
-    
+
     return list.filter(appt => {
       const apptDate = new Date(appt.startsAt);
       return apptDate.getTime() >= startDate.getTime();
     });
   });
+
+  private startOfCalendarWeek(date: Date): Date {
+    const start = new Date(date);
+    const day = start.getDay();
+    const diffToMonday = day === 0 ? -6 : 1 - day;
+    start.setDate(start.getDate() + diffToMonday);
+    start.setHours(0, 0, 0, 0);
+    return start;
+  }
 
   readonly displayedAppointments = computed(() => {
     const list = this.filteredRecentAppointments();
@@ -99,8 +129,7 @@ export class DashboardHomeComponent implements OnInit {
     if (this.statsPeriod() === 'today') {
       return formatDate(now);
     } else if (this.statsPeriod() === 'week') {
-      const start = new Date(now);
-      start.setDate(now.getDate() - 7);
+      const start = this.startOfCalendarWeek(now);
       return `${formatDate(start)} - ${formatDate(now)}`;
     } else {
       const start = new Date(now);
@@ -225,6 +254,7 @@ export class DashboardHomeComponent implements OnInit {
         this.appointmentsCount.set(summary.appointmentsCount);
         this.incomeCount.set(Number(summary.incomeTotal ?? 0));
         this.noShowCount.set(summary.noShowCount);
+        this.attendanceMarkedCount.set(summary.attendanceMarkedCount ?? 0);
       },
     });
   }

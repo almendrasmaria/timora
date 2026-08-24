@@ -27,6 +27,7 @@ export interface AppointmentSummary {
   appointmentsCount: number;
   incomeTotal: number;
   noShowCount: number;
+  attendanceMarkedCount: number;
 }
 
 export type AppointmentsView = 'day' | 'week' | 'month';

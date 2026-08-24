@@ -66,7 +66,8 @@ public class AppointmentService {
         return new AppointmentSummaryResponse(
                 appointmentRepository.countActiveInRange(business.getId(), range.from(), range.to()),
                 appointmentRepository.sumIncomeInRange(business.getId(), range.from(), range.to()),
-                appointmentRepository.countNoShowsInRange(business.getId(), range.from(), range.to())
+                appointmentRepository.countNoShowsInRange(business.getId(), range.from(), range.to()),
+                appointmentRepository.countAttendanceMarkedInRange(business.getId(), range.from(), range.to())
         );
     }
 
@@ -357,11 +358,13 @@ public class AppointmentService {
                         start.plusDays(7).atStartOfDay(BUSINESS_ZONE).toInstant()
                 );
             }
+            // "Últimos 30 días": ventana móvil, no el mes calendario — tiene
+            // que coincidir con lo que muestra el selector en el dashboard.
             case "month" -> {
-                LocalDate start = today.withDayOfMonth(1);
+                LocalDate start = today.minusDays(30);
                 yield new DateRange(
                         start.atStartOfDay(BUSINESS_ZONE).toInstant(),
-                        start.plusMonths(1).atStartOfDay(BUSINESS_ZONE).toInstant()
+                        today.plusDays(1).atStartOfDay(BUSINESS_ZONE).toInstant()
                 );
             }
             default -> new DateRange(

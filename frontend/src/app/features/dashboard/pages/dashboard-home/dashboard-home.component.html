@@ -41,7 +41,7 @@
         <span>Reservas totales</span>
         <span class="home__stat-badge">-</span>
       </div>
-      <div class="home__stat-value">{{ appointmentsCount() || 2 }}</div>
+      <div class="home__stat-value">{{ appointmentsCount() }}</div>
       <p class="home__stat-desc">Reservas del período</p>
 
     </article>
@@ -55,13 +55,13 @@
       <div class="home__gauge-container">
         <svg class="home__gauge" width="180" height="100" viewBox="0 0 180 100">
           <path d="M15,90 A75,75 0 0,1 165,90" fill="none" stroke="var(--color-surface-muted)" stroke-width="12" stroke-linecap="round"/>
-          <path d="M15,90 A75,75 0 0,1 15,90" fill="none" stroke="var(--color-success)" stroke-width="12" stroke-linecap="round"/>
-          <text x="90" y="65" text-anchor="middle" class="home__gauge-value" style="font-size: 24px; font-weight: 800; fill: var(--color-text);">0%</text>
+          <path [attr.d]="noShowGaugeArcPath()" fill="none" [attr.stroke]="noShowRatePercent() > 0 ? 'var(--color-error)' : 'var(--color-success)'" stroke-width="12" stroke-linecap="round"/>
+          <text x="90" y="65" text-anchor="middle" class="home__gauge-value" style="font-size: 24px; font-weight: 800; fill: var(--color-text);">{{ noShowRatePercent() }}%</text>
           <text x="90" y="85" text-anchor="middle" class="home__gauge-label" style="font-size: 11px; font-weight: 700; fill: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Ausentismo</text>
         </svg>
       </div>
 
-      <p class="home__stat-desc" style="font-size: 11px; margin-top: auto;">* Índice calculado sobre las 1 reservas con asistencia marcada.</p>
+      <p class="home__stat-desc" style="font-size: 11px; margin-top: auto;">* Índice calculado sobre las {{ attendanceMarkedCount() }} reserva{{ attendanceMarkedCount() === 1 ? '' : 's' }} con asistencia marcada.</p>
     </article>
 
   </div>

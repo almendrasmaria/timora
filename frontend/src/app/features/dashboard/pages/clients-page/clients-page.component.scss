@@ -189,6 +189,10 @@
     overflow: visible;
   }
 
+  &__state-row td {
+    padding: 0;
+  }
+
   &__loading {
     display: flex;
     flex-direction: column;

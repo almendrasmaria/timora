@@ -316,7 +316,7 @@
   &__empty-title {
     margin: 0;
     font-size: var(--text-sm);
-    font-weight: 700;
+    font-weight: 500;
     color: var(--color-text);
   }
 
@@ -333,7 +333,7 @@
     height: 2.25rem;
     padding: 0 var(--space-5);
     border: none;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-md);
     background: var(--gradient-accent);
     color: #fff;
     font-family: var(--font-family);
@@ -345,64 +345,6 @@
     &:hover { filter: brightness(1.1); }
   }
 
-  // ── Empty state fallback
-  &__empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 32px 16px;
-    text-align: center;
-    background: var(--color-surface);
-    border: 1px dashed var(--color-border);
-    border-radius: 12px;
-  }
-
-  &__empty-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: var(--color-surface-muted);
-    color: var(--color-text-muted);
-    margin-bottom: 12px;
-  }
-
-  &__empty-title {
-    margin: 0 0 6px;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--color-text);
-  }
-
-  &__empty-text {
-    margin: 0 0 16px;
-    font-size: 14px;
-    color: var(--color-text-muted);
-    max-width: 320px;
-    line-height: 1.4;
-  }
-
-  &__empty-action {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-primary);
-    background: var(--color-primary-subtle);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background var(--duration-fast) var(--ease-out);
-
-    &:hover {
-      background: rgba(0, 74, 173, 0.15);
-    }
-  }
 }
 
 @include bp.tablet {

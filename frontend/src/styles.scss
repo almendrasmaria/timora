@@ -1,6 +1,7 @@
 @use 'styles/tokens';
 @use 'styles/breakpoints' as bp;
 @use 'app/shared/styles/onboarding-card';
+@use 'styles/ng-select-theme';
 
 *,
 *::before,
@@ -79,7 +80,8 @@ select {
 @include bp.mobile {
   input,
   select,
-  textarea {
+  textarea,
+  .ng-select .ng-input > input {
     font-size: 16px !important;
   }
 }

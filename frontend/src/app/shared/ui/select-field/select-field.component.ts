@@ -1,5 +1,6 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 export interface SelectOption {
   value: string;
@@ -9,6 +10,7 @@ export interface SelectOption {
 @Component({
   selector: 'app-select-field',
   standalone: true,
+  imports: [FormsModule, NgSelectModule],
   templateUrl: './select-field.component.html',
   styleUrl: './select-field.component.scss',
   providers: [
@@ -47,8 +49,7 @@ export class SelectFieldComponent implements ControlValueAccessor {
     this.disabled = isDisabled;
   }
 
-  onSelect(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
+  onSelect(value: string): void {
     this.value = value;
     this.onChange(value);
   }

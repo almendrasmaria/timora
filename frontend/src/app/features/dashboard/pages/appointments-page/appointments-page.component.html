@@ -835,20 +835,32 @@
               <div style="display: flex; flex-direction: column; gap: var(--space-3);">
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                   <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Servicio</label>
-                  <select [(ngModel)]="editServiceId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface);">
-                    @for (srv of services(); track srv.id) {
-                      <option [value]="srv.id">{{ srv.name }} ({{ duration(srv) }})</option>
-                    }
-                  </select>
+                  <ng-select
+                    [items]="services()"
+                    bindValue="id"
+                    [clearable]="false"
+                    [searchable]="services().length > 6"
+                    [(ngModel)]="editServiceId"
+                  >
+                    <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                      {{ item.name }} ({{ duration(item) }})
+                    </ng-template>
+                  </ng-select>
                 </div>
 
                 <div style="display: flex; flex-direction: column; gap: 4px;">
                   <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Profesional</label>
-                  <select [(ngModel)]="editProfessionalId" style="width: 100%; height: 2.25rem; padding: 0 var(--space-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface);">
-                    @for (pro of professionals(); track pro.id) {
-                      <option [value]="pro.id">{{ proDisplayName(pro) }}</option>
-                    }
-                  </select>
+                  <ng-select
+                    [items]="professionals()"
+                    bindValue="id"
+                    [clearable]="false"
+                    [searchable]="professionals().length > 6"
+                    [(ngModel)]="editProfessionalId"
+                  >
+                    <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                      {{ proDisplayName(item) }}
+                    </ng-template>
+                  </ng-select>
                 </div>
               </div>
             </div>
@@ -928,21 +940,16 @@
         @if (branches().length >= 2) {
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Sucursal</label>
-            <div style="position: relative; width: 100%;">
-              <select
-                style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; -webkit-appearance: none; outline: none; cursor: pointer;"
-                [value]="selectedBranchId() ?? ''"
-                (change)="onBranchChange($event)"
-              >
-                <option value="">Todas las sucursales</option>
-                @for (b of branches(); track b.id) {
-                  <option [value]="b.id">{{ b.name }}</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="branches()"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Todas las sucursales"
+              [clearable]="true"
+              [searchable]="branches().length > 6"
+              [ngModel]="selectedBranchId()"
+              (ngModelChange)="onBranchChange($event)"
+            ></ng-select>
           </div>
         }
 
@@ -950,21 +957,19 @@
         @if (professionals().length >= 1) {
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Profesional</label>
-            <div style="position: relative; width: 100%;">
-              <select
-                style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; -webkit-appearance: none; outline: none; cursor: pointer;"
-                [value]="getSelectedProValue()"
-                (change)="onProfessionalFilterChange($event)"
-              >
-                <option value="">Todos los profesionales</option>
-                @for (p of professionals(); track p.id) {
-                  <option [value]="p.id">{{ p.firstName }} {{ p.lastName }}</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="professionals()"
+              bindValue="id"
+              placeholder="Todos los profesionales"
+              [clearable]="true"
+              [searchable]="professionals().length > 6"
+              [ngModel]="getSelectedProNumericValue()"
+              (ngModelChange)="onProfessionalFilterChange($event)"
+            >
+              <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                {{ item.firstName }} {{ item.lastName }}
+              </ng-template>
+            </ng-select>
           </div>
         }
 
@@ -972,21 +977,16 @@
         @if (services().length >= 1) {
           <div style="display: flex; flex-direction: column; gap: var(--space-2);">
             <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Servicio</label>
-            <div style="position: relative; width: 100%;">
-              <select
-                style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; -webkit-appearance: none; outline: none; cursor: pointer;"
-                [value]="selectedServiceId() ?? ''"
-                (change)="onServiceChange($event)"
-              >
-                <option value="">Todos los servicios</option>
-                @for (s of services(); track s.id) {
-                  <option [value]="s.id">{{ s.name }}</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="services()"
+              bindLabel="name"
+              bindValue="id"
+              placeholder="Todos los servicios"
+              [clearable]="true"
+              [searchable]="services().length > 6"
+              [ngModel]="selectedServiceId()"
+              (ngModelChange)="onServiceChange($event)"
+            ></ng-select>
           </div>
         }
 
@@ -1016,21 +1016,19 @@
           
           @if (!isNewClient()) {
             <!-- Seleccionar Cliente Existente -->
-            <div style="position: relative; width: 100%;">
-              <select
-                style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; outline: none; cursor: pointer;"
-                [value]="selectedClientId() ?? ''"
-                (change)="onClientSelectChange($event)"
-              >
-                <option value="">-- Seleccionar cliente existente --</option>
-                @for (c of clients(); track c.id) {
-                  <option [value]="c.id">{{ c.firstName }} {{ c.lastName }} ({{ c.phone }})</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="clients()"
+              bindValue="id"
+              placeholder="Seleccionar cliente existente"
+              [clearable]="true"
+              [searchable]="true"
+              [ngModel]="selectedClientId()"
+              (ngModelChange)="onClientSelectChange($event)"
+            >
+              <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                {{ item.firstName }} {{ item.lastName }} ({{ item.phone }})
+              </ng-template>
+            </ng-select>
           }
         </div>
 
@@ -1063,31 +1061,35 @@
         <div class="appt-form-grid">
           <div style="display: flex; flex-direction: column; gap: 4px;">
             <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Servicio *</label>
-            <div style="position: relative; width: 100%;">
-              <select [ngModel]="createServiceId()" (ngModelChange)="onServiceIdChange($event)" style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; outline: none; cursor: pointer;">
-                <option [value]="null" disabled>Seleccionar servicio</option>
-                @for (srv of services(); track srv.id) {
-                  <option [value]="srv.id">{{ srv.name }} ({{ duration(srv) }})</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="services()"
+              bindValue="id"
+              placeholder="Seleccionar servicio"
+              [clearable]="false"
+              [searchable]="services().length > 6"
+              [ngModel]="createServiceId()"
+              (ngModelChange)="onServiceIdChange($event)"
+            >
+              <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                {{ item.name }} ({{ duration(item) }})
+              </ng-template>
+            </ng-select>
           </div>
           <div style="display: flex; flex-direction: column; gap: 4px;">
             <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Profesional *</label>
-            <div style="position: relative; width: 100%;">
-              <select [ngModel]="createProfessionalId()" (ngModelChange)="onProfessionalIdChange($event)" style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; outline: none; cursor: pointer;">
-                <option [value]="null" disabled>Seleccionar profesional</option>
-                @for (pro of professionals(); track pro.id) {
-                  <option [value]="pro.id">{{ proDisplayName(pro) }}</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="professionals()"
+              bindValue="id"
+              placeholder="Seleccionar profesional"
+              [clearable]="false"
+              [searchable]="professionals().length > 6"
+              [ngModel]="createProfessionalId()"
+              (ngModelChange)="onProfessionalIdChange($event)"
+            >
+              <ng-template ng-label-tmp ng-option-tmp let-item="item">
+                {{ proDisplayName(item) }}
+              </ng-template>
+            </ng-select>
           </div>
         </div>
 
@@ -1095,16 +1097,15 @@
         @if (branches().length >= 2) {
           <div style="display: flex; flex-direction: column; gap: 4px;">
             <label style="font-size: var(--text-sm); font-weight: 500; color: var(--color-text-secondary);">Sucursal</label>
-            <div style="position: relative; width: 100%;">
-              <select [ngModel]="createBranchId()" (ngModelChange)="onBranchIdChange($event)" style="width: 100%; height: 2.25rem; padding: 0 24px 0 var(--space-3); border: 1px solid var(--color-border); border-radius: 6px; font-family: inherit; font-size: var(--text-base); font-weight: 400; background: var(--color-surface); color: var(--color-text); appearance: none; outline: none; cursor: pointer;">
-                @for (b of branches(); track b.id) {
-                  <option [value]="b.id">{{ b.name }}</option>
-                }
-              </select>
-              <svg style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; color: var(--color-text-secondary);" width="10" height="10" viewBox="0 0 16 16" fill="none">
-                <path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </div>
+            <ng-select
+              [items]="branches()"
+              bindLabel="name"
+              bindValue="id"
+              [clearable]="false"
+              [searchable]="branches().length > 6"
+              [ngModel]="createBranchId()"
+              (ngModelChange)="onBranchIdChange($event)"
+            ></ng-select>
           </div>
         }
 

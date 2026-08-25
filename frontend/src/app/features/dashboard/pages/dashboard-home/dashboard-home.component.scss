@@ -232,37 +232,15 @@
   }
 
   // ── Period Select
-  &__period-select-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
+  &__period-select {
+    display: inline-block;
+    width: 224px;
   }
 
-  &__period-select {
-    appearance: none;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+  ::ng-deep &__period-select.ng-select .ng-select-container {
     height: 36px;
-    width: 224px;
-    padding: 0 var(--space-8) 0 var(--space-4);
     font-size: 14px;
     font-weight: 600;
-    color: var(--color-text);
-    cursor: pointer;
-    outline: none;
-    transition: border-color var(--duration-fast) var(--ease-out);
-
-    &:hover {
-      border-color: var(--color-border-hover);
-    }
-  }
-
-  &__period-select-icon {
-    position: absolute;
-    right: 12px;
-    color: var(--color-text-secondary);
-    pointer-events: none;
   }
 
   // ── Stat badges / gauges / sparklines
@@ -374,12 +352,9 @@
         }
       }
     }
-    &__period-select-wrapper {
+    &__period-select {
       flex: 1;
       width: auto;
-    }
-    &__period-select {
-      width: 100%;
     }
     &__stats { grid-template-columns: 1fr; }
 

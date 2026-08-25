@@ -8,17 +8,16 @@
       <p class="home__greeting-sub">Éste es un resumen de tu actividad<br><span style="font-size: 14px; color: var(--color-text-muted);">{{ formattedPeriodRange }}</span></p>
     </div>
     <div class="home__greeting-actions">
-      <!-- Period selector styled like select 'Últimos 30 días' -->
-      <div class="home__period-select-wrapper">
-        <select class="home__period-select" [value]="statsPeriod()" (change)="onPeriodChange($event)">
-          <option value="today">Hoy</option>
-          <option value="week">Esta semana</option>
-          <option value="month">Últimos 30 días</option>
-        </select>
-        <svg class="home__period-select-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </div>
+      <ng-select
+        class="home__period-select"
+        [items]="periodOptions"
+        bindLabel="label"
+        bindValue="value"
+        [clearable]="false"
+        [searchable]="false"
+        [ngModel]="statsPeriod()"
+        (ngModelChange)="onPeriodChange($event)"
+      ></ng-select>
 
       <app-button type="button" variant="primary" (click)="goToNewAppointment()">+ Nuevo turno</app-button>
     </div>

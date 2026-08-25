@@ -18,11 +18,13 @@ import { OnboardingService } from '../../../../core/onboarding/onboarding.servic
 import { Router, RouterLink } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { FormsModule } from '@angular/forms';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [ButtonComponent, RouterLink],
+  imports: [ButtonComponent, RouterLink, FormsModule, NgSelectModule],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss',
   animations: [
@@ -214,8 +216,7 @@ export class DashboardHomeComponent implements OnInit {
     return formatIncome(val).replace('$', '').trim();
   }
 
-  onPeriodChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value as StatsPeriod;
+  onPeriodChange(value: StatsPeriod): void {
     this.statsPeriod.set(value);
     this.loadSummary();
   }

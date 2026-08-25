@@ -19,6 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { publicBookingUrl } from '../../../../core/dashboard/dashboard.config';
 import { ClientsService, Client } from '../../../../core/clients/clients.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgSelectModule } from '@ng-select/ng-select';
 
 export interface AppointmentGroup {
   dateKey: string;
@@ -36,7 +37,7 @@ const STATUS_COLORS: Record<AppointmentStatus, string> = {
 @Component({
   selector: 'app-appointments-page',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, ButtonComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, ButtonComponent, NgSelectModule],
   templateUrl: './appointments-page.component.html',
   styleUrl: './appointments-page.component.scss',
   animations: [
@@ -313,8 +314,12 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     return ids.length === 1 ? ids[0].toString() : '';
   }
 
-  onProfessionalFilterChange(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
+  getSelectedProNumericValue(): number | null {
+    const val = this.getSelectedProValue();
+    return val ? Number(val) : null;
+  }
+
+  onProfessionalFilterChange(val: string | number | null): void {
     if (!val) {
       this.selectedProfessionalIds.set(this.professionals().map(p => p.id));
     } else {
@@ -724,13 +729,11 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     return this.selectedProfessionalIds().includes(id);
   }
 
-  onBranchChange(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
+  onBranchChange(val: string | number | null): void {
     this.selectedBranchId.set(val ? Number(val) : null);
   }
 
-  onServiceChange(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
+  onServiceChange(val: string | number | null): void {
     this.selectedServiceId.set(val ? Number(val) : null);
   }
 
@@ -1114,8 +1117,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     this.showCreateModal.set(true);
   }
 
-  onClientSelectChange(event: Event): void {
-    const val = (event.target as HTMLSelectElement).value;
+  onClientSelectChange(val: string | number | null): void {
     if (!val) {
       this.selectedClientId.set(null);
       this.createFirstName.set('');

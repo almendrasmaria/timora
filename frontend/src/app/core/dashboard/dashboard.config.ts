@@ -33,7 +33,7 @@ export type AgendaView = 'list' | 'calendar';
 export const STATS_PERIOD_OPTIONS: { value: StatsPeriod; label: string }[] = [
   { value: 'today', label: 'Hoy' },
   { value: 'week', label: 'Esta semana' },
-  { value: 'month', label: 'Este mes' },
+  { value: 'month', label: 'Últimos 30 días' },
 ];
 
 export function publicBookingUrl(slug: string): string {

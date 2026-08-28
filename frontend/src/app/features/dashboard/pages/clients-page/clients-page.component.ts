@@ -10,7 +10,6 @@ import { Appointment, AppointmentStatus } from '../../../../core/appointments/ap
 import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
-import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
 
 @Component({
   selector: 'app-clients-page',
@@ -22,7 +21,6 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
     RouterModule,
     ModalComponent,
     ButtonComponent,
-    TextFieldComponent,
   ],
   templateUrl: './clients-page.component.html',
   styleUrl: './clients-page.component.scss',

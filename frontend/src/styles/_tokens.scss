@@ -1,5 +1,4 @@
 :root {
-  // ── Brand / Primary (#004AAD) ──────────────────────────────────
   --color-primary:         #004AAD;
   --color-primary-hover:   #1a66cc;
   --color-primary-active:  #003d93;
@@ -9,7 +8,6 @@
   --color-primary-glow:    rgba(0, 74, 173, 0.22);
   --color-primary-mid:     #1a66cc;
 
-  // ── Dark Surfaces ─────────────────────────────────────────────────
   --color-background:       #0d0d14;
   --color-surface:          #14131f;
   --color-surface-muted:    #1c1a2e;
@@ -17,20 +15,17 @@
   --color-surface-elevated: #1a1830;
   --color-surface-card:     #16142a;
 
-  // ── Text ──────────────────────────────────────────────────────────
   --color-text:           #f0eeff;
   --color-text-secondary: #9891c8;
   --color-text-muted:     #5f5a8a;
   --color-text-inverse:   #ffffff;
   --color-text-placeholder: #4a4670;
 
-  // ── Borders ───────────────────────────────────────────────────────
   --color-border:       #2a2740;
   --color-border-hover: #3d3960;
   --color-border-focus: rgba(0, 74, 173, 0.5);
   --color-focus-ring:   rgba(0, 74, 173, 0.25);
 
-  // ── Semantic ──────────────────────────────────────────────────────
   --color-success:        #34d399;
   --color-success-subtle: #0a2a1e;
   --color-warning:        #fbbf24;
@@ -45,7 +40,6 @@
   --font-logo:    'Poppins', system-ui, sans-serif;
   --font-mono:    'Fira Code', 'Consolas', monospace;
 
-  // ── Type Scale ────────────────────────────────────────────────────
   --text-xs:   0.7rem;
   --text-sm:   0.8125rem;
   --text-base: 0.9375rem;
@@ -56,7 +50,6 @@
   --text-4xl:  2.5rem;
   --text-5xl:  3rem;
 
-  // ── Spacing ───────────────────────────────────────────────────────
   --space-1:  0.25rem;
   --space-2:  0.5rem;
   --space-3:  0.75rem;
@@ -69,14 +62,12 @@
   --space-12: 3rem;
   --space-16: 4rem;
 
-  // ── Radii ─────────────────────────────────────────────────────────
   --radius-sm:   6px;
   --radius-md:   10px;
   --radius-lg:   14px;
   --radius-xl:   20px;
   --radius-full: 9999px;
 
-  // ── Shadows (dark, deep) ──────────────────────────────────────────
   --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.45);
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.55);
@@ -91,7 +82,6 @@
     0 0 0 1px rgba(255, 255, 255, 0.04),
     0 8px 28px rgba(0, 0, 0, 0.45);
 
-  // ── Gradients ─────────────────────────────────────────────────────
   --gradient-page:       var(--color-background);
   --gradient-accent:     #004AAD;
   --gradient-accent-alt: #003d93;
@@ -100,14 +90,12 @@
   --gradient-hero-glow:  transparent;
   --gradient-avatar:     #004AAD;
 
-  // ── Motion ────────────────────────────────────────────────────────
   --ease-out:       cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out:    cubic-bezier(0.4, 0, 0.2, 1);
   --duration-fast:  150ms;
   --duration-normal: 220ms;
   --duration-slow:  350ms;
 
-  // ── Layout ────────────────────────────────────────────────────────
   --layout-max-width:      72rem;
   --layout-padding-x:      var(--space-8);
   --layout-grid-gap:       var(--space-12);
@@ -115,20 +103,17 @@
   --auth-card-width:       27rem;
   --auth-content-max-width: 36rem;
 
-  // ── Inputs ────────────────────────────────────────────────────────
   --color-input-bg:          #08080d;
   --color-input-border:      #1e1c30;
   --color-input-border-hover:#2a2745;
   --color-input-focus-bg:    #050508;
 
-  // ── Header/Hero specific ──────────────────────────────────────────
   --color-header-bg:         rgba(13, 13, 20, 0.88);
   --hero-card-bg:            var(--color-surface-muted);
   --hero-pattern-color:      rgba(139, 139, 224, 0.04);
 }
 
 [data-theme="light"] {
-  // ── Light Surfaces ─────────────────────────────────────────────────
   --color-background:       #ffffff;
   --color-surface:          #ffffff;
   --color-surface-muted:    #f8fafc;
@@ -136,20 +121,17 @@
   --color-surface-elevated: #ffffff;
   --color-surface-card:     #ffffff;
 
-  // ── Text ──────────────────────────────────────────────────────────
   --color-text:           #071A35;
   --color-text-secondary: #627796;
   --color-text-muted:     #8fa2bc;
   --color-text-inverse:   #ffffff;
   --color-text-placeholder: #b0c2d9;
 
-  // ── Borders ───────────────────────────────────────────────────────
   --color-border:       #D9E2ED;
   --color-border-hover: #c4d1e0;
   --color-border-focus: rgba(0, 74, 173, 0.4);
   --color-focus-ring:   rgba(0, 74, 173, 0.15);
 
-  // ── Semantic ──────────────────────────────────────────────────────
   --color-success:        #10b981;
   --color-success-subtle: #d1fae5;
   --color-warning:        #f59e0b;
@@ -159,19 +141,16 @@
   --color-info:           #3b82f6;
   --color-info-subtle:    #dbeafe;
 
-  // ── Inputs ────────────────────────────────────────────────────────
   --color-input-bg:          #ffffff;
   --color-input-border:      #D9E2ED;
   --color-input-border-hover:#b0c2d9;
   --color-input-focus-bg:    #ffffff;
 
-  // ── Header/Card specific ──────────────────────────────────────────
   --color-header-bg:         rgba(255, 255, 255, 0.88);
   --color-primary-subtle:    #EAF2FF;
   --hero-card-bg:            var(--color-surface-muted);
   --hero-pattern-color:      rgba(0, 74, 173, 0.04);
 
-  // ── Shadows (light, soft) ──────────────────────────────────────────
   --shadow-xs: 0 1px 2px rgba(7, 26, 53, 0.05);
   --shadow-sm: 0 1px 3px rgba(7, 26, 53, 0.1), 0 1px 2px rgba(7, 26, 53, 0.06);
   --shadow-md: 0 4px 6px -1px rgba(7, 26, 53, 0.1), 0 2px 4px -1px rgba(7, 26, 53, 0.06);
@@ -186,7 +165,6 @@
     0 0 0 1px rgba(7, 26, 53, 0.05),
     0 8px 16px rgba(7, 26, 53, 0.06);
 
-  // ── Gradients ─────────────────────────────────────────────────────
   --gradient-page:       var(--color-background);
   --gradient-accent:     #004AAD;
   --gradient-accent-alt: #003d93;
@@ -195,4 +173,3 @@
   --gradient-hero-glow:  transparent;
   --gradient-avatar:     #004AAD;
 }
-

@@ -1,31 +1,9 @@
-// ════════════════════════════════════════════════════════════════
-// Sistema de breakpoints de Timora
-//
-// Único punto de verdad para los anchos de quiebre responsive.
-// Uso (desktop-first, el más usado en la app):
-//   @use 'breakpoints' as bp;
-//   .card {
-//     padding: var(--space-8);
-//     @include bp.tablet { padding: var(--space-6); }
-//     @include bp.mobile { padding: var(--space-4); }
-//   }
-//
-// Uso (mobile-first, para bloques que arrancan apilados y se
-// expanden en pantallas grandes — ver config-page):
-//   @include bp.tablet-up { ... }
-// ════════════════════════════════════════════════════════════════
+$mobile-sm: 380px;
+$mobile:    640px;
+$tablet:    768px;
+$laptop:    1024px;
+$desktop:   1280px;
 
-// ── Valores crudos (por si se necesitan fuera de un mixin, ej. combinados) ──
-// Elegidos para coincidir con los cortes que ya predominaban en la app
-// (768 y 640 aparecían decenas de veces de forma ad-hoc) para minimizar
-// cambios de comportamiento al unificar.
-$mobile-sm: 380px; // mobile muy chico (iPhone SE y similares)
-$mobile:    640px; // mobile
-$tablet:    768px; // tablet vertical
-$laptop:    1024px; // tablet horizontal / notebook chica
-$desktop:   1280px; // desktop grande
-
-// ── Desktop-first (max-width): achica progresivamente ───────────
 @mixin mobile-sm {
   @media (max-width: $mobile-sm) { @content; }
 }
@@ -46,7 +24,6 @@ $desktop:   1280px; // desktop grande
   @media (max-width: $desktop) { @content; }
 }
 
-// ── Mobile-first (min-width): expande progresivamente ───────────
 @mixin mobile-up {
   @media (min-width: $mobile + 1) { @content; }
 }
@@ -63,7 +40,6 @@ $desktop:   1280px; // desktop grande
   @media (min-width: $desktop + 1) { @content; }
 }
 
-// ── Rango combinado, para casos puntuales (ej. "solo en laptop") ─
 @mixin between($min, $max) {
   @media (min-width: $min) and (max-width: $max) { @content; }
 }

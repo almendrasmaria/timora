@@ -15,7 +15,7 @@ import {
 import { Appointment } from '../../../../core/appointments/appointments.models';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { FormsModule } from '@angular/forms';
@@ -24,7 +24,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 @Component({
   selector: 'app-dashboard-home',
   standalone: true,
-  imports: [ButtonComponent, RouterLink, FormsModule, NgSelectModule],
+  imports: [ButtonComponent, FormsModule, NgSelectModule],
   templateUrl: './dashboard-home.component.html',
   styleUrl: './dashboard-home.component.scss',
   animations: [

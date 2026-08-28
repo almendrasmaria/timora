@@ -1,5 +1,8 @@
 package com.timora.common;
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -13,14 +16,31 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 public class FileStorageService {
 
     private final Path fileStorageLocation;
+    private final Cloudinary cloudinary;
 
-    public FileStorageService() {
+    public FileStorageService(
+            @Value("${timora.cloudinary.cloud-name:}") String cloudName,
+            @Value("${timora.cloudinary.api-key:}") String apiKey,
+            @Value("${timora.cloudinary.api-secret:}") String apiSecret) {
+
+        if (StringUtils.hasText(cloudName) && StringUtils.hasText(apiKey) && StringUtils.hasText(apiSecret)) {
+            this.cloudinary = new Cloudinary(ObjectUtils.asMap(
+                    "cloud_name", cloudName,
+                    "api_key", apiKey,
+                    "api_secret", apiSecret,
+                    "secure", true
+            ));
+        } else {
+            this.cloudinary = null;
+        }
+
         this.fileStorageLocation = Paths.get("uploads").toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -30,14 +50,30 @@ public class FileStorageService {
     }
 
     public String storeFile(MultipartFile file) {
+        if (cloudinary != null) {
+            try {
+                Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                        file.getBytes(),
+                        ObjectUtils.asMap("folder", "timora/logos", "resource_type", "auto")
+                );
+                Object secureUrl = uploadResult.get("secure_url");
+                if (secureUrl != null) {
+                    return secureUrl.toString();
+                }
+                return uploadResult.get("url").toString();
+            } catch (IOException ex) {
+                throw new RuntimeException("Could not upload file to Cloudinary", ex);
+            }
+        }
+
         String originalFileName = StringUtils.cleanPath(file.getOriginalFilename() != null ? file.getOriginalFilename() : "file");
         String extension = "";
-        
+
         int i = originalFileName.lastIndexOf('.');
         if (i > 0) {
             extension = originalFileName.substring(i);
         }
-        
+
         String fileName = UUID.randomUUID().toString() + extension;
 
         try {

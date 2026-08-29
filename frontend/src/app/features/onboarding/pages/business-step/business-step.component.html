@@ -19,7 +19,7 @@
       label="Nombre del negocio"
       placeholder="Ej. Spa Relax"
       formControlName="name"
-      [error]="form.controls.name.touched && form.controls.name.invalid ? 'Ingresá el nombre de tu negocio' : ''"
+      [error]="submitted && form.controls.name.invalid ? 'Ingresá el nombre de tu negocio' : ''"
     />
 
     <div class="onboarding-card__field">
@@ -36,7 +36,7 @@
           </button>
         }
       </div>
-      @if (form.controls.category.touched && form.controls.category.invalid) {
+      @if (submitted && form.controls.category.invalid) {
         <span class="onboarding-card__field-error">Elegí un rubro</span>
       }
     </div>
@@ -46,7 +46,7 @@
         label="Especialidad"
         formControlName="specialty"
         [options]="specialtyOptions"
-        [error]="form.controls.specialty.touched && form.controls.specialty.invalid ? 'Elegí una especialidad' : ''"
+        [error]="submitted && form.controls.specialty.invalid ? 'Elegí una especialidad' : ''"
       />
     }
 

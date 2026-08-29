@@ -30,6 +30,7 @@ export class BusinessStepComponent implements OnInit {
   readonly currentStep = 1;
 
   loading = false;
+  submitted = false;
   apiError = '';
 
   readonly form = this.fb.nonNullable.group({
@@ -64,17 +65,16 @@ export class BusinessStepComponent implements OnInit {
 
   selectCategory(category: BusinessCategory): void {
     this.form.controls.category.setValue(category);
-    this.form.controls.category.markAsTouched();
     this.form.controls.specialty.setValue('');
     this.syncSpecialtyValidators(category);
   }
 
   onSubmit(): void {
+    this.submitted = true;
     this.apiError = '';
     this.syncSpecialtyValidators(this.form.controls.category.value as BusinessCategory | '');
 
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 

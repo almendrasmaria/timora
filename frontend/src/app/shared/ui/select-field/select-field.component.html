@@ -15,6 +15,7 @@
     (ngModelChange)="onSelect($event)"
     [disabled]="disabled"
     (blur)="onBlur()"
+    appendTo="body"
   ></ng-select>
 
   @if (error) {

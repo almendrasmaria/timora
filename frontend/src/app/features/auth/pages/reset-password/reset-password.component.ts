@@ -48,7 +48,6 @@ export class ResetPasswordComponent implements OnInit {
   );
 
   token = '';
-  submitted = false;
   loading = false;
   apiError = '';
 
@@ -59,36 +58,12 @@ export class ResetPasswordComponent implements OnInit {
     }
   }
 
-  get passwordError(): string {
-    const control = this.form.controls.password;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'La contraseña es obligatoria';
-    if (control.hasError('minlength')) return 'Mínimo 8 caracteres';
-    return '';
-  }
-
-  get confirmPasswordError(): string {
-    const control = this.form.controls.confirmPassword;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'Confirmá tu contraseña';
-    if (this.form.hasError('passwordMismatch')) return 'Las contraseñas no coinciden';
-    return '';
-  }
-
   onSubmit(): void {
-    this.submitted = true;
+    if (!this.token || this.form.invalid) {
+      return;
+    }
+
     this.apiError = '';
-
-    if (!this.token) {
-      this.apiError = 'El enlace no es válido o expiró. Solicitá uno nuevo.';
-      return;
-    }
-
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
-
     const { password } = this.form.getRawValue();
     this.loading = true;
 

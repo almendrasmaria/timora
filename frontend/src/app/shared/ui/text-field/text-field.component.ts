@@ -22,6 +22,8 @@ export class TextFieldComponent implements ControlValueAccessor {
   @Input() hint = '';
   @Input() error = '';
   @Input() required = false;
+  @Input() variant: 'default' | 'outlined' = 'default';
+  @Input() hasLabelAction = false;
 
   value = '';
   disabled = false;

@@ -47,43 +47,19 @@ export class RegisterComponent {
     }
   );
 
-  submitted = false;
   loading = false;
   apiError = '';
 
-  get emailError(): string {
-    const control = this.form.controls.email;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'El email es obligatorio';
-    if (control.hasError('email')) return 'Ingresá un email válido';
-    return '';
-  }
-
-  get passwordError(): string {
-    const control = this.form.controls.password;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'La contraseña es obligatoria';
-    if (control.hasError('minlength')) return 'Mínimo 8 caracteres';
-    return '';
-  }
-
-  get confirmPasswordError(): string {
-    const control = this.form.controls.confirmPassword;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'Confirmá tu contraseña';
-    if (this.form.hasError('passwordMismatch')) return 'Las contraseñas no coinciden';
-    return '';
+  onGoogleSignIn(): void {
+    alert('Registrarte con Google estará disponible pronto.');
   }
 
   onSubmit(): void {
-    this.submitted = true;
-    this.apiError = '';
-
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
+    this.apiError = '';
     const { email, password } = this.form.getRawValue();
     this.loading = true;
 

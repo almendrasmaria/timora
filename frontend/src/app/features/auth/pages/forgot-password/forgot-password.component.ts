@@ -35,28 +35,16 @@ export class ForgotPasswordComponent {
     email: ['', [Validators.required, Validators.email]],
   });
 
-  submitted = false;
   loading = false;
   sentSuccessfully = false;
   apiError = '';
 
-  get emailError(): string {
-    const control = this.form.controls.email;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'El email es obligatorio';
-    if (control.hasError('email')) return 'Ingresá un email válido';
-    return '';
-  }
-
   onSubmit(): void {
-    this.submitted = true;
-    this.apiError = '';
-
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
+    this.apiError = '';
     const { email } = this.form.getRawValue();
     this.loading = true;
 

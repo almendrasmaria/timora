@@ -38,7 +38,6 @@ export class LoginComponent implements OnInit {
     password: ['', [Validators.required]],
   });
 
-  submitted = false;
   loading = false;
   apiError = '';
   sessionExpiredMessage = '';
@@ -53,30 +52,16 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  get emailError(): string {
-    const control = this.form.controls.email;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'El email es obligatorio';
-    if (control.hasError('email')) return 'Ingresá un email válido';
-    return '';
-  }
-
-  get passwordError(): string {
-    const control = this.form.controls.password;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'La contraseña es obligatoria';
-    return '';
+  onGoogleSignIn(): void {
+    alert('Iniciar sesión con Google estará disponible pronto.');
   }
 
   onSubmit(): void {
-    this.submitted = true;
-    this.apiError = '';
-
     if (this.form.invalid) {
-      this.form.markAllAsTouched();
       return;
     }
 
+    this.apiError = '';
     const { email, password } = this.form.getRawValue();
     this.loading = true;
 

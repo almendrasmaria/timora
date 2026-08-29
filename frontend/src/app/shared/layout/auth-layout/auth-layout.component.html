@@ -11,20 +11,27 @@
     <div class="auth-layout__glow" aria-hidden="true"></div>
 
     <section class="auth-layout__hero">
-      @if (eyebrow) {
-        <span class="auth-layout__eyebrow">{{ eyebrow }}</span>
-      }
-      <h1 class="auth-layout__headline">{{ headline }}</h1>
+      <div class="auth-layout__hero-content">
+        @if (eyebrow) {
+          <span class="auth-layout__eyebrow">{{ eyebrow }}</span>
+        }
+        <h1 class="auth-layout__headline">{{ headline }}</h1>
 
-      @if (features.length) {
-        <ul class="auth-layout__features">
-          @for (feature of features; track feature) {
-            <li>
-              <app-feature-item [text]="feature" />
-            </li>
-          }
-        </ul>
-      }
+        @if (features.length) {
+          <ul class="auth-layout__features">
+            @for (feature of features; track feature) {
+              <li>
+                <app-feature-item [text]="feature" />
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <div class="auth-layout__status">
+        <span class="auth-layout__status-dot" aria-hidden="true"></span>
+        Disponible
+      </div>
     </section>
 
     <section class="auth-layout__form">

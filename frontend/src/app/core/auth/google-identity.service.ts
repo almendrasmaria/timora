@@ -3,11 +3,13 @@ import { environment } from '../../../environments/environment';
 
 declare const google: any;
 
+const SIGN_IN_TIMEOUT_MS = 60000;
+
 @Injectable({ providedIn: 'root' })
 export class GoogleIdentityService {
   private initialized = false;
   private pendingResolve: ((idToken: string) => void) | null = null;
-  private pendingReject: ((reason: Error) => void) | null = null;
+  private pendingTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   private ensureInitialized(): void {
     if (this.initialized) {
@@ -20,9 +22,12 @@ export class GoogleIdentityService {
     google.accounts.id.initialize({
       client_id: environment.googleClientId,
       callback: (response: { credential: string }) => {
+        if (this.pendingTimeoutId) {
+          clearTimeout(this.pendingTimeoutId);
+          this.pendingTimeoutId = null;
+        }
         const resolve = this.pendingResolve;
         this.pendingResolve = null;
-        this.pendingReject = null;
         resolve?.(response.credential);
       },
     });
@@ -39,17 +44,15 @@ export class GoogleIdentityService {
       }
 
       this.pendingResolve = resolve;
-      this.pendingReject = reject;
-
-      google.accounts.id.prompt((notification: { isNotDisplayed?: () => boolean; isSkippedMoment?: () => boolean }) => {
-        const blocked = notification.isNotDisplayed?.() || notification.isSkippedMoment?.();
-        if (blocked && this.pendingReject) {
-          const reject2 = this.pendingReject;
+      this.pendingTimeoutId = setTimeout(() => {
+        this.pendingTimeoutId = null;
+        if (this.pendingResolve) {
           this.pendingResolve = null;
-          this.pendingReject = null;
-          reject2(new Error('No pudimos abrir el selector de cuentas de Google. Probá de nuevo.'));
+          reject(new Error('Se canceló el inicio de sesión con Google.'));
         }
-      });
+      }, SIGN_IN_TIMEOUT_MS);
+
+      google.accounts.id.prompt();
     });
   }
 }

@@ -355,7 +355,7 @@ export class BookingPageComponent implements OnInit {
       return null;
     }
     const depositAmount = computeDepositAmount(this.business, service.price);
-    return servicePaymentLabel(depositAmount, service.price);
+    return servicePaymentLabel(depositAmount, service.price, this.business.depositEnabled);
   }
 
   selectService(serviceId: number): void {

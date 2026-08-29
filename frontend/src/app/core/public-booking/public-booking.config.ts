@@ -53,13 +53,14 @@ export function computeDepositAmount(
 
 export function servicePaymentLabel(
   depositAmount: number | null,
-  price: number | null
+  price: number | null,
+  depositEnabled: boolean
 ): string | null {
   if (depositAmount != null && depositAmount > 0) {
     return 'Seña online';
   }
 
-  if (price != null && price > 0) {
+  if (depositEnabled && price != null && price > 0) {
     return 'Pago total online';
   }
 

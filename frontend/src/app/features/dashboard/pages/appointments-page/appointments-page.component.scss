@@ -608,8 +608,8 @@
     justify-content: center;
     width: 39px;
     height: 39px;
-    background: var(--color-surface-muted);
-    border: none;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
     border-radius: 12px;
     cursor: pointer;
     color: var(--color-text);
@@ -617,7 +617,7 @@
     font-size: 16px;
 
     &:hover {
-      background: var(--color-border);
+      background: var(--color-surface-muted);
     }
   }
 
@@ -691,7 +691,7 @@
   &__headers-row {
     display: flex;
     border-bottom: 1px solid var(--color-border);
-    background: var(--color-surface-elevated);
+    background: var(--color-surface-muted);
     flex-shrink: 0;
     z-index: 10;
     position: sticky;
@@ -700,7 +700,7 @@
   }
 
   &__hours-spacer {
-    width: 4.5rem;
+    width: 3.25rem;
     flex-shrink: 0;
     border-right: 1px solid var(--color-border);
     display: flex;
@@ -711,7 +711,7 @@
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: var(--color-surface-elevated);
+    background: var(--color-surface-muted);
   }
 
   &__headers-cols {
@@ -762,7 +762,7 @@
   &__body { display: flex; flex: 1; position: relative; }
 
   &__hours {
-    width: 4.5rem;
+    width: 3.25rem;
     flex-shrink: 0;
     border-right: 1px solid var(--color-border);
     background: var(--color-surface);
@@ -814,17 +814,6 @@
     border-right: 1px solid var(--color-border);
     position: relative;
     height: 100%;
-
-    // Clickable empty slot hover
-    &::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      transition: background var(--duration-fast) var(--ease-out);
-    }
-    &:hover::before {
-      background: rgba(0, 74, 173, 0.03);
-    }
 
     &:last-child { border-right: none; }
   }

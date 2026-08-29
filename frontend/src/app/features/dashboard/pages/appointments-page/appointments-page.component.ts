@@ -437,13 +437,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   });
 
   readonly gridColumnCount = computed<number>(() => {
-    return Math.max(this.activeProfessionals().length, 5);
-  });
-
-  readonly emptyColumnsArray = computed<number[]>(() => {
-    const activeCount = this.activeProfessionals().length;
-    const needed = Math.max(5 - activeCount, 0);
-    return Array.from({ length: needed }, (_, i) => i);
+    return Math.max(this.activeProfessionals().length, 1);
   });
 
   get activeDateLabel(): string {

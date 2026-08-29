@@ -49,3 +49,5 @@ timora:
     from: ${MAIL_FROM:no-reply@timora.app}
   frontend:
     base-url: ${FRONTEND_BASE_URL:http://localhost:4200}
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:}

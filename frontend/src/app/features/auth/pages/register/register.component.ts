@@ -4,6 +4,7 @@ import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { parseApiError } from '../../../../core/auth/api-error';
 import { AuthService } from '../../../../core/auth/auth.service';
+import { GoogleIdentityService } from '../../../../core/auth/google-identity.service';
 import { AuthLayoutComponent } from '../../../../shared/layout/auth-layout/auth-layout.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
@@ -24,6 +25,7 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly googleIdentity = inject(GoogleIdentityService);
   private readonly router = inject(Router);
 
   readonly features = [
@@ -50,8 +52,25 @@ export class RegisterComponent {
   loading = false;
   apiError = '';
 
-  onGoogleSignIn(): void {
-    alert('Registrarte con Google estará disponible pronto.');
+  async onGoogleSignIn(): Promise<void> {
+    this.apiError = '';
+    try {
+      const idToken = await this.googleIdentity.signIn();
+      this.loading = true;
+      this.auth
+        .loginWithGoogle({ idToken })
+        .pipe(finalize(() => (this.loading = false)))
+        .subscribe({
+          next: () => {
+            void this.router.navigate(this.auth.postAuthRedirect());
+          },
+          error: (error) => {
+            this.apiError = parseApiError(error);
+          },
+        });
+    } catch (error) {
+      this.apiError = error instanceof Error ? error.message : 'No se pudo continuar con Google.';
+    }
   }
 
   onSubmit(): void {

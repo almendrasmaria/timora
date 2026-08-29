@@ -1,18 +1,25 @@
 package com.timora.auth;
 
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import com.timora.auth.dto.AuthResponse;
 import com.timora.auth.dto.ForgotPasswordRequest;
+import com.timora.auth.dto.GoogleAuthRequest;
 import com.timora.auth.dto.LoginRequest;
 import com.timora.auth.dto.RegisterRequest;
 import com.timora.auth.dto.ResetPasswordRequest;
 import com.timora.business.Business;
 import com.timora.business.BusinessRepository;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HexFormat;
 import java.util.UUID;
 import com.timora.user.AppUser;
@@ -25,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 @Service
@@ -39,6 +47,7 @@ public class AuthService {
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final MailService mailService;
     private final String frontendBaseUrl;
+    private final GoogleIdTokenVerifier googleIdTokenVerifier;
 
     public AuthService(
             AppUserRepository appUserRepository,
@@ -47,7 +56,8 @@ public class AuthService {
             JwtService jwtService,
             PasswordResetTokenRepository passwordResetTokenRepository,
             MailService mailService,
-            @Value("${timora.frontend.base-url}") String frontendBaseUrl
+            @Value("${timora.frontend.base-url}") String frontendBaseUrl,
+            @Value("${timora.google.client-id}") String googleClientId
     ) {
         this.appUserRepository = appUserRepository;
         this.businessRepository = businessRepository;
@@ -56,6 +66,9 @@ public class AuthService {
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.mailService = mailService;
         this.frontendBaseUrl = frontendBaseUrl;
+        this.googleIdTokenVerifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), GsonFactory.getDefaultInstance())
+                .setAudience(Collections.singletonList(googleClientId))
+                .build();
     }
 
     @Transactional
@@ -93,6 +106,52 @@ public class AuthService {
         }
 
         return buildAuthResponse(user);
+    }
+
+    @Transactional
+    public AuthResponse loginOrRegisterWithGoogle(GoogleAuthRequest request) {
+        GoogleIdToken.Payload payload = verifyGoogleIdToken(request.idToken());
+
+        if (!Boolean.TRUE.equals(payload.getEmailVerified())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "El email de tu cuenta de Google no está verificado");
+        }
+
+        String email = payload.getEmail().trim().toLowerCase();
+
+        AppUser user = appUserRepository.findByEmailIgnoreCase(email)
+                .orElseGet(() -> registerGoogleUser(email));
+
+        return buildAuthResponse(user);
+    }
+
+    private AppUser registerGoogleUser(String email) {
+        Business business = new Business();
+        business.setName("Mi negocio");
+        business.setSlug("tmp-" + UUID.randomUUID().toString().substring(0, 8));
+        businessRepository.save(business);
+
+        AppUser user = new AppUser();
+        user.setBusiness(business);
+        user.setEmail(email);
+        user.setPasswordHash(passwordEncoder.encode(generateSecureToken()));
+        user.setRole(UserRole.OWNER);
+        appUserRepository.save(user);
+        return user;
+    }
+
+    private GoogleIdToken.Payload verifyGoogleIdToken(String idTokenString) {
+        GoogleIdToken idToken;
+        try {
+            idToken = googleIdTokenVerifier.verify(idTokenString);
+        } catch (GeneralSecurityException | IOException | IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "No se pudo verificar el token de Google");
+        }
+
+        if (idToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Token de Google inválido o expirado");
+        }
+
+        return idToken.getPayload();
     }
 
     @Transactional

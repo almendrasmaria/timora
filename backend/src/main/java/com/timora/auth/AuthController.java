@@ -2,6 +2,7 @@ package com.timora.auth;
 
 import com.timora.auth.dto.AuthResponse;
 import com.timora.auth.dto.ForgotPasswordRequest;
+import com.timora.auth.dto.GoogleAuthRequest;
 import com.timora.auth.dto.LoginRequest;
 import com.timora.auth.dto.RegisterRequest;
 import com.timora.auth.dto.ResetPasswordRequest;
@@ -32,6 +33,11 @@ public class AuthController {
     @PostMapping("/login")
     public AuthResponse login(@Valid @RequestBody LoginRequest request) {
         return authService.login(request);
+    }
+
+    @PostMapping("/google")
+    public AuthResponse google(@Valid @RequestBody GoogleAuthRequest request) {
+        return authService.loginOrRegisterWithGoogle(request);
     }
 
     @PostMapping("/forgot-password")

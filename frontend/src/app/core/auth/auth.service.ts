@@ -7,6 +7,7 @@ import {
   AuthResponse,
   AuthSession,
   ForgotPasswordRequest,
+  GoogleAuthRequest,
   ResetPasswordRequest,
 } from './auth.models';
 
@@ -59,6 +60,12 @@ export class AuthService {
   register(credentials: AuthCredentials): Observable<AuthResponse> {
     return this.http
       .post<AuthResponse>(`${environment.apiUrl}/auth/register`, credentials)
+      .pipe(tap((response) => this.persistSession(response)));
+  }
+
+  loginWithGoogle(request: GoogleAuthRequest): Observable<AuthResponse> {
+    return this.http
+      .post<AuthResponse>(`${environment.apiUrl}/auth/google`, request)
       .pipe(tap((response) => this.persistSession(response)));
   }
 

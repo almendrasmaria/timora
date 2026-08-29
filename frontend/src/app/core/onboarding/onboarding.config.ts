@@ -98,7 +98,7 @@ export const BRAND_COLORS = [
   { value: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)', label: 'Nude durazno' },
   { value: 'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)', label: 'Azul hielo' },
   { value: 'linear-gradient(135deg, #fd7043 0%, #e53935 100%)', label: 'Rojo coral' },
-  { value: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', label: 'Turquesa noche' },
+  { value: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)', label: 'Turquesa' },
   { value: 'linear-gradient(135deg, #2d3561 0%, #c05c7e 100%)', label: 'Azul bordo' },
   { value: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)', label: 'Noche oscura' },
 ] as const;

@@ -112,7 +112,10 @@
     // ::ng-deep es necesario para alcanzarlo. Forzamos display:block para
     // que no arrastre el hueco de línea (line-height) típico de los
     // elementos inline, que lo descentraba verticalmente en el footer.
-    ::ng-deep [modal-actions] {
+    // Se limita a <app-button modal-actions> (botón único de submit): el
+    // wrapper <div modal-actions> de app-confirm-modal ya maneja su propio
+    // layout en fila y no debe forzarse a bloque/ancho completo.
+    ::ng-deep app-button[modal-actions] {
       display: block;
       width: 100%;
 

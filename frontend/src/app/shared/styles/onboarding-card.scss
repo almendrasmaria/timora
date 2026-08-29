@@ -213,8 +213,8 @@
     }
 
     &.is-selected {
-      border-color: #38b6ff;
-      background: #38b6ff;
+      border-color: var(--color-primary);
+      background: var(--color-primary);
       color: var(--color-text-inverse);
       box-shadow: var(--shadow-sm);
     }
@@ -245,9 +245,9 @@
       box-shadow var(--duration-fast) var(--ease-out);
 
     &.is-selected {
-      border-color: #38b6ff;
-      box-shadow: 0 0 0 1px #38b6ff;
-      color: #38b6ff;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 1px var(--color-primary);
+      color: var(--color-primary);
     }
   }
 
@@ -417,7 +417,7 @@
     }
 
     &.is-selected {
-      border-color: #38b6ff;
+      border-color: var(--color-primary);
       background: var(--color-surface);
       box-shadow: var(--shadow-sm);
     }
@@ -444,8 +444,8 @@
       background var(--duration-fast) var(--ease-out);
 
     .onboarding-card__payment-option.is-selected & {
-      border-color: #38b6ff;
-      background: #38b6ff;
+      border-color: var(--color-primary);
+      background: var(--color-primary);
     }
   }
 

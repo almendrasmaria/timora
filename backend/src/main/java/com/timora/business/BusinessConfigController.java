@@ -31,4 +31,9 @@ public class BusinessConfigController {
     public ResponseEntity<Business> uploadLogo(@RequestParam("file") MultipartFile file) {
         return ResponseEntity.ok(businessConfigService.uploadLogo(file));
     }
+
+    @DeleteMapping("/logo")
+    public ResponseEntity<Business> removeLogo() {
+        return ResponseEntity.ok(businessConfigService.removeLogo());
+    }
 }

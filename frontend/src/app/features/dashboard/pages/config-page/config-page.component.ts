@@ -768,6 +768,20 @@ export class ConfigPageComponent implements OnInit {
     }
   }
 
+  onRemoveLogo(event: Event): void {
+    event.stopPropagation();
+    this.loading.set(true);
+    this.configService.removeLogo().pipe(finalize(() => {
+      this.loading.set(false);
+      this.refreshState();
+    })).subscribe({
+      next: () => {
+        this.negocioForm.controls.logoUrl.setValue('');
+      },
+      error: (err) => this.apiError.set(parseApiError(err)),
+    });
+  }
+
   getFullUrl(type: 'booking' | 'instagram'): string {
     const slug = this.negocioForm.controls.slug.value || '';
     const origin = window.location.origin;

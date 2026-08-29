@@ -75,4 +75,17 @@ public class BusinessConfigService {
         business.setLogoUrl(url);
         return businessRepository.save(business);
     }
+
+    @Transactional
+    public Business removeLogo() {
+        AppUser user = currentUserService.requireCurrentUser();
+        Business business = user.getBusiness();
+
+        if (business == null) {
+            throw new IllegalStateException("User does not have a business");
+        }
+
+        business.setLogoUrl(null);
+        return businessRepository.save(business);
+    }
 }

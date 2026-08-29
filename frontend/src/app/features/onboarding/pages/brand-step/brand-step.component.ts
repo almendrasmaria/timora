@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 import { parseApiError } from '../../../../core/auth/api-error';
+import { ConfigService } from '../../../../core/config/config.service';
 import { BRAND_COLORS } from '../../../../core/onboarding/onboarding.config';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
@@ -19,11 +20,13 @@ const DEFAULT_BRAND_COLOR = BRAND_COLORS[1].value;
 export class BrandStepComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly onboarding = inject(OnboardingService);
+  private readonly configService = inject(ConfigService);
   private readonly router = inject(Router);
 
   readonly brandColors = BRAND_COLORS;
   readonly currentStep = 3;
   loading = false;
+  uploadingLogo = false;
   apiError = '';
   logoPreview: string | null = null;
 
@@ -40,6 +43,7 @@ export class BrandStepComponent implements OnInit {
           slug,
           brandColor: state.business.brandColor ?? DEFAULT_BRAND_COLOR,
         });
+        this.logoPreview = state.business.logoUrl || null;
       },
     });
   }
@@ -62,11 +66,20 @@ export class BrandStepComponent implements OnInit {
     }
 
     this.apiError = '';
-    const reader = new FileReader();
-    reader.onload = () => {
-      this.logoPreview = typeof reader.result === 'string' ? reader.result : null;
-    };
-    reader.readAsDataURL(file);
+    this.uploadingLogo = true;
+
+    this.configService
+      .uploadLogo(file)
+      .pipe(finalize(() => (this.uploadingLogo = false)))
+      .subscribe({
+        next: (business) => {
+          this.logoPreview = business.logoUrl;
+        },
+        error: (error) => {
+          this.apiError = parseApiError(error);
+          input.value = '';
+        },
+      });
   }
 
   onSubmit(): void {

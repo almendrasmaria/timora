@@ -427,6 +427,11 @@
                 <app-button type="button" variant="secondary" (click)="fileInput.click()">
                   Subir logo
                 </app-button>
+                @if (negocioForm.controls.logoUrl.value) {
+                  <app-button type="button" variant="ghost" (click)="onRemoveLogo($event)">
+                    Quitar
+                  </app-button>
+                }
               </div>
             </div>
           </div>

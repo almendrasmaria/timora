@@ -41,4 +41,8 @@ export class ConfigService {
     formData.append('file', file);
     return this.http.post(`${environment.apiUrl}/business-config/logo`, formData);
   }
+
+  removeLogo(): Observable<any> {
+    return this.http.delete(`${environment.apiUrl}/business-config/logo`);
+  }
 }

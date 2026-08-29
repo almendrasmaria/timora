@@ -55,9 +55,9 @@
 
         <label class="onboarding-card__logo-button">
 
-          Subir logo
+          {{ uploadingLogo ? 'Subiendo...' : 'Subir logo' }}
 
-          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" (change)="onLogoSelected($event)" />
+          <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" [disabled]="uploadingLogo" (change)="onLogoSelected($event)" />
 
         </label>
 

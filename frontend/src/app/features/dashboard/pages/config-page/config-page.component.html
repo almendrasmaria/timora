@@ -767,8 +767,7 @@
       />
       <div class="config-modal-form__branches-section">
         <p class="config-modal-form__branches-title">Sucursales donde atiende</p>
-        <p class="config-modal-form__branches-subtitle">Marcá en qué sucursales trabaja este profesional.</p>
-        
+
         <div class="config-modal-form__branches-list">
           @for (branch of state()?.branches; track branch.id) {
             <label class="config-modal-form__branch-item">
@@ -788,7 +787,7 @@
       </div>
 
       <div class="config-modal-form__schedule-section">
-        <p class="config-modal-form__schedule-title">Horarios de atención</p>
+        <p class="config-modal-form__schedule-title">Días y horarios de atención</p>
 
         @if (selectedBranchesForPro().length > 1) {
           <div class="config-modal-form__schedule-tabs" style="display: flex; gap: 8px; margin-bottom: var(--space-3); border-bottom: 1px solid var(--color-border); padding-bottom: 8px; flex-wrap: wrap;">

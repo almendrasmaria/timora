@@ -9,7 +9,7 @@ import { ButtonComponent } from '../../../../shared/ui/button/button.component';
 import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.component';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-reset-password',
   standalone: true,
   imports: [
     ReactiveFormsModule,
@@ -18,10 +18,10 @@ import { TextFieldComponent } from '../../../../shared/ui/text-field/text-field.
     ButtonComponent,
     TextFieldComponent,
   ],
-  templateUrl: './login.component.html',
+  templateUrl: './reset-password.component.html',
   styleUrls: ['../../../../shared/styles/auth-form-card.scss'],
 })
-export class LoginComponent implements OnInit {
+export class ResetPasswordComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
@@ -33,38 +33,45 @@ export class LoginComponent implements OnInit {
     'Tus clientes reservan solos, 24/7.',
   ];
 
-  readonly form = this.fb.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required]],
-  });
+  readonly form = this.fb.nonNullable.group(
+    {
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', [Validators.required]],
+    },
+    {
+      validators: (group) => {
+        const password = group.get('password')?.value;
+        const confirm = group.get('confirmPassword')?.value;
+        return password === confirm ? null : { passwordMismatch: true };
+      },
+    }
+  );
 
+  token = '';
   submitted = false;
   loading = false;
   apiError = '';
-  sessionExpiredMessage = '';
-  resetSuccessMessage = '';
 
   ngOnInit(): void {
-    if (this.route.snapshot.queryParamMap.get('sessionExpired') === '1') {
-      this.sessionExpiredMessage = 'Tu sesión expiró. Volvé a iniciar sesión.';
+    this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
+    if (!this.token) {
+      this.apiError = 'El enlace no es válido o expiró. Solicitá uno nuevo.';
     }
-    if (this.route.snapshot.queryParamMap.get('resetSuccess') === '1') {
-      this.resetSuccessMessage = 'Tu contraseña se actualizó. Ya podés iniciar sesión.';
-    }
-  }
-
-  get emailError(): string {
-    const control = this.form.controls.email;
-    if (!this.submitted && !control.touched) return '';
-    if (control.hasError('required')) return 'El email es obligatorio';
-    if (control.hasError('email')) return 'Ingresá un email válido';
-    return '';
   }
 
   get passwordError(): string {
     const control = this.form.controls.password;
     if (!this.submitted && !control.touched) return '';
     if (control.hasError('required')) return 'La contraseña es obligatoria';
+    if (control.hasError('minlength')) return 'Mínimo 8 caracteres';
+    return '';
+  }
+
+  get confirmPasswordError(): string {
+    const control = this.form.controls.confirmPassword;
+    if (!this.submitted && !control.touched) return '';
+    if (control.hasError('required')) return 'Confirmá tu contraseña';
+    if (this.form.hasError('passwordMismatch')) return 'Las contraseñas no coinciden';
     return '';
   }
 
@@ -72,20 +79,25 @@ export class LoginComponent implements OnInit {
     this.submitted = true;
     this.apiError = '';
 
+    if (!this.token) {
+      this.apiError = 'El enlace no es válido o expiró. Solicitá uno nuevo.';
+      return;
+    }
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
-    const { email, password } = this.form.getRawValue();
+    const { password } = this.form.getRawValue();
     this.loading = true;
 
     this.auth
-      .login({ email, password })
+      .resetPassword({ token: this.token, newPassword: password })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
         next: () => {
-          void this.router.navigate(this.auth.postAuthRedirect());
+          void this.router.navigate(['/auth/login'], { queryParams: { resetSuccess: '1' } });
         },
         error: (error) => {
           this.apiError = parseApiError(error);

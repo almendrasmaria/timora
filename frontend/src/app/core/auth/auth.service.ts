@@ -2,7 +2,13 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { AuthCredentials, AuthResponse, AuthSession } from './auth.models';
+import {
+  AuthCredentials,
+  AuthResponse,
+  AuthSession,
+  ForgotPasswordRequest,
+  ResetPasswordRequest,
+} from './auth.models';
 
 const STORAGE_KEY = 'timora_auth';
 
@@ -59,6 +65,14 @@ export class AuthService {
   logout(): void {
     this.session.set(null);
     localStorage.removeItem(STORAGE_KEY);
+  }
+
+  forgotPassword(request: ForgotPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/forgot-password`, request);
+  }
+
+  resetPassword(request: ResetPasswordRequest): Observable<void> {
+    return this.http.post<void>(`${environment.apiUrl}/auth/reset-password`, request);
   }
 
   private persistSession(response: AuthResponse): void {

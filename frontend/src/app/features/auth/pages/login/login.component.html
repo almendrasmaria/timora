@@ -12,6 +12,10 @@
         <p class="auth-form-card__api-error" role="alert">{{ sessionExpiredMessage }}</p>
       }
 
+      @if (resetSuccessMessage) {
+        <p class="auth-form-card__api-success" role="status">{{ resetSuccessMessage }}</p>
+      }
+
       @if (apiError) {
         <p class="auth-form-card__api-error" role="alert">{{ apiError }}</p>
       }
@@ -33,6 +37,8 @@
         formControlName="password"
         [error]="passwordError"
       />
+
+      <a routerLink="/auth/forgot-password" class="auth-form-card__forgot-link">¿Olvidaste tu contraseña?</a>
 
       <app-button type="submit" variant="primary" [fullWidth]="true" [disabled]="loading">
         {{ loading ? 'Ingresando...' : 'Iniciar sesión' }}

@@ -736,13 +736,13 @@
         label="Nombre descriptivo"
         placeholder="Ej: Palermo, Sucursal Central..."
         formControlName="name"
-        [error]="branchForm.controls.name.touched && branchForm.controls.name.invalid ? 'El nombre es obligatorio' : ''"
+        [error]="branchFormSubmitted() && branchForm.controls.name.invalid ? 'El nombre es obligatorio' : ''"
       />
       <app-text-field
         label="Dirección"
         placeholder="Ej: Av. Santa Fe 1234, CABA..."
         formControlName="address"
-        [error]="branchForm.controls.address.touched && branchForm.controls.address.invalid ? 'La dirección es obligatoria' : ''"
+        [error]="branchFormSubmitted() && branchForm.controls.address.invalid ? 'La dirección es obligatoria' : ''"
       />
     </form>
 
@@ -763,7 +763,7 @@
         label="Nombre completo"
         placeholder="Ej: Luna Gómez..."
         formControlName="displayName"
-        [error]="proForm.controls.displayName.touched && proForm.controls.displayName.invalid ? 'El nombre es obligatorio' : ''"
+        [error]="proFormSubmitted() && proForm.controls.displayName.invalid ? 'El nombre es obligatorio' : ''"
       />
       <div class="config-modal-form__branches-section">
         <p class="config-modal-form__branches-title">Sucursales donde atiende</p>
@@ -813,7 +813,7 @@
             (availabilityChange)="setBranchAvailability(activeBranchId, $event)"
           />
         } @else {
-          <p style="font-size: var(--text-sm); color: var(--color-text-muted); text-align: center; padding: var(--space-4) 0; font-style: italic;">
+          <p style="font-size: 14px; color: var(--color-text-muted); text-align: center; padding: var(--space-4) 0; font-style: italic;">
             Seleccioná al menos una sucursal para configurar sus horarios.
           </p>
         }
@@ -837,14 +837,14 @@
         label="Nombre del servicio"
         placeholder="Ej: Corte de pelo, Masaje relajante..."
         formControlName="name"
-        [error]="serviceForm.controls.name.touched && serviceForm.controls.name.invalid ? 'El nombre es obligatorio' : ''"
+        [error]="serviceFormSubmitted() && serviceForm.controls.name.invalid ? 'El nombre es obligatorio' : ''"
       />
 
       <app-text-field
         label="Duración (minutos)"
         type="number"
         formControlName="durationMinutes"
-        [error]="serviceForm.controls.durationMinutes.touched && serviceForm.controls.durationMinutes.invalid ? 'La duración mínima es 5 min' : ''"
+        [error]="serviceFormSubmitted() && serviceForm.controls.durationMinutes.invalid ? 'La duración mínima es 5 min' : ''"
       />
 
       <app-text-field
@@ -853,7 +853,7 @@
         type="number"
         placeholder="0"
         formControlName="price"
-        [error]="serviceForm.controls.price.touched && serviceForm.controls.price.invalid ? 'El precio es obligatorio' : ''"
+        [error]="serviceFormSubmitted() && serviceForm.controls.price.invalid ? 'El precio es obligatorio' : ''"
       />
 
     </form>

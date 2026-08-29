@@ -105,14 +105,17 @@ export class ConfigPageComponent implements OnInit {
   // Modals state
   readonly showBranchModal = signal<boolean>(false);
   readonly editingBranch = signal<any | null>(null);
+  readonly branchFormSubmitted = signal<boolean>(false);
 
   readonly showProModal = signal<boolean>(false);
   readonly editingPro = signal<any | null>(null);
   readonly proBranchAvailabilities = signal<Record<number, ProfessionalAvailability>>({});
   readonly selectedScheduleBranchId = signal<number | null>(null);
+  readonly proFormSubmitted = signal<boolean>(false);
 
   readonly showServiceModal = signal<boolean>(false);
   readonly editingService = signal<any | null>(null);
+  readonly serviceFormSubmitted = signal<boolean>(false);
 
   // Forms
   readonly branchForm = this.fb.nonNullable.group({
@@ -239,6 +242,7 @@ export class ConfigPageComponent implements OnInit {
   openAddBranchModal(): void {
     this.editingBranch.set(null);
     this.branchForm.reset({ name: '', address: '' });
+    this.branchFormSubmitted.set(false);
     this.showBranchModal.set(true);
   }
 
@@ -248,12 +252,13 @@ export class ConfigPageComponent implements OnInit {
       name: branch.name,
       address: branch.address,
     });
+    this.branchFormSubmitted.set(false);
     this.showBranchModal.set(true);
   }
 
   saveBranch(): void {
+    this.branchFormSubmitted.set(true);
     if (this.branchForm.invalid) {
-      this.branchForm.markAllAsTouched();
       return;
     }
     const { name, address } = this.branchForm.getRawValue();
@@ -295,11 +300,13 @@ export class ConfigPageComponent implements OnInit {
     this.proForm.reset({ displayName: '', branchIds: [] });
     this.proBranchAvailabilities.set({});
     this.selectedScheduleBranchId.set(null);
+    this.proFormSubmitted.set(false);
     this.showProModal.set(true);
   }
 
   openEditProModal(pro: any): void {
     this.editingPro.set(pro);
+    this.proFormSubmitted.set(false);
     const displayName = pro.firstName === pro.lastName ? pro.firstName : `${pro.firstName} ${pro.lastName}`;
     this.proForm.patchValue({
       displayName,
@@ -366,8 +373,8 @@ export class ConfigPageComponent implements OnInit {
   }
 
   savePro(): void {
+    this.proFormSubmitted.set(true);
     if (this.proForm.invalid) {
-      this.proForm.markAllAsTouched();
       return;
     }
     const { displayName, branchIds } = this.proForm.getRawValue();
@@ -476,11 +483,13 @@ export class ConfigPageComponent implements OnInit {
       paymentRequirement: 'ONLINE_DEPOSIT',
     });
     this.syncServicePaymentFields('ONLINE_DEPOSIT');
+    this.serviceFormSubmitted.set(false);
     this.showServiceModal.set(true);
   }
 
   openEditServiceModal(service: any): void {
     this.editingService.set(service);
+    this.serviceFormSubmitted.set(false);
     let requirement: string = 'NO_PAYMENT';
     if (service.depositAmount != null) {
       requirement = 'ONLINE_DEPOSIT';
@@ -500,12 +509,11 @@ export class ConfigPageComponent implements OnInit {
   }
 
   saveService(): void {
+    this.serviceFormSubmitted.set(true);
     if (!this.validateServicePaymentFields()) {
-      this.serviceForm.markAllAsTouched();
       return;
     }
     if (this.serviceForm.invalid) {
-      this.serviceForm.markAllAsTouched();
       return;
     }
 

@@ -202,6 +202,12 @@
     text-align: center;
     color: var(--color-text-muted);
     font-weight: 400;
+
+    @include bp.tablet {
+      position: sticky;
+      left: 0;
+      width: calc(100vw - var(--space-8));
+    }
   }
 
   &__spinner {
@@ -218,6 +224,16 @@
     padding: var(--space-6) var(--space-4);
     background: var(--color-primary-subtle);
     border-radius: 0 0 8px 8px;
+
+    // On mobile/tablet the table has a forced min-width so it can scroll
+    // horizontally instead of squashing columns — but that leaves this
+    // banner centered inside that off-screen width instead of the
+    // viewport. Pin it to the visible left edge regardless of scroll.
+    @include bp.tablet {
+      position: sticky;
+      left: 0;
+      width: calc(100vw - var(--space-8));
+    }
   }
 
   &__empty-text {

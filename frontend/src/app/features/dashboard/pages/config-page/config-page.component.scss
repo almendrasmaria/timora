@@ -6,7 +6,7 @@
   box-sizing: border-box;
 
   @include bp.tablet-up {
-    min-height: 100%;
+    flex: 1;
     align-items: stretch;
   }
 
@@ -91,7 +91,7 @@
   text-transform: uppercase;
   color: var(--color-text-muted);
   letter-spacing: 0.05em;
-  margin: 0 0 var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-2);
 }
 
 .config-sidebar__nav {
@@ -1304,6 +1304,7 @@
   &__actions {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: var(--space-4);
     margin-bottom: var(--space-4);
   }
@@ -1415,11 +1416,6 @@
   }
   .config-link-card__url {
     font-size: 14px;
-  }
-  .config-link-card__actions {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-3);
   }
   .config-panel__title {
     font-size: 16px;

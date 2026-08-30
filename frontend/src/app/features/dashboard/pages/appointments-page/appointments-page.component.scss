@@ -513,6 +513,11 @@
       text-transform: none;
       letter-spacing: normal;
     }
+
+    &--menu-open {
+      position: relative;
+      z-index: 10;
+    }
   }
 
   &__time {

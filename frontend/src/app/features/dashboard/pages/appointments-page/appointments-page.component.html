@@ -158,7 +158,7 @@
                 
                 <div class="timora-list__group-items">
                   @for (appt of group.items; track appt.id) {
-                    <div class="timora-list__item" (click)="openDetail(appt)">
+                    <div class="timora-list__item" [class.timora-list__item--menu-open]="activeRowMenuId() === appt.id" (click)="openDetail(appt)">
                       <div class="timora-list__col timora-list__col--time">
                         <span class="timora-list__time">{{ formatTimeOnly(appt.startsAt) }}</span>
                       </div>

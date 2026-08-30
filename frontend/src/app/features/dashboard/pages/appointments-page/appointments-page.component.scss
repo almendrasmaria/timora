@@ -690,6 +690,9 @@
 
   &__headers-row {
     display: flex;
+    align-self: flex-start;
+    min-width: 100%;
+    width: fit-content;
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface-muted);
     flex-shrink: 0;

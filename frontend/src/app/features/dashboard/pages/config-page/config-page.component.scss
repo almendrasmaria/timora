@@ -6,14 +6,14 @@
   box-sizing: border-box;
 
   @include bp.tablet-up {
-    min-height: calc(100vh - 64px);
+    min-height: 100%;
     align-items: stretch;
   }
 
   @include bp.tablet {
     flex-direction: column;
     gap: 0;
-    padding: var(--space-4) var(--space-4) var(--space-10);
+    padding: 0 var(--space-4);
     min-height: calc(100vh - 120px);
   }
 
@@ -511,7 +511,7 @@
 
 /* Formas de cobro */
 .config-cobro {
-  padding: 16px;
+  padding: 0;
 
   @include bp.tablet-up {
     padding: 24px;
@@ -528,7 +528,7 @@
   border-top: 1px solid var(--color-border);
 
   &__label {
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--color-text);
     margin: 0 0 var(--space-3);
@@ -581,7 +581,7 @@
   }
 
   &__title {
-    font-size: 15px;
+    font-size: 17px;
     font-weight: 600;
     color: var(--color-text);
     margin: 0;
@@ -608,7 +608,7 @@
   }
 
   &__description {
-    font-size: 13px;
+    font-size: 15px;
     color: var(--color-text-secondary);
     margin: 0;
   }
@@ -642,14 +642,14 @@
   margin-bottom: var(--space-5);
 
   &__title {
-    font-size: 16px;
+    font-size: 18px;
     font-weight: 600;
     color: var(--color-text);
     margin: 0 0 2px;
   }
 
   &__description {
-    font-size: 14px;
+    font-size: 16px;
     color: var(--color-text-secondary);
     margin: 0;
   }
@@ -739,6 +739,17 @@
   @include bp.mobile {
     grid-template-columns: 1fr;
   }
+
+  ::ng-deep {
+    .field__label {
+      font-size: 16px;
+    }
+
+    .field__input,
+    .field__select.ng-select .ng-select-container {
+      font-size: 16px;
+    }
+  }
 }
 
 /* Forms General Layout */
@@ -757,7 +768,7 @@
   }
 
   &__body {
-    padding: 16px;
+    padding: 0;
     display: flex;
     flex-direction: column;
     gap: var(--space-5);
@@ -798,7 +809,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  padding: 16px;
+  padding: 16px 0;
   border-bottom: 1px solid var(--color-border);
   box-sizing: border-box;
 
@@ -817,7 +828,11 @@
   &--actions {
     justify-content: flex-end;
     flex-direction: row;
-    padding: 16px 24px;
+    padding: 16px 0;
+
+    @include bp.tablet-up {
+      padding: 16px 24px;
+    }
   }
 
   &__info {
@@ -1334,6 +1349,12 @@
   .config-content__description {
     font-size: 14px;
   }
+  .config-row__label {
+    font-size: 16px;
+  }
+  .config-row__description {
+    font-size: 14px;
+  }
   .config-card__title {
     font-size: 16px;
   }
@@ -1372,6 +1393,11 @@
   }
   .config-link-card__url {
     font-size: 14px;
+  }
+  .config-link-card__actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
   }
   .config-panel__title {
     font-size: 16px;

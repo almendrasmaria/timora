@@ -5,6 +5,10 @@
   flex-direction: column;
   flex: 1;
   min-width: 0;
+
+  @include bp.tablet-up {
+    min-height: 0;
+  }
 }
 
 .config-layout {
@@ -14,7 +18,9 @@
 
   @include bp.tablet-up {
     flex: 1;
+    min-height: 0;
     align-items: stretch;
+    overflow: hidden;
   }
 
   @include bp.tablet {
@@ -54,6 +60,7 @@
     padding: 0;
     margin: 0;
     gap: var(--space-5);
+    overflow-y: auto;
   }
 
   @include bp.tablet {
@@ -233,6 +240,7 @@
   @include bp.tablet-up {
     background: transparent;
     padding: 8px 8px 32px;
+    overflow-y: auto;
   }
 
   @include bp.tablet {

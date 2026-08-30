@@ -64,7 +64,7 @@ export class ConfigPageComponent implements OnInit {
   private readonly confirmService = inject(ConfirmService);
 
   readonly state = signal<OnboardingState | null>(null);
-  readonly activeSection = signal<string>('sucursales');
+  readonly activeSection = signal<string>(window.innerWidth <= 768 ? '' : 'sucursales');
   readonly loading = signal<boolean>(false);
   readonly apiError = signal<string>('');
 

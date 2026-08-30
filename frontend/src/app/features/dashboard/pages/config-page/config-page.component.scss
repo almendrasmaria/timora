@@ -1,5 +1,12 @@
 @use 'breakpoints' as bp;
 
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
 .config-layout {
   display: flex;
   width: 100%;

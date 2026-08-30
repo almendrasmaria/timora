@@ -122,29 +122,6 @@
     }
   }
 
-  &__export-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-2);
-    flex-shrink: 0;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 0 var(--space-4);
-    height: 39px;
-    font-size: 16px;
-    font-weight: 600;
-    color: var(--color-text);
-    cursor: pointer;
-    transition: all var(--duration-fast);
-
-    &:hover {
-      background: var(--color-surface-muted);
-      border-color: var(--color-border-hover);
-    }
-  }
-
   &__create-btn {
     display: inline-flex;
     align-items: center;
@@ -189,10 +166,6 @@
     overflow: visible;
   }
 
-  &__state-row td {
-    padding: 0;
-  }
-
   &__loading {
     display: flex;
     flex-direction: column;
@@ -202,12 +175,6 @@
     text-align: center;
     color: var(--color-text-muted);
     font-weight: 400;
-
-    @include bp.tablet {
-      position: sticky;
-      left: 0;
-      width: calc(100vw - var(--space-8));
-    }
   }
 
   &__spinner {
@@ -223,17 +190,7 @@
   &__empty {
     padding: var(--space-6) var(--space-4);
     background: var(--color-primary-subtle);
-    border-radius: 0 0 8px 8px;
-
-    // On mobile/tablet the table has a forced min-width so it can scroll
-    // horizontally instead of squashing columns — but that leaves this
-    // banner centered inside that off-screen width instead of the
-    // viewport. Pin it to the visible left edge regardless of scroll.
-    @include bp.tablet {
-      position: sticky;
-      left: 0;
-      width: calc(100vw - var(--space-8));
-    }
+    border-radius: 8px;
   }
 
   &__empty-text {

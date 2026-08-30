@@ -38,6 +38,16 @@
 
   <!-- Clients Table / List -->
   <div class="clients__table-card">
+    @if (loading()) {
+      <div class="clients__loading">
+        <div class="clients__spinner"></div>
+        <p>Cargando clientes...</p>
+      </div>
+    } @else if (clients().length === 0) {
+      <div class="clients__empty">
+        <p class="clients__empty-text">No se encontraron clientes.</p>
+      </div>
+    } @else {
     <div class="clients__table-wrapper">
       <table class="clients__table">
         <thead>
@@ -50,24 +60,6 @@
           </tr>
         </thead>
         <tbody>
-          @if (loading()) {
-            <tr class="clients__state-row">
-              <td colspan="5">
-                <div class="clients__loading">
-                  <div class="clients__spinner"></div>
-                  <p>Cargando clientes...</p>
-                </div>
-              </td>
-            </tr>
-          } @else if (clients().length === 0) {
-            <tr class="clients__state-row">
-              <td colspan="5">
-                <div class="clients__empty">
-                  <p class="clients__empty-text">No se encontraron clientes.</p>
-                </div>
-              </td>
-            </tr>
-          } @else {
             @for (client of clients(); track client.id) {
               <tr class="clients__tr" (click)="openDetailModal(client)">
                 <td class="clients__td-name">
@@ -115,10 +107,10 @@
                 </td>
               </tr>
             }
-          }
         </tbody>
       </table>
     </div>
+    }
   </div>
 
   <!-- Create / Edit Client Modal -->

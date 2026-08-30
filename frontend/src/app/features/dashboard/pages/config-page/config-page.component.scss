@@ -26,7 +26,10 @@
   &.is-mobile-content-active {
     @include bp.tablet {
       .config-sidebar { display: none; }
-      .config-content { display: block; }
+      .config-content {
+        display: block;
+        padding-top: var(--space-4);
+      }
     }
   }
 }
@@ -341,6 +344,7 @@
     background: transparent;
     box-shadow: none;
     border-radius: 0;
+    margin-bottom: 0;
   }
 }
 
@@ -1354,6 +1358,24 @@
   }
   .config-row__description {
     font-size: 14px;
+  }
+  .config-sena-toggle__title {
+    font-size: 16px;
+  }
+  .config-sena-toggle__description {
+    font-size: 14px;
+  }
+  .config-sena-metodos__label {
+    font-size: 16px;
+  }
+  .config-mp-row__title {
+    font-size: 16px;
+  }
+  .config-mp-row__description {
+    font-size: 14px;
+  }
+  .config-panel__row ::ng-deep .field__label {
+    font-size: 16px;
   }
   .config-card__title {
     font-size: 16px;

@@ -82,7 +82,7 @@
 
     @include bp.tablet {
       width: 100%;
-      max-width: 402px;
+      max-width: none;
       flex: 1 1 200px;
       min-width: 0;
     }

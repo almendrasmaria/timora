@@ -326,11 +326,17 @@ export class ClientsPageComponent implements OnInit {
   }
 
   formatEarnings(client: ClientDetail): string {
-    if (!client.appointments || client.appointments.length === 0) return '0,00';
+    if (!client.appointments || client.appointments.length === 0) return '0';
+    const now = new Date();
     const sum = client.appointments
       .filter(a => a.status === 'CONFIRMED' || a.status === 'COMPLETED')
+      .filter(a => {
+        const wasPaid = !!a.depositAmount && a.depositAmount > 0;
+        const alreadyHappened = a.status === 'COMPLETED' || new Date(a.startsAt) <= now;
+        return wasPaid || alreadyHappened;
+      })
       .reduce((acc, a) => acc + (a.price || 0), 0);
-    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(sum);
+    return new Intl.NumberFormat('es-AR', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(sum);
   }
 
   getLatestAppointmentDate(client: ClientDetail): string {

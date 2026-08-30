@@ -97,16 +97,12 @@
           @if (bookingConfirmed()) {
             <div class="booking__success">
               <div class="booking__success-head">
-                <p class="booking__success-business">{{ business.name }}</p>
                 <span class="booking__success-icon" aria-hidden="true">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
                     <path d="m5 12.5 4 4 9.5-9.5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
                   </svg>
                 </span>
                 <h2 class="booking__success-title">¡Turno confirmado!</h2>
-                <p class="booking__success-text">
-                  Tu reserva quedó registrada. {{ business.name }} puede contactarte por WhatsApp o email si necesita algo más.
-                </p>
               </div>
 
               <dl class="booking__success-details">
@@ -163,7 +159,7 @@
                         fill="currentColor"
                       />
                     </svg>
-                    Contactar a {{ business.name }} por WhatsApp
+                    Contactar por WhatsApp
                   </a>
                 }
                 <button type="button" class="booking__success-back" (click)="startNewBooking()">

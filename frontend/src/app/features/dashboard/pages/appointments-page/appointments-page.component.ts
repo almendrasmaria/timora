@@ -208,6 +208,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   // Options Menu dropdown signal
   readonly optionsMenuOpen = signal<boolean>(false);
   readonly activeRowMenuId = signal<number | null>(null);
+  readonly rowMenuOpensUp = signal<boolean>(false);
 
   toggleOptionsMenu(event: Event): void {
     event.stopPropagation();
@@ -219,6 +220,10 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     if (this.activeRowMenuId() === id) {
       this.activeRowMenuId.set(null);
     } else {
+      const target = event.currentTarget as HTMLElement;
+      const rect = target.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      this.rowMenuOpensUp.set(spaceBelow < 220);
       this.activeRowMenuId.set(id);
     }
   }

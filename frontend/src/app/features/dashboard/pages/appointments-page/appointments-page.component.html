@@ -186,7 +186,7 @@
 
                         <!-- Row Actions Dropdown Menu -->
                         @if (activeRowMenuId() === appt.id) {
-                          <div class="row-actions-dropdown" (click)="$event.stopPropagation()">
+                          <div class="row-actions-dropdown" [class.row-actions-dropdown--up]="rowMenuOpensUp()" (click)="$event.stopPropagation()">
                             <div class="row-actions-dropdown__header">Acciones</div>
                             
                             <button type="button" class="row-actions-dropdown__item" (click)="openDetail(appt); activeRowMenuId.set(null);">

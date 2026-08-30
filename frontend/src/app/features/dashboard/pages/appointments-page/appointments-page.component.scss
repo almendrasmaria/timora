@@ -2320,6 +2320,11 @@
   flex-direction: column;
   overflow: hidden;
 
+  &--up {
+    top: auto;
+    bottom: calc(100% + 4px);
+  }
+
   &__header {
     font-size: 15px;
     font-weight: 700;

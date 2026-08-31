@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject, signal, computed, HostListener, Injector, afterNextRender } from '@angular/core';
 import {
   appointmentClientName,
   appointmentStatusLabel,
@@ -56,6 +56,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly confirmService = inject(ConfirmService);
   private readonly clientsService = inject(ClientsService);
+  private readonly injector = inject(Injector);
 
   // Manual booking modal state
   readonly showCreateModal = signal<boolean>(false);
@@ -208,7 +209,12 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   // Options Menu dropdown signal
   readonly optionsMenuOpen = signal<boolean>(false);
   readonly activeRowMenuId = signal<number | null>(null);
-  readonly rowMenuOpensUp = signal<boolean>(false);
+  readonly rowMenuStyle = signal<{ top: string; right: string; visibility: string }>({
+    top: '0px',
+    right: '0px',
+    visibility: 'hidden',
+  });
+  private rowMenuScrollHandler: (() => void) | null = null;
 
   toggleOptionsMenu(event: Event): void {
     event.stopPropagation();
@@ -218,13 +224,48 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   toggleRowMenu(id: number, event: Event): void {
     event.stopPropagation();
     if (this.activeRowMenuId() === id) {
-      this.activeRowMenuId.set(null);
-    } else {
-      const target = event.currentTarget as HTMLElement;
-      const rect = target.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      this.rowMenuOpensUp.set(spaceBelow < 220);
-      this.activeRowMenuId.set(id);
+      this.closeRowMenu();
+      return;
+    }
+
+    const target = event.currentTarget as HTMLElement;
+    const btnRect = target.getBoundingClientRect();
+
+    this.rowMenuStyle.set({ top: `${btnRect.bottom}px`, right: `${window.innerWidth - btnRect.right}px`, visibility: 'hidden' });
+    this.activeRowMenuId.set(id);
+
+    afterNextRender(
+      () => {
+        if (this.activeRowMenuId() !== id) return;
+        const menuEl = document.querySelector('.row-actions-dropdown') as HTMLElement | null;
+        if (!menuEl) return;
+
+        const margin = 8;
+        const menuHeight = menuEl.offsetHeight;
+        const menuWidth = menuEl.offsetWidth;
+        const spaceBelow = window.innerHeight - btnRect.bottom;
+        const opensUp = spaceBelow < menuHeight + margin;
+
+        let top = opensUp ? btnRect.top - menuHeight - margin : btnRect.bottom + margin;
+        top = Math.max(margin, Math.min(top, window.innerHeight - menuHeight - margin));
+
+        let right = window.innerWidth - btnRect.right;
+        right = Math.max(margin, Math.min(right, window.innerWidth - menuWidth - margin));
+
+        this.rowMenuStyle.set({ top: `${top}px`, right: `${right}px`, visibility: 'visible' });
+      },
+      { injector: this.injector }
+    );
+
+    this.rowMenuScrollHandler = () => this.closeRowMenu();
+    document.addEventListener('scroll', this.rowMenuScrollHandler, { capture: true, passive: true });
+  }
+
+  closeRowMenu(): void {
+    this.activeRowMenuId.set(null);
+    if (this.rowMenuScrollHandler) {
+      document.removeEventListener('scroll', this.rowMenuScrollHandler, { capture: true });
+      this.rowMenuScrollHandler = null;
     }
   }
 
@@ -297,7 +338,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   onDocumentClick(): void {
     this.showDatePicker.set(false);
     this.optionsMenuOpen.set(false);
-    this.activeRowMenuId.set(null);
+    this.closeRowMenu();
   }
 
   readonly isFiltersModalOpen = signal<boolean>(false);
@@ -612,6 +653,7 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     if (this.timeInterval) {
       clearInterval(this.timeInterval);
     }
+    this.closeRowMenu();
   }
 
   prevPickerMonth(): void {
@@ -929,6 +971,16 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
     return ((a.clientFirstName?.[0] ?? '') + (a.clientLastName?.[0] ?? '')).toUpperCase() || '?';
   }
   statusLabel(a: Appointment): string  { return appointmentStatusLabel(a.status); }
+
+  statusHeaderLabel(a: Appointment): string {
+    if (a.status === 'COMPLETED') return 'ASISTIÓ';
+    if (a.status === 'NO_SHOW') return 'AUSENTE';
+    return appointmentStatusLabel(a.status).toUpperCase();
+  }
+
+  isTerminalStatus(a: Appointment): boolean {
+    return a.status === 'CANCELLED' || a.status === 'NO_SHOW';
+  }
   accent(s: AppointmentStatus): string { return STATUS_COLORS[s] ?? 'var(--color-text-muted)'; }
   timeRange(a: Appointment): string    {
     return formatAppointmentRange(a.startsAt, a.endsAt).replace(/\./g, '').trim();

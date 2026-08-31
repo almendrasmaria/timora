@@ -23,7 +23,7 @@
   flex: 1;
   padding: var(--space-4) var(--space-6);
   box-sizing: border-box;
-  animation: fadeUp var(--duration-normal) var(--ease-out) both;
+  animation: fadeUp var(--duration-normal) var(--ease-out) backwards;
   background: #ffffff;
 }
 

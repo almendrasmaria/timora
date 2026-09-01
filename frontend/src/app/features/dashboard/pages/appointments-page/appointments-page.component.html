@@ -593,7 +593,7 @@
                            [class.badge-noshow]="appt.status === 'NO_SHOW'"
                            [class.badge-cancelled]="appt.status === 'CANCELLED'"
                            style="margin: 0; font-size: 11px; padding: 1px 6px;">
-                       {{ statusHeaderLabel(appt) }}
+                       {{ statusLabel(appt) | uppercase }}
                      </span>
                    </div>
                  </div>

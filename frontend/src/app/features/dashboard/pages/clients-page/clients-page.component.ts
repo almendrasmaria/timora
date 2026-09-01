@@ -6,7 +6,7 @@ import { trigger, transition, style, animate } from '@angular/animations';
 import { ClientsService, Client, ClientDetail } from '../../../../core/clients/clients.service';
 import { OnboardingService } from '../../../../core/onboarding/onboarding.service';
 import { AppointmentsService } from '../../../../core/appointments/appointments.service';
-import { Appointment, AppointmentStatus } from '../../../../core/appointments/appointments.models';
+import { Appointment } from '../../../../core/appointments/appointments.models';
 import { ConfirmService } from '../../../../core/confirm/confirm.service';
 import { ModalComponent } from '../../../../shared/ui/modal/modal.component';
 import { ButtonComponent } from '../../../../shared/ui/button/button.component';
@@ -295,16 +295,6 @@ export class ClientsPageComponent implements OnInit {
     const endsAt = new Date(endsAtStr);
     const pad = (n: number) => String(n).padStart(2, '0');
     return `${pad(startsAt.getHours())}:${pad(startsAt.getMinutes())} - ${pad(endsAt.getHours())}:${pad(endsAt.getMinutes())}`;
-  }
-
-  formatStatus(status: AppointmentStatus): string {
-    switch (status) {
-      case 'CONFIRMED': return 'Confirmado';
-      case 'COMPLETED': return 'Completado';
-      case 'NO_SHOW': return 'Ausente';
-      case 'CANCELLED': return 'Cancelado';
-      default: return status;
-    }
   }
 
   getProName(proId: number): string {

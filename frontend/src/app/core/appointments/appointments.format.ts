@@ -2,8 +2,8 @@ import { Appointment, AppointmentStatus } from './appointments.models';
 
 const STATUS_LABELS: Record<AppointmentStatus, string> = {
   CONFIRMED: 'Confirmado',
-  COMPLETED: 'Completado',
-  NO_SHOW: 'No-show',
+  COMPLETED: 'Asistió',
+  NO_SHOW: 'Ausente',
   CANCELLED: 'Cancelado',
 };
 

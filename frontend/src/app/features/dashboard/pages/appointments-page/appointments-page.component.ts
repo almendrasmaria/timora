@@ -972,12 +972,6 @@ export class AppointmentsPageComponent implements OnInit, OnDestroy {
   }
   statusLabel(a: Appointment): string  { return appointmentStatusLabel(a.status); }
 
-  statusHeaderLabel(a: Appointment): string {
-    if (a.status === 'COMPLETED') return 'ASISTIÓ';
-    if (a.status === 'NO_SHOW') return 'AUSENTE';
-    return appointmentStatusLabel(a.status).toUpperCase();
-  }
-
   isTerminalStatus(a: Appointment): boolean {
     return a.status === 'CANCELLED' || a.status === 'NO_SHOW';
   }

@@ -142,7 +142,7 @@ export class ConfigPageComponent implements OnInit {
     whatsapp: ['', [Validators.required, Validators.maxLength(32)]],
     showWhatsappToClients: [true],
     instagram: ['', [Validators.maxLength(80)]],
-    slug: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
+    slug: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80), Validators.pattern(/^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/)]],
     brandColor: [''],
   });
 
@@ -680,7 +680,7 @@ export class ConfigPageComponent implements OnInit {
 
     forkJoin({
       settings: this.configService.updateSettings(data),
-      brand: this.onboarding.updateBrand(val.slug, val.brandColor || undefined)
+      brand: this.onboarding.updateBrand(val.slug.toLowerCase(), val.brandColor || undefined)
     }).pipe(finalize(() => {
       this.loading.set(false);
       this.refreshState();

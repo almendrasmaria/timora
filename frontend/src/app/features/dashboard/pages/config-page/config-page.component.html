@@ -462,6 +462,7 @@
                 label=""
                 placeholder="mi-negocio"
                 formControlName="slug"
+                [error]="negocioForm.controls.slug.touched && negocioForm.controls.slug.invalid ? 'Usá solo letras, números y guiones, sin espacios' : ''"
               />
             </div>
           </div>

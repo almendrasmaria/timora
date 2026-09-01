@@ -31,7 +31,8 @@ export class BrandStepComponent implements OnInit {
   logoPreview: string | null = null;
 
   readonly form = this.fb.nonNullable.group({
-    slug: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80)]],
+    // Letras en cualquier caso: el slug se pasa a minúsculas recién al enviarlo (ver onSubmit).
+    slug: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(80), Validators.pattern(/^[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/)]],
     brandColor: [DEFAULT_BRAND_COLOR as string, [Validators.required]],
   });
 
